@@ -3,36 +3,33 @@ import customtkinter
 from PIL import ImageTk,Image
 import os
 
+import warnings
+warnings.filterwarnings("ignore", message="CTkLabel Warning: Given image is not CTkImage*", category=UserWarning)
+
+
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
 
-login = customtkinter.CTk()  #creating cutstom tkinter window
-login.geometry("600x440")
-login.title('MusicTree')
+global MusicTreeGUI
+global background_image
+MusicTreeGUI = customtkinter.CTk()  #creating cutstom tkinter window
 
 icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "logo.ico")
-login.iconbitmap(icon_path) 
+base_path = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(base_path, "images", "pattern.png")
+background_image=ImageTk.PhotoImage(Image.open(image_path))
 
 
+def mainMenu():
 
-def main_menu():
-
-    # En vez de cerrar la ventana anterior de inmediato, solo ábrela como una subventana
-    main_menu = customtkinter.CTkToplevel()
-    main_menu.geometry("1280x720")
-    main_menu.title('Music Tree')
-    main_menu.iconbitmap(icon_path)
-
-    # Cargar imagen localmente dentro de esta función
-    image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "pattern.png")
-    background_image = ImageTk.PhotoImage(Image.open(image_path))
-
-    mainMenuLabel = customtkinter.CTkLabel(master=main_menu, image=background_image, text="")
-    mainMenuLabel.image = background_image  # Mantener referencia viva
+    MusicTreeGUI.geometry("1280x720")
+    
+    mainMenuLabel = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
     mainMenuLabel.pack()
 
+
     menuFrame = customtkinter.CTkFrame(master=mainMenuLabel, width=500, height=500, corner_radius=15)
-    menuFrame.place(relx=0.0, rely=0.5, anchor='w')
+    menuFrame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
     l2=customtkinter.CTkLabel(master=menuFrame, text="Bienvenido USERNAME",font=('Century Gothic',20))
     l2.place(x=150, y=45)
@@ -42,6 +39,7 @@ def main_menu():
         generoCrearBtn.place_forget()
         clusterGeneroVerBtn.place_forget()
         clusterGeneroCrearBtn.place_forget()
+        cerrarSesionBtn.place_forget()
 
 
     def clusterGeneroCrear():
@@ -67,7 +65,12 @@ def main_menu():
         clusterGeneroCrearBtn.place(x=150, y=140)
         clusterGeneroVerBtn.place(x=150, y=200)
         generoCrearBtn.place(x=150, y=260)
+        cerrarSesionBtn.place(x=0, y=0)
 
+    def cerrar_sesion():
+        for widget in MusicTreeGUI.winfo_children():
+            widget.destroy()
+        loginInterface()
 
 
     #Boton de Crear Clúster de Género
@@ -76,51 +79,64 @@ def main_menu():
     clusterGeneroVerBtn = customtkinter.CTkButton(master=menuFrame, width=220, text="Ver Cluster de Género", command=clusterGeneroVer, corner_radius=6)
     #Boton de Crear Género
     generoCrearBtn = customtkinter.CTkButton(master=menuFrame, width=220, text="Crear Género", command=generoCrear, corner_radius=6)
+    #Boton de Regresar
     regresarBtn = customtkinter.CTkButton(master=menuFrame, width=40, text="←", command=firstVisual, corner_radius=6)
+    #Boton de Cerrar Sesión
+    cerrarSesionBtn = customtkinter.CTkButton(master=menuFrame, width=220, text="Cerrar Sesión", command=cerrar_sesion, corner_radius=6)
 
     firstVisual()
     # Cierra ambas ventanas cuando se cierre la nueva
-    main_menu.protocol("WM_DELETE_WINDOW", lambda: (main_menu.destroy(), login.destroy()))
-    login.withdraw()
+    MusicTreeGUI.protocol("WM_DELETE_WINDOW", MusicTreeGUI.destroy)
 
 
-def login_interface():
+def loginInterface():
 
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_path, "images", "pattern.png")
-    backgroundImage=ImageTk.PhotoImage(Image.open(image_path))
-    
+    MusicTreeGUI.geometry("600x440")
+    MusicTreeGUI.title('MusicTree')
+    MusicTreeGUI.iconbitmap(icon_path) 
 
-    loginLabel=customtkinter.CTkLabel(master=login,image=backgroundImage)
+
+
+    loginLabel=customtkinter.CTkLabel(master=MusicTreeGUI,image=background_image)
     loginLabel.pack()
 
     #creating custom frame
-    frame=customtkinter.CTkFrame(master=loginLabel, width=320, height=360, corner_radius=15)
-    frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    loginFrame=customtkinter.CTkFrame(master=loginLabel, width=320, height=360, corner_radius=15)
+    loginFrame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
-    l2=customtkinter.CTkLabel(master=frame, text="Ingrese su cuenta",font=('Century Gothic',20))
+    l2=customtkinter.CTkLabel(master=loginFrame, text="Ingrese su cuenta",font=('Century Gothic',20))
     l2.place(x=50, y=45)
 
-    entry1=customtkinter.CTkEntry(master=frame, width=220, placeholder_text='Usuario')
+    entry1=customtkinter.CTkEntry(master=loginFrame, width=220, placeholder_text='Usuario')
     entry1.place(x=50, y=110)
 
-    entry2=customtkinter.CTkEntry(master=frame, width=220, placeholder_text='Contraseña', show="*")
+    entry2=customtkinter.CTkEntry(master=loginFrame, width=220, placeholder_text='Contraseña', show="*")
     entry2.place(x=50, y=165)
 
-    l3=customtkinter.CTkLabel(master=frame, text="Olvidó su contraseña?",font=('Century Gothic',12))
-    l3.place(x=155,y=195)
+
+    def loginFunction():
+        loginLabel.destroy()
+        mainMenu()
+
+    def claveOlvidada(event=None):
+        print("hola me olvidé la contraseña")
+
+
+    claveOlvidadaLabel=customtkinter.CTkLabel(master=loginFrame, text="Olvidó su contraseña?",font=('Century Gothic',12))
+    claveOlvidadaLabel.place(x=155,y=195)
+    claveOlvidadaLabel.bind("<Button-1>", claveOlvidada)
+    claveOlvidadaLabel.configure(cursor="hand2")
 
     #Create login button
-    button1 = customtkinter.CTkButton(master=frame, width=220, text="Ingresar", command=main_menu, corner_radius=6)
-    button1.place(x=50, y=240)
+    loginBtn = customtkinter.CTkButton(master=loginFrame, width=220, text="Ingresar", command=loginFunction, corner_radius=6)
+    loginBtn.place(x=50, y=240)
 
     #Create sign in button
-    button1 = customtkinter.CTkButton(master=frame, width=220, text="Crear cuenta", command=main_menu, corner_radius=6)
-    button1.place(x=50, y=300)
+    signinBtn = customtkinter.CTkButton(master=loginFrame, width=220, text="Crear cuenta", command=loginFunction, corner_radius=6)
+    signinBtn.place(x=50, y=300)
 
     # You can easily integrate authentication system 
+    MusicTreeGUI.mainloop()
 
-    login.mainloop()
 
-
-login_interface()
+loginInterface()
