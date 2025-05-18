@@ -43,20 +43,13 @@ def centrar_ventana(ventana, ancho, alto):
 
 def cluster_genero_crear():
 
-    print("ENTRE")
-    cluster_genero_label = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
-    cluster_genero_label.pack()
-
-    cluster_frame = customtkinter.CTkFrame(master=cluster_genero_label, width=500, height=500, corner_radius=15)
-    cluster_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    #print("ENTRE")
 
     def generar_llave_cluster():
         caracteres = string.ascii_uppercase + string.digits # Letras mayúsculas + dígitos
         clave = ''.join(random.choices(caracteres,k=12))
         return f"C-{clave}"
-
-
-
+    
     claves_generadas = set()
 
     def generar_llave_cluster_unica():
@@ -104,14 +97,22 @@ def cluster_genero_crear():
 
     def regresar():
         #print("regresamos")
-        #for widget in MusicTreeGUI.winfo_children():
-        #    widget.destroy()
-        cluster_genero_label.destroy()
+        for widget in MusicTreeGUI.winfo_children():
+            widget.destroy()
+        #cluster_genero_label.destroy()
         main_menu()
         
     def borrar_placeholder(event):
         if cluster_genero_crear_descripcion_entry.get("1.0", "end-1c") == "Descripción (300 caracteres max)":
             cluster_genero_crear_descripcion_entry.delete("1.0", "end")
+    
+    
+    cluster_genero_label = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
+    cluster_genero_label.pack()
+
+    cluster_frame = customtkinter.CTkFrame(master=cluster_genero_label, width=500, height=500, corner_radius=15)
+    cluster_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    
     #Label de error
     cluster_genero_crear_error_label = customtkinter.CTkLabel(master=cluster_frame, text="",font=('Century Gothic',15), text_color='red')
 
@@ -155,23 +156,120 @@ def cluster_genero_crear():
 
 
 def cluster_genero_ver():
-    print("Ver Cluster Genero")
-    main_menu()
+
+    def regresar():
+        #print("regresamos")
+        for widget in MusicTreeGUI.winfo_children():
+            widget.destroy()
+        #cluster_genero_ver_label.destroy()
+        main_menu()
+
+    def mostrar_cluster(mostrar_inactivos):
+        #print("Aqui están")
+
+        for widget in cluster_genero_ver_scroll_frame.winfo_children(): #Se limpia el contenido anterior
+            widget.destroy()
+
+        #Este MatTest solo es para pruebas hasta que se implemente todo con el API y la Base
+        MatTest = [
+            ['C-TKTAIV5XR0ZO', 'Rock Pesado', 'Activo', '2025-05-18 01:51:35'],
+            ['C-LYL12629E0FF', 'Alternativo', 'Activo', '2025-05-18 01:52:40'],
+            ['C-R3DILYW8CDSE', 'Progresivo', 'Inactivo', '2025-05-18 01:53:57'],
+            ['C-XYZABC123456', 'Jazz Fusión', 'Activo', '2025-05-17 14:22:11'],
+            ['C-111111111111', 'Metal Melódico', 'Inactivo', '2025-05-16 09:33:01'],
+            ['C-222222222222', 'Electrónica', 'Activo', '2025-05-19 16:44:22'],
+            ['C-333333333333', 'Reggae Roots', 'Activo', '2025-05-20 17:05:45'],
+            ['C-444444444444', 'Indie Pop', 'Activo', '2025-05-15 11:17:33'],
+            ['C-555555555555', 'Blues Clásico', 'Inactivo', '2025-05-12 13:27:08'],
+            ['C-666666666666', 'Country Rock', 'Activo', '2025-05-11 10:00:00'],
+            ['C-777777777777', 'Ska Punk', 'Inactivo', '2025-05-10 18:43:21'],
+            ['C-888888888888', 'Synthwave', 'Activo', '2025-05-09 22:11:39'],
+            ['C-999999999999', 'Lo-Fi Chill', 'Activo', '2025-05-08 07:56:15'],
+        ]
+
+
+        recieved_list = MatTest #Aqui se supone nos conectamos con la API y recibimos datos
+
+        if not mostrar_inactivos:
+            recieved_list = [fila for fila in recieved_list if fila[2] == 'Activo']
+
+        recieved_list.sort(key=lambda x: x[1])  # alfabéticamente ascendente
+
+        
+        for i, cluster in enumerate(recieved_list):
+            texto = f"{i+1}. ID: {cluster[0]} | Nombre: {cluster[1]} | Estado: {cluster[2]} | Fecha: {cluster[3]}"
+            label = customtkinter.CTkLabel(master=cluster_genero_ver_scroll_frame, text=texto, anchor="w")
+            label.pack(fill="x", pady=5, padx=10)
+            separator = customtkinter.CTkLabel(master=cluster_genero_ver_scroll_frame, text="―" * 100, text_color="black")
+            separator.pack(fill="x", pady=(0, 5))
+        
+        #print(recieved_list)
+
+    #print("Ver Cluster Genero")
+    #main_menu()
+    cluster_genero_ver_label = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
+    cluster_genero_ver_label.pack()
+
+    cluster_genero_ver_frame = customtkinter.CTkFrame(master=cluster_genero_ver_label, width=700, height=600, corner_radius=15)
+    cluster_genero_ver_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    
+    #Label de título
+    cluster_genero_ver_titulo_label=customtkinter.CTkLabel(master=cluster_genero_ver_frame, text="Ver Cluster de Género",font=('Century Gothic',20))
+    cluster_genero_ver_titulo_label.place(x=150, y=45)
+
+    #Boton de Regresar
+    regresarBtn = customtkinter.CTkButton(master=cluster_genero_ver_frame, width=40, text="←", command=regresar, corner_radius=6)
+    regresarBtn.place(x=600, y = 10)
+
+    #Boton de ver clusteres
+    cluster_genero_ver_btn = customtkinter.CTkButton(master=cluster_genero_ver_frame, width=220, text="Mostrar Clusteres de Género", command=lambda:mostrar_cluster(cluster_genero_ver_inactivos.get()), corner_radius=6)
+    cluster_genero_ver_btn.place(x=50, y = 100)
+
+    #RadioButtons para mostrar los Activos / Inactivos
+    cluster_genero_ver_inactivos = customtkinter.CTkCheckBox(master=cluster_genero_ver_frame,text="Mostrar Inactivos", command=lambda:mostrar_cluster(cluster_genero_ver_inactivos.get()))
+    cluster_genero_ver_inactivos.place(x=280,y=100)
+
+    #ScrollFrame para ver los clusters de género
+    cluster_genero_ver_scroll_frame = customtkinter.CTkScrollableFrame(master=cluster_genero_ver_frame, width=600, height=400)
+    cluster_genero_ver_scroll_frame.place(x=50, y=150)  # Ajustá el `x` e `y` según el diseño
+
+
+
+
+
 
 def genero_crear():
     print("Crear Genero")   
-    main_menu() 
+    #main_menu() 
 
+    def regresar():
+        print("regresamos")
+        for widget in MusicTreeGUI.winfo_children():
+            widget.destroy()
+        #genero_crear_label.destroy()
+        main_menu()
+    
+    genero_crear_label = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
+    genero_crear_label.pack()
 
-
+    genero_crear_frame = customtkinter.CTkFrame(master=genero_crear_label, width=500, height=500, corner_radius=15)
+    genero_crear_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+    
+    #Label de título
+    genero_crear_titulo_label=customtkinter.CTkLabel(master=genero_crear_frame, text="Crear Género",font=('Century Gothic',20))
+    genero_crear_titulo_label.place(x=150, y=45)
+    
+    #Boton de Regresar
+    regresarBtn = customtkinter.CTkButton(master=genero_crear_frame, width=40, text="←", command=regresar, corner_radius=6)
+    regresarBtn.place(x=450, y = 10)
 
 def main_menu():
 
     def accion_boton(opcion):
 
-        #for widget in MusicTreeGUI.winfo_children():
-        #    widget.destroy()
-        mainMenuLabel.destroy()
+        for widget in MusicTreeGUI.winfo_children():
+            widget.destroy()
+        #mainMenuLabel.destroy()
         match opcion:
             case 1:
                 cluster_genero_crear()
@@ -229,7 +327,7 @@ def login_interface():
         name = entry1.get().strip()
         password = entry2.get().strip()
         loginLabel.destroy()
-        api.verificar_credenciales(name, password)
+        #api.verificar_credenciales(name, password)
         main_menu()
 
     def clave_olvidada(event=None):
