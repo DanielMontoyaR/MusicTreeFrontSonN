@@ -4,6 +4,10 @@ import customtkinter
 from PIL import ImageTk,Image
 import sys
 import os
+from datetime import datetime
+import random
+import string
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from API import api
 
@@ -46,6 +50,22 @@ def cluster_genero_crear():
     cluster_frame = customtkinter.CTkFrame(master=cluster_genero_label, width=500, height=500, corner_radius=15)
     cluster_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
+    def generar_llave_cluster():
+        caracteres = string.ascii_uppercase + string.digits # Letras mayúsculas + dígitos
+        clave = ''.join(random.choices(caracteres,k=12))
+        return f"C-{clave}"
+
+
+
+    claves_generadas = set()
+
+    def generar_llave_cluster_unica():
+        while True:
+            nueva_clave = generar_llave_cluster()
+            if nueva_clave not in claves_generadas:
+                claves_generadas.add(nueva_clave)
+                return nueva_clave
+
     def validar_entradas():
 
         nombre = cluster_genero_crear_nombre_entry.get().strip()
@@ -67,7 +87,16 @@ def cluster_genero_crear():
             cluster_genero_crear_error_label.place_forget()
 
 
+            
+            fecha_hora_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            llave_cluster = generar_llave_cluster_unica()
+
+            print("Fecha y hora:", fecha_hora_creacion)
+            print("Llave:", llave_cluster)
+
             #Aqui se supone que hacemos lo del API ****************888 nombre, descripcion, id, fecha y hora, y una llave id.
+        
+
 
         else:
             cluster_genero_crear_error_label.configure(text=error_texto)
