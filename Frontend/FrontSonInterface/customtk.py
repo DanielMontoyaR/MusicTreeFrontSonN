@@ -2,7 +2,11 @@ import tkinter
 from tkinter import *
 import customtkinter
 from PIL import ImageTk,Image
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from API import api
+
 
 import warnings
 warnings.filterwarnings("ignore", message="CTkLabel Warning: Given image is not CTkImage*", category=UserWarning)
@@ -62,7 +66,8 @@ def cluster_genero_crear():
             print("Función de validar entradas correcta, Parámetros:\nNombre " + nombre + "\nDescripción: " + descripcion + "\nIdentificador: " + cluster_identificador)
             cluster_genero_crear_error_label.place_forget()
 
-            #Aqui se supone que hacemos lo del API
+
+            #Aqui se supone que hacemos lo del API ****************888 nombre, descripcion, id, fecha y hora, y una llave id.
 
         else:
             cluster_genero_crear_error_label.configure(text=error_texto)
@@ -192,7 +197,10 @@ def main_menu():
 def login_interface():
 
     def login_function():
+        name = entry1.get().strip()
+        password = entry2.get().strip()
         loginLabel.destroy()
+        api.verificar_credenciales(name, password)
         main_menu()
 
     def clave_olvidada(event=None):
