@@ -1,5 +1,7 @@
 import tkinter
 from tkinter import *
+from tkinter import colorchooser
+import tkinter.colorchooser
 import customtkinter
 from PIL import ImageTk,Image
 import sys
@@ -81,10 +83,10 @@ def cluster_genero_crear():
 
 
             
-            fecha_hora_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            cluster_genero_crear_fecha_hora_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             llave_cluster = generar_llave_cluster_unica()
 
-            print("Fecha y hora:", fecha_hora_creacion)
+            print("Fecha y hora:", cluster_genero_crear_fecha_hora_creacion)
             print("Llave:", llave_cluster)
 
             #Aqui se supone que hacemos lo del API ****************888 nombre, descripcion, id, fecha y hora, y una llave id.
@@ -241,6 +243,8 @@ def cluster_genero_ver():
 def genero_crear():
     print("Crear Genero")   
     #main_menu() 
+    global genero_crear_color
+    genero_crear_color = None
 
     def regresar():
         print("regresamos")
@@ -248,20 +252,429 @@ def genero_crear():
             widget.destroy()
         #genero_crear_label.destroy()
         main_menu()
+
+    def borrar_placeholder(event):
+        if genero_crear_descripcion_entry.get("1.0", "end-1c") == "Descripción (300 caracteres max)":
+            genero_crear_descripcion_entry.delete("1.0", "end")
+
+    def escoger_color():
+        global genero_crear_color
+        genero_crear_color = tkinter.colorchooser.askcolor(title ="Choose color")
+        genero_crear_color = genero_crear_color[1]
+        print(str(genero_crear_color))
+
+    def cargar_paises():
+        with open("paises.txt", "r", encoding="utf-8") as archivo:
+            paises = [linea.strip() for linea in archivo if linea.strip()]
+        return paises
+
+    def mostrar_opciones_asociar_cluster(cluster):
+        if cluster:
+            genero_crear_asociar_cluster_opciones.place(x=10, y=520)
+        else:
+            genero_crear_asociar_cluster_opciones.place_forget()
+
+    def mostrar_opciones_subgenero(subgenero):
+        global genero_crear_color
+        #print("mostrando Géneros")
+        if subgenero:
+            genero_crear_color = None
+            genero_crear_color_btn.place_forget()
+            genero_crear_asociar_genero_opciones.place(x=10, y=620)
+            genero_crear_asociar_genero_label.place(x=10, y=600)
+        else:
+            genero_crear_color_btn.place(x=325, y=75)
+            genero_crear_asociar_genero_opciones.place_forget()
+            genero_crear_asociar_genero_label.place_forget()
+
+    def validar_entrada_numerica(input_text):
+        # Permite cadena vacía (para borrar) o números entre 0 y 99
+        if input_text == "":
+            return True
+        try:
+            numero = int(input_text)
+            return 0 <= numero <= 99
+        except ValueError:
+            return False
+        
+    def validar_BPM(input_text):
+        # Permite cadena vacía (para borrar) o números entre 0 y 250
+        if input_text == "":
+            return True
+        try:
+            numero = int(input_text)
+            return 0 <= numero <= 250
+        except ValueError:
+            return False  
+
+    def validar_rango_negativo(input_text):
+        if input_text == "" or input_text == "-":  # Permite campo vacío o signo negativo
+            return True
+        try:
+            numero = float(input_text)
+            return -60 <= numero <= 0
+        except ValueError:
+            return False
+    
+    def validar_duracion(input_text):
+        # Permite cadena vacía (para borrar) o números entre 0 y 3600
+        if input_text == "":
+            return True
+        try:
+            numero = int(input_text)
+            return 0 <= numero <= 3600
+        except ValueError:
+            return False  
+
+    def generar_llave_identificadora(genero_crear_opcion_subgenero):
+        def generar_id_alfanumerico():
+            caracteres = string.ascii_uppercase + string.digits
+            return ''.join(random.choices(caracteres, k=12))
+
+        id_genero = generar_id_alfanumerico()
+
+        if genero_crear_opcion_subgenero.get():
+            id_subgenero = "000000000000"
+        else:
+            id_subgenero = generar_id_alfanumerico()
+
+        llave = f"G-{id_genero}-S-{id_subgenero}"
+        return llave
+
+    def validar_entradas():
+        global genero_crear_color
+        """
+        print("Validando")
+
+        print("Color "+ str(genero_crear_color))
+
+        print("Nombre: " + genero_crear_nombre_entry.get())
+
+        print("Descripción: " + genero_crear_descripcion_entry.get("1.0", "end-1c").strip())
+
+        print("Identificador " + genero_crear_identificador.get())
+
+        print("Promedio de Canciones " + genero_crear_promedio_canciones.get())
+
+        print("Rango de BPM minimo " + genero_crear_BPM_minimo.get())
+
+        print("Rango de BPM maximo " + genero_crear_BPM_maximo.get())
+
+        print("Año de Creación " + genero_crear_año_creacion.get())
+
+        print("Pais de Origen" + genero_crear_paises.get())
+
+        print("Tono dominante " + genero_crear_tonos.get())
+
+        print("Compás " + genero_crear_compas.get())
+
+        print("Volumen Tipico " + genero_crear_volumen_tipico.get())
+
+        print("Duración " + genero_crear_duracion.get())
+
+        print("Cluser " + genero_crear_asociar_cluster_opciones.get())
+
+        print("Genero " + genero_crear_asociar_genero_opciones.get())
+        """
+        #Parámetros de Género
+        color = str(genero_crear_color)
+        nombre = genero_crear_nombre_entry.get().strip()
+        descripcion = genero_crear_descripcion_entry.get("1.0", "end").strip()
+        identificador = genero_crear_identificador.get()
+        bpm_minimo = genero_crear_BPM_minimo.get()
+        bpm_maximo = genero_crear_BPM_maximo.get()
+        año_creacion = genero_crear_año_creacion.get()
+        pais_origen = genero_crear_paises.get()
+        tono_dominante = genero_crear_tonos.get()
+        compas = genero_crear_compas.get()
+        volumen_tipico = genero_crear_volumen_tipico.get()
+        duracion = genero_crear_duracion.get()
+        cluster_asociado = genero_crear_asociar_cluster_opciones.get()
+        genero = genero_crear_asociar_genero_opciones.get()
+        
+        
+
+        error_texto = ""
+
+        if not nombre:
+            error_texto = "Error, El campo 'Nombre' es obligatorio"
+
+        if len(nombre) < 3:
+            error_texto = "Error, El campo 'Nombre' debe tener al menos 3 caracteres"
+
+        if len(nombre) > 30:
+            error_texto = "Error, El campo 'Nombre' no puede tener más de 30 caracteres"
+
+        if len(descripcion) > 1000:
+            error_texto = "Error, El campo 'Descripción' no puede tener más de 1000 caracteres"
+
+        if pais_origen == "None":
+            error_texto = "Error, No se ha seleccionado País de Origen"
+
+        if año_creacion == "None":
+            error_texto = "Error, No se ha especificado el año de Creación"
+
+        if not genero_crear_promedio_canciones.get():
+            error_texto = "Error, El campo 'Promedio de Canciones' es Obligatorio"
+
+        #if (genero_crear_asociar_cluster.get()) and (cluster_asociado=="None"):
+        #    error_texto = "Error, Se seleccionó asociar cluster, pero no se especificó el cluster"
+
+        if bpm_minimo > bpm_maximo:
+            error_texto = "Error, El BPM Mínimo no puede ser mayor al BPM Máximo"
+        
+        if (color == "None") and (not genero_crear_opcion_subgenero.get()):
+            error_texto = "Error, No se ha seleccionado ningún color"
+
+        if (genero_crear_opcion_subgenero.get()) and (genero=="None"):
+            error_texto = "Error, Se seleccionó que es subgénero, pero no se seleccionó al género padre"
+
+        if not tono_dominante:
+            error_texto = "Error, El campo 'Tono Dominante' es Obligatorio"
+
+        if not volumen_tipico:
+            error_texto = "Error, El campo 'Volumen Típico' es Obligatorio"
+
+        if not duracion:
+            error_texto = "Error, El campo 'Duración' es Obligatorio"
+        #if genero
+
+
+        if (error_texto ==""): 
+            
+            if not genero_crear_opcion_subgenero.get():
+                genero="None"
+
+            if genero_crear_promedio_canciones.get() == 0:
+                promedio_canciones = 0.0
+            else:
+                promedio_canciones = int(genero_crear_promedio_canciones.get())/100 #Este se hace acá para evitar errores con la división si el espacio es vacío
+
+            #color = str(genero_crear_color)
+            #nombre = genero_crear_nombre_entry.get().strip()
+            #descripcion = genero_crear_descripcion_entry.get("1.0", "end").strip()
+            #identificador = genero_crear_identificador.get()
+            #promedio_canciones = genero_crear_promedio_canciones.get()
+            #bpm_minimo = genero_crear_BPM_minimo.get()
+            #bpm_maximo = genero_crear_BPM_maximo.get()
+            #año_creacion = genero_crear_año_creacion.get()
+            #pais_origen = genero_crear_paises.get()
+            #tono_dominante = genero_crear_tonos.get()
+            #compas = genero_crear_compas.get()
+            #volumen_tipico = genero_crear_volumen_tipico.get()
+            #duracion = genero_crear_duracion.get()
+            #cluster_asociado = genero_crear_asociar_cluster_opciones.get()
+            #genero = genero_crear_asociar_genero_opciones.get()
+            print("Función de validar entradas correcta, Parámetros: \n" +
+            "\nNombre: "            + nombre + 
+            "\nDescripción: "       + descripcion + 
+            "\nIdentificador: "     + identificador +
+            "\nColor: "             + color +
+            "\nPromedio Canciones: "+ str(promedio_canciones) +
+            "\nBPM Mínimo: "        + bpm_minimo +
+            "\nBPM Máximo: "        + bpm_maximo +
+            "\nAño de Origen: "     + año_creacion +
+            "\nPaís de Origen: "    + pais_origen +
+            "\nTono Dominante: "    + tono_dominante +
+            "\nCompas: "            + compas +
+            "\nVolumen Típico"      + volumen_tipico +
+            "\nDuración: "          + duracion +
+            "\nCluster Asociado:"   + cluster_asociado +
+            "\nGénero Asociado:"    + genero)
+            genero_crear_error_label.place_forget()
+
+            genero_crear_fecha_hora_creacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            print("Fecha y hora:", genero_crear_fecha_hora_creacion)
+
+
+            llave = generar_llave_identificadora(genero_crear_opcion_subgenero)
+
+            print("La llave es: " + llave)
+
+        else:
+            genero_crear_error_label.configure(text=error_texto)
+            genero_crear_error_label.place(x=10, y=670)
+
+
     
     genero_crear_label = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
     genero_crear_label.pack()
 
-    genero_crear_frame = customtkinter.CTkFrame(master=genero_crear_label, width=500, height=500, corner_radius=15)
+    genero_crear_frame = customtkinter.CTkFrame(master=genero_crear_label, width=400, height=750, corner_radius=15)
     genero_crear_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
     
     #Label de título
     genero_crear_titulo_label=customtkinter.CTkLabel(master=genero_crear_frame, text="Crear Género",font=('Century Gothic',20))
-    genero_crear_titulo_label.place(x=150, y=45)
+    genero_crear_titulo_label.place(x=10, y=10)
     
     #Boton de Regresar
     regresarBtn = customtkinter.CTkButton(master=genero_crear_frame, width=40, text="←", command=regresar, corner_radius=6)
-    regresarBtn.place(x=450, y = 10)
+    regresarBtn.place(x=350, y = 10)
+  
+    #Label de error
+    genero_crear_error_label = customtkinter.CTkLabel(master=genero_crear_frame, text="",font=('Century Gothic',10), text_color='red')
+
+    #Widgets de Crear Género
+    #Entrada de nombre
+    genero_crear_nombre_entry = customtkinter.CTkEntry(master=genero_crear_frame, width=300, placeholder_text='Nombre (3-30 caracteres) *')
+    genero_crear_nombre_entry.place(x=10,y=75)
+
+    #Entrada de descripción
+    #cluster_genero_crear_descripcion_entry = customtkinter.CTkEntry(master=cluster_frame, width=300, height=100, placeholder_text='Descripción (300 caracteres max)')
+    #cluster_genero_crear_descripcion_entry.place(x=100,y=125)
+    
+    genero_crear_descripcion_entry = customtkinter.CTkTextbox(master=genero_crear_frame, width=300, height=100)
+    genero_crear_descripcion_entry.insert("1.0", "Descripción (300 caracteres max)")
+    genero_crear_descripcion_entry.bind("<FocusIn>", borrar_placeholder)
+    genero_crear_descripcion_entry.place(x=10,y=125)
+    
+
+    #Boton de Continuar
+    genero_crear_continuar_btn = customtkinter.CTkButton(master=genero_crear_frame, width=220, text="Crear Género",command=validar_entradas,corner_radius=6)
+    genero_crear_continuar_btn.place(x=10, y=700)
+
+    
+    #Selección de Identificador (Activo por defecto)
+    
+    genero_crear_identificador_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Identificador",font=('Century Gothic',10), text_color='black')
+    genero_crear_identificador_label.place(x=10,y=230)
+
+    identificador = ["Activo", "Inactivo"]
+    identificador_select = StringVar()
+    identificador_select.set(identificador[0])
+    genero_crear_identificador = customtkinter.CTkOptionMenu(master=genero_crear_frame, variable=identificador_select,width=100, values=identificador)
+    genero_crear_identificador.place(x=10,y=250)
+
+
+
+    #Año de creación
+    genero_crear_año_creacion_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Año de Creación",font=('Century Gothic',10), text_color='black')
+    genero_crear_año_creacion_label.place(x=10,y=280)
+    genero_crear_año_creacion = customtkinter.CTkOptionMenu(master = genero_crear_frame, values=[str(year) for year in range(1950, 2026)], width=100)
+    genero_crear_año_creacion.set("None")
+    genero_crear_año_creacion.place(x=10,y=300)
+
+
+    #Pais de Origen
+    genero_crear_paises_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Pais de Origen",font=('Century Gothic',10), text_color='black')
+    genero_crear_paises_label.place(x=10,y=330)
+    paises = cargar_paises()
+    genero_crear_paises = customtkinter.CTkOptionMenu(master = genero_crear_frame, values=paises, width=200)
+    genero_crear_paises.set("None")
+    genero_crear_paises.place(x=10,y=350)
+
+    #Modo promedio de canciones.
+    genero_crear_promedio_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Promedio de Canciones",font=('Century Gothic',10), text_color='black')
+    genero_crear_promedio_label.place(x=150,y=230)
+    genero_crear_promedio_label_cero_coma = customtkinter.CTkLabel(master=genero_crear_frame, text="0,",font=('Century Gothic',15), text_color='black')
+    genero_crear_promedio_label_cero_coma.place(x=135,y=250)
+    genero_crear_promedio_canciones = customtkinter.CTkEntry(master=genero_crear_frame, width=100, placeholder_text="0-99", validate="key", validatecommand=(genero_crear_frame.register(validar_entrada_numerica), "%P"))
+    genero_crear_promedio_canciones.place(x=150, y=250)
+
+    
+    #Rango de BPM
+    genero_crear_BPM_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Rango de BPM",font=('Century Gothic',10), text_color='black')
+    genero_crear_BPM_label.place(x=150,y=280)
+
+    genero_crear_BPM_minimo_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Min",font=('Century Gothic',10), text_color='black')
+    genero_crear_BPM_minimo_label.place(x=130,y=300)
+    genero_crear_BPM_maximo_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Máx",font=('Century Gothic',10), text_color='black')
+    genero_crear_BPM_maximo_label.place(x=200,y=300)
+
+    genero_crear_BPM_minimo = customtkinter.CTkEntry(master=genero_crear_frame, width=40, placeholder_text="0-250", validate="key", validatecommand=(genero_crear_frame.register(validar_BPM), "%P"))
+    genero_crear_BPM_minimo.place(x=150, y=300)
+    genero_crear_BPM_maximo = customtkinter.CTkEntry(master=genero_crear_frame, width=40, placeholder_text="0-250", validate="key", validatecommand=(genero_crear_frame.register(validar_BPM), "%P"))
+    genero_crear_BPM_maximo.place(x=222, y=300)
+
+
+
+
+    #Tono musical
+    genero_crear_tonos_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Tono Dominante",font=('Century Gothic',10), text_color='black')
+    genero_crear_tonos_label.place(x=10,y=380)
+
+    lista_tonos = ["-1","1","2","3","4","5","6","7","8","9","10","11"]
+    tonos_select = StringVar()
+    tonos_select.set(lista_tonos[0])
+    genero_crear_tonos = customtkinter.CTkOptionMenu(master = genero_crear_frame, values=lista_tonos, variable=tonos_select, width=80)
+    genero_crear_tonos.place(x=10,y=400)
+
+
+    #Volumen tipico
+    genero_crear_volumen_tipico_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Volumen Típico",font=('Century Gothic',10), text_color='black')
+    genero_crear_volumen_tipico_label.place(x=125,y=380)
+
+    genero_crear_volumen_tipico = customtkinter.CTkEntry(master=genero_crear_frame, width=40, placeholder_text="-60 a 0", validate="key", validatecommand=(genero_crear_frame.register(validar_rango_negativo), "%P"))
+    genero_crear_volumen_tipico.place(x=125, y=400)
+
+
+    #Tiempo de Compás
+    genero_crear_compas_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Compás",font=('Century Gothic',10), text_color='black')
+    genero_crear_compas_label.place(x=10,y=430)
+
+    lista_compas = ["0","2/4","3/4","4/4","5/4","6/4","7/4","8/4"]
+
+    compas_select = StringVar()
+    compas_select.set(lista_compas[0])
+    genero_crear_compas = customtkinter.CTkOptionMenu(master = genero_crear_frame, values=lista_compas, variable=compas_select, width=80)
+    genero_crear_compas.place(x=10,y=450)
+
+
+
+    #Duración 
+    genero_crear_duracion_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Duración (0-3600 segundos)",font=('Century Gothic',10), text_color='black')
+    genero_crear_duracion_label.place(x=125,y=430)
+
+    genero_crear_duracion = customtkinter.CTkEntry(master=genero_crear_frame, width=70, placeholder_text="0 a 3600", validate="key", validatecommand=(genero_crear_frame.register(validar_duracion), "%P"))
+    genero_crear_duracion.place(x=125, y=450)
+
+
+
+    #Checkbox para asociar o no a un cluster
+    genero_crear_asociar_cluster = customtkinter.CTkCheckBox(master=genero_crear_frame,text="Asociar a un Cluster",command=lambda:mostrar_opciones_asociar_cluster(genero_crear_asociar_cluster.get()))
+    genero_crear_asociar_cluster.place(x=10,y=490)
+    lista_clusters = ["Cluster Rock", "Cluster Metal", "Cluster Rap", "Cluster Trap", "Cluster Progre", "Cluster DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"]#Este es para pruebas hasta que se integre apropiadamente
+
+    genero_crear_asociar_cluster_opciones =  customtkinter.CTkOptionMenu(master = genero_crear_frame, values=lista_clusters, width=200)
+    genero_crear_asociar_cluster_opciones.set("None")
+    genero_crear_asociar_cluster_opciones.place_forget()
+
+
+
+    #Checkbox para escoger si es género o subgénero
+    genero_crear_opcion_subgenero = customtkinter.CTkCheckBox(master=genero_crear_frame,text="Es Subgénero", command=lambda:mostrar_opciones_subgenero(genero_crear_opcion_subgenero.get()))
+    genero_crear_opcion_subgenero.place(x=10,y=570)
+
+    #Widgets asociados a subgénero
+    #Lista de géneros creados para asociar el subgénero
+    genero_crear_asociar_genero_label = customtkinter.CTkLabel(master=genero_crear_frame, text="Asocielo a un Género",font=('Century Gothic',10), text_color='black')
+    genero_crear_asociar_genero_label.place_forget()
+
+    lista_generos = ["Genero Rock", "Genero Metal", "Genero Rap", "Genero Trap", "Genero Progre", " Genero DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"]#Este es para pruebas hasta que se integre apropiadamente
+    genero_crear_asociar_genero_opciones =  customtkinter.CTkOptionMenu(master = genero_crear_frame, values=lista_generos, width=200)
+    genero_crear_asociar_genero_opciones.set("None")
+    genero_crear_asociar_genero_opciones.place_forget()
+
+    
+
+    #Color (Se oculta si es subgénero, se muestra si es género)
+    genero_crear_color_btn =customtkinter.CTkButton(master=genero_crear_frame, width=50, text="Color",command = escoger_color, corner_radius=6)
+    genero_crear_color_btn.place(x=325, y=75)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def main_menu():
 
@@ -281,8 +694,8 @@ def main_menu():
                 login_interface()
         return
     
-    #MusicTreeGUI.geometry("1280x720")
-    centrar_ventana(MusicTreeGUI, 1280, 720)
+    #MusicTreeGUI.geometry("1280x850")
+    centrar_ventana(MusicTreeGUI, 1280, 850)
     
     mainMenuLabel = customtkinter.CTkLabel(master=MusicTreeGUI, image=background_image, text="")
     mainMenuLabel.pack()
