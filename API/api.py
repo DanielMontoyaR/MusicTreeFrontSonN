@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from utils.models import *
 from utils.queries import *
 from sqlalchemy.exc import IntegrityError
+import uuid
 
 
 app = Flask(__name__)
@@ -14,68 +15,66 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+"""
 @app.route('/')
 def index():
      clusters = GenreCluster.query.all()
      
      return jsonify([c.to_dict() for c in clusters])
 
-
-
 """
-@app.route("/crear_cluster_gen", methods=["POST"])
-def crear_cluster():
-    data = request.json
-    nombre = data.get("nombre")
-    descripcion = data.get("descripcion")
-    fecha = data.get("fecha")
-    hora = data.get("hora")
 
-    if not nombre:
-        return jsonify({"error": "El nombre es obligatorio"}), 400
+@app.route('/create_cluster_genero', methods=['POST'])
+def crear_cluster_genero():
+    data = request.get_json()
+
+    name = data.get('name')
+    description = data.get('description', '')
+
+    if not name:
+        return jsonify({"error": "El campo 'name' es obligatorio."}), 400
+
+    # Crear un ID único limitado a 15 caracteres
+    cluster_id = str(uuid.uuid4())[:15]
+
+    nuevo_cluster = GenreCluster(
+        cluster_id=cluster_id,
+        name=name,
+        description=description,
+        created_at=datetime.now(datetime.timezone.utc)
+    )
 
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO genero_cluster (nombre, descripcion, fecha, hora)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id;
-        ''', (nombre, descripcion, fecha, hora))
-        cluster_id = cursor.fetchone()[0]
-        conn.commit()
-        conn.close()
-        return jsonify({"mensaje": "Cluster creado", "id": cluster_id}), 201
+        db.session.add(nuevo_cluster)
+        db.session.commit()
+        return jsonify({
+            "message": "Cluster creado correctamente.",
+            "cluster": nuevo_cluster.to_dict()
+        }), 201
+
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "Ya existe un cluster con ese nombre."}), 409
+
     except Exception as e:
-        print("Error al crear cluster:", e)
-        return jsonify({"error": "Error interno"}), 500
+        db.session.rollback()
+        return jsonify({"error": f"Error interno: {str(e)}"}), 500
+
+@app.route('/get_clusters_genero', methods=['GET'])
+def obtener_clusters_genero():
+    try:
+        clusters = GenreCluster.query.all()
+        clusters_json = [cluster.to_dict() for cluster in clusters]
+        return jsonify(clusters_json), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener los clusters: {str(e)}"}), 500
+
+"""
+
     
 
 
-@app.route("/clusters_genero", methods=["GET"])
-def obtener_clusters_genero():
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, nombre, descripcion, fecha, hora FROM genero_cluster")
-        resultados = cursor.fetchall()
-        conn.close()
 
-        clusters = []
-        for fila in resultados:
-            clusters.append({
-                "id": fila[0],
-                "nombre": fila[1],
-                "descripcion": fila[2],
-                "fecha": str(fila[3]),
-                "hora": str(fila[4])
-            })
-
-        return jsonify(clusters), 200
-
-    except Exception as e:
-        print("Error al obtener clusters:", e)
-        return jsonify({"error": "Error interno"}), 500
 
 
 # Endpoint para verificar credenciales
@@ -102,7 +101,7 @@ def verificar():
 """
 
 # --- POST /api/genres ---
-@app.route('/api/genres', methods=['POST'])
+@app.route('/api/create_genres', methods=['POST'])
 def crear_genero():
     data = request.get_json()
 
