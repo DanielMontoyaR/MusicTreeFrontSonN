@@ -1,0 +1,144 @@
+{% extends "base.html" %}{% block title %} Home Page {% endblock %}
+{% block content %}
+<p> 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        body.dark-mode {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .dark-mode .login-container {
+            background-color: #343a40;
+            color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333;
+        }
+        .dark-mode .login-title {
+            color: #f8f9fa;
+        }
+        .form-control {
+            margin-bottom: 16px;
+            background-color: white;
+        }
+        .dark-mode .form-control {
+            background-color: #495057;
+            color: #f8f9fa;
+            border-color: #6c757d;
+        }
+        .btn-login {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .theme-switcher {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="theme-switcher">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-light active" id="lightModeBtn">Modo Claro</button>
+                    <button type="button" class="btn btn-sm btn-dark" id="darkModeBtn">Modo Oscuro</button>
+                </div>
+            </div>
+            
+            <h2 class="login-title">Iniciar Sesión</h2>
+            <form>
+                <div class="mb-3">
+                    <label for="usuario" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="usuario" placeholder="Ingrese su usuario">
+                </div>
+                <div class="mb-3">
+                    <label for="contrasena" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="contrasena" placeholder="Ingrese su contraseña">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="recordar">
+                    <label class="form-check-label" for="recordar">Recordar mi usuario</label>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary btn-login" onclick="location.href='/main_menu'">
+                        Iniciar Sesión
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="location.href='/main_menu'">
+                        Crear Cuenta
+                    </button>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="#" class="text-decoration-none">¿Olvidó su contraseña?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightModeBtn = document.getElementById('lightModeBtn');
+            const darkModeBtn = document.getElementById('darkModeBtn');
+            const body = document.body;
+            
+            // Verificar si hay un modo guardado en localStorage
+            const savedMode = localStorage.getItem('themeMode');
+            if (savedMode === 'dark') {
+                enableDarkMode();
+            }
+            
+            lightModeBtn.addEventListener('click', function() {
+                disableDarkMode();
+            });
+            
+            darkModeBtn.addEventListener('click', function() {
+                enableDarkMode();
+            });
+            
+            function enableDarkMode() {
+                body.classList.add('dark-mode');
+                darkModeBtn.classList.add('active');
+                lightModeBtn.classList.remove('active');
+                localStorage.setItem('themeMode', 'dark');
+            }
+            
+            function disableDarkMode() {
+                body.classList.remove('dark-mode');
+                lightModeBtn.classList.add('active');
+                darkModeBtn.classList.remove('active');
+                localStorage.setItem('themeMode', 'light');
+            }
+        });
+    </script>
+</body>
+</html>
+
+</p>
+{% endblock %}

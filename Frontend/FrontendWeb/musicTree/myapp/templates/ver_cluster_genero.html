@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Clústeres de Género</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+        .cluster-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .cluster-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+        .cluster-card {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .cluster-card:hover {
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .cluster-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .no-clusters {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cluster-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+            
+            <h2 class="cluster-title">Ver Clústeres de Género</h2>
+            
+            <div class="mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="mostrarInactivos">
+                    <label class="form-check-label" for="mostrarInactivos">
+                        Mostrar Clústeres Inactivos
+                    </label>
+                </div>
+            </div>
+            
+            <div id="clustersList">
+                <!-- Los clústeres se cargarán aquí dinámicamente -->
+                <div class="no-clusters">Cargando clústeres...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mostrarInactivos = document.getElementById('mostrarInactivos');
+            const clustersList = document.getElementById('clustersList');
+            
+            // Datos de ejemplo (simulando la base de datos)
+            const clustersData = [
+                {
+                    llave: "C-abcd1234ef56",
+                    nombre: "Romance",
+                    descripcion: "Género romántico para todas las edades",
+                    identificador: true,
+                    fecha_y_hora: "2023-05-15T10:30:00"
+                },
+                {
+                    llave: "C-xyz7890gh12",
+                    nombre: "Terror",
+                    descripcion: "Películas y libros de terror psicológico",
+                    identificador: true,
+                    fecha_y_hora: "2023-06-20T14:45:00"
+                },
+                {
+                    llave: "C-pqr3456ij78",
+                    nombre: "Ciencia Ficción Antigua",
+                    descripcion: "Ciencia ficción de los años 50-70",
+                    identificador: false,
+                    fecha_y_hora: "2023-03-10T09:15:00"
+                },
+                {
+                    llave: "C-lmn9012op34",
+                    nombre: "Fantasía Épica",
+                    descripcion: "Fantasía medieval con mundos extensos",
+                    identificador: true,
+                    fecha_y_hora: "2023-07-05T16:20:00"
+                }
+            ];
+            
+            // Función para formatear fecha
+            function formatFecha(fechaISO) {
+                const fecha = new Date(fechaISO);
+                return fecha.toLocaleDateString() + ' ' + fecha.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // Función para renderizar los clústeres
+            function renderClusters(showInactivos = false) {
+                const filteredClusters = showInactivos 
+                    ? clustersData 
+                    : clustersData.filter(cluster => cluster.identificador);
+                
+                if (filteredClusters.length === 0) {
+                    clustersList.innerHTML = '<div class="no-clusters">No se encontraron clústeres</div>';
+                    return;
+                }
+                
+                let html = '';
+                filteredClusters.forEach(cluster => {
+                    const statusClass = cluster.identificador ? 'status-active' : 'status-inactive';
+                    const statusText = cluster.identificador ? 'Activo' : 'Inactivo';
+                    
+                    html += `
+                        <div class="cluster-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5>${cluster.nombre}</h5>
+                                    <p class="text-muted mb-1">${cluster.llave}</p>
+                                </div>
+                                <span class="${statusClass} cluster-status">${statusText}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end mt-2">
+                                <small class="text-muted">${cluster.descripcion}</small>
+                                <small class="text-muted">${formatFecha(cluster.fecha_y_hora)}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                clustersList.innerHTML = html;
+            }
+            
+            // Cargar clústeres iniciales (solo activos)
+            renderClusters();
+            
+            // Manejar el cambio en el checkbox
+            mostrarInactivos.addEventListener('change', function() {
+                renderClusters(this.checked);
+            });
+            
+            // En una aplicación real, aquí harías una llamada AJAX para obtener los datos reales
+            // Ejemplo:
+            /*
+            fetch('/api/clusters/')
+                .then(response => response.json())
+                .then(data => {
+                    clustersData = data;
+                    renderClusters();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    clustersList.innerHTML = '<div class="no-clusters">Error al cargar los clústeres</div>';
+                });
+            */
+        });
+    </script>
+</body>
+</html>

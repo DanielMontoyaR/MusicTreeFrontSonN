@@ -1,0 +1,201 @@
+{% extends "base.html" %}{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cluster de Género</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+        .cluster-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .cluster-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        #resultContainer {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cluster-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+            
+            <h2 class="cluster-title">Crear Cluster de Género</h2>
+            
+            <form id="clusterForm">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="nombre" placeholder="Ingrese el nombre (3-30 caracteres)" required>
+                    <div class="error-message" id="nombreError">El nombre debe tener entre 3 y 30 caracteres</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <textarea class="form-control" id="descripcion" rows="3" placeholder="Ingrese una descripción (máximo 300 caracteres)"></textarea>
+                    <div class="error-message" id="descripcionError">La descripción no puede exceder los 300 caracteres</div>
+                    <div class="form-text">Caracteres restantes: <span id="charCount">300</span></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="identificador" class="form-label">Identificador</label>
+                    <select class="form-select" id="identificador">
+                        <option value="Activo" selected>Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary btn-lg" id="btnCrearCluster">Crear Cluster</button>
+                </div>
+            </form>
+            
+            <div id="resultContainer" class="bg-light p-3">
+                <h5>Cluster creado exitosamente:</h5>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nombreInput = document.getElementById('nombre');
+            const descripcionInput = document.getElementById('descripcion');
+            const charCount = document.getElementById('charCount');
+            const btnCrearCluster = document.getElementById('btnCrearCluster');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultContent = document.getElementById('resultContent');
+            
+            // Contador de caracteres para la descripción
+            descripcionInput.addEventListener('input', function() {
+                const remaining = 300 - this.value.length;
+                charCount.textContent = remaining;
+                
+                if (remaining < 0) {
+                    charCount.style.color = '#dc3545';
+                } else {
+                    charCount.style.color = '#6c757d';
+                }
+            });
+            
+            // Validar y crear cluster
+            btnCrearCluster.addEventListener('click', function() {
+                let isValid = true;
+                
+                // Validar nombre (3-30 caracteres)
+                const nombre = nombreInput.value.trim();
+                const nombreError = document.getElementById('nombreError');
+                
+                if (nombre.length < 3 || nombre.length > 30) {
+                    nombreInput.classList.add('is-invalid');
+                    nombreError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    nombreInput.classList.remove('is-invalid');
+                    nombreError.style.display = 'none';
+                }
+                
+                // Validar descripción (max 300 caracteres)
+                const descripcion = descripcionInput.value.trim();
+                const descripcionError = document.getElementById('descripcionError');
+                
+                if (descripcion.length > 300) {
+                    descripcionInput.classList.add('is-invalid');
+                    descripcionError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    descripcionInput.classList.remove('is-invalid');
+                    descripcionError.style.display = 'none';
+                }
+                
+                // Si todo es válido, crear el cluster
+                if (isValid) {
+                    crearCluster(nombre, descripcion);
+                }
+            });
+            
+            function crearCluster(nombre, descripcion) {
+                // Obtener valores del formulario
+                const identificador = document.getElementById('identificador').value;
+                
+                // Generar fecha y hora actual
+                const now = new Date();
+                const fecha = now.toLocaleDateString();
+                const hora = now.toLocaleTimeString();
+                
+                // Generar llave identificadora única
+                const llave = generarLlaveUnica();
+                
+                // Mostrar resultados
+                resultContent.innerHTML = `
+                    <p><strong>Nombre:</strong> ${nombre}</p>
+                    <p><strong>Descripción:</strong> ${descripcion || 'N/A'}</p>
+                    <p><strong>Identificador:</strong> ${identificador}</p>
+                    <p><strong>Fecha de creación:</strong> ${fecha}</p>
+                    <p><strong>Hora de creación:</strong> ${hora}</p>
+                    <p><strong>Llave identificadora:</strong> ${llave}</p>
+                `;
+                
+                resultContainer.style.display = 'block';
+                
+                // También imprimir en consola
+                console.log('Cluster creado:');
+                console.log('Nombre:', nombre);
+                console.log('Descripción:', descripcion || 'N/A');
+                console.log('Identificador:', identificador);
+                console.log('Fecha:', fecha);
+                console.log('Hora:', hora);
+                console.log('Llave identificadora:', llave);
+            }
+            
+            function generarLlaveUnica() {
+                // Generar 12 caracteres alfanuméricos aleatorios
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = 'C-';
+                
+                for (let i = 0; i < 12; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                
+                return result;
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
