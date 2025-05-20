@@ -21,3 +21,6 @@ def crear_cluster(request):
 def ver_cluster_genero(request):
     items = ClusterGenero.objects.all()
     return render(request, "ver_cluster_genero.html", {"datos": items})
+
+def crear_genero_musica(request):
+    return render(request, "crear_genero_musica.html")

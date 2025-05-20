@@ -11,4 +11,4 @@ class ClusterGenero(models.Model):
     descripcion = models.CharField(max_length=300)
     identificador = models.BooleanField(default=True)
     fecha_y_hora = models.DateTimeField()
-    
+

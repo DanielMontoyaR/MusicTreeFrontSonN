@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Género Musical</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Color Picker -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.min.css"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .genre-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .genre-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .optional-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="genre-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+
+            <h2 class="genre-title">Crear Género Musical</h2>
+
+            <form id="genreForm">
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="nombre"
+                        placeholder="Ingrese el nombre (3-30 caracteres)" required>
+                    <div class="error-message" id="nombreError">El nombre debe tener entre 3 y 30 caracteres</div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <textarea class="form-control" id="descripcion" rows="3"
+                        placeholder="Ingrese una descripción (máximo 1000 caracteres)"></textarea>
+                    <div class="error-message" id="descripcionError">La descripción no puede exceder los 1000 caracteres
+                    </div>
+                    <div class="form-text">Caracteres restantes: <span id="charCount">1000</span></div>
+                </div>
+
+                <!-- Identificador -->
+                <div class="mb-3">
+                    <label for="identificador" class="form-label">Estado</label>
+                    <select class="form-select" id="identificador">
+                        <option value="true" selected>Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+
+                <!-- País de Origen -->
+                <div class="mb-3">
+                    <label for="pais" class="form-label">País de Origen</label>
+                    <select class="form-select" id="dropdown_pais" required>
+                        <option value="" selected disabled>Seleccione un país</option>
+                        <!-- Países de la ONU se llenarán con JavaScript -->
+                        <script>
+                            // Llenar países de la ONU (lista simplificada)
+                            const paisesONU = [
+                                "Afganistán", "Albania", "Alemania", "Andorra", "Angola",
+                                "Antigua y Barbuda", "Arabia Saudita", "Argelia", "Argentina",
+                                "Armenia", "Australia", "Austria", "Azerbaiyán", "Bahamas",
+                                "Bangladés", "Barbados", "Baréin", "Bélgica", "Belice",
+                                "Benín", "Bielorrusia", "Birmania", "Bolivia", "Bosnia y Herzegovina",
+                                "Botsuana", "Brasil", "Brunéi", "Bulgaria", "Burkina Faso",
+                                "Burundi", "Bután", "Cabo Verde", "Camboya", "Camerún",
+                                "Canadá", "Catar", "Chad", "Chile", "China",
+                                "Chipre", "Colombia", "Comoras", "Corea del Norte", "Corea del Sur",
+                                "Costa de Marfil", "Costa Rica", "Croacia", "Cuba", "Dinamarca",
+                                "Dominica", "Ecuador", "Egipto", "El Salvador", "Emiratos Árabes Unidos",
+                                "Eritrea", "Eslovaquia", "Eslovenia", "España", "Estados Unidos",
+                                "Estonia", "Esuatini", "Etiopía", "Filipinas", "Finlandia",
+                                "Fiyi", "Francia", "Gabón", "Gambia", "Georgia",
+                                "Ghana", "Granada", "Grecia", "Guatemala", "Guinea",
+                                "Guinea-Bisáu", "Guinea Ecuatorial", "Guyana", "Haití", "Honduras",
+                                "Hungría", "India", "Indonesia", "Irak", "Irán",
+                                "Irlanda", "Islandia", "Islas Marshall", "Islas Salomón", "Israel",
+                                "Italia", "Jamaica", "Japón", "Jordania", "Kazajistán",
+                                "Kenia", "Kirguistán", "Kiribati", "Kuwait", "Laos",
+                                "Lesoto", "Letonia", "Líbano", "Liberia", "Libia",
+                                "Liechtenstein", "Lituania", "Luxemburgo", "Macedonia del Norte", "Madagascar",
+                                "Malasia", "Malaui", "Maldivas", "Malí", "Malta",
+                                "Marruecos", "Mauricio", "Mauritania", "México", "Micronesia",
+                                "Moldavia", "Mónaco", "Mongolia", "Montenegro", "Mozambique",
+                                "Namibia", "Nauru", "Nepal", "Nicaragua", "Níger",
+                                "Nigeria", "Noruega", "Nueva Zelanda", "Omán", "Países Bajos",
+                                "Pakistán", "Palaos", "Panamá", "Papúa Nueva Guinea", "Paraguay",
+                                "Perú", "Polonia", "Portugal", "Reino Unido", "República Centroafricana",
+                                "República Checa", "República del Congo", "República Democrática del Congo", "República Dominicana", "Ruanda",
+                                "Rumanía", "Rusia", "Samoa", "San Cristóbal y Nieves", "San Marino",
+                                "San Vicente y las Granadinas", "Santa Lucía", "Santo Tomé y Príncipe", "Senegal", "Serbia",
+                                "Seychelles", "Sierra Leona", "Singapur", "Siria", "Somalia",
+                                "Sri Lanka", "Sudáfrica", "Sudán", "Sudán del Sur", "Suecia",
+                                "Suiza", "Surinam", "Tailandia", "Tanzania", "Tayikistán",
+                                "Timor Oriental", "Togo", "Tonga", "Trinidad y Tobago", "Túnez",
+                                "Turkmenistán", "Turquía", "Tuvalu", "Ucrania", "Uganda",
+                                "Uruguay", "Uzbekistán", "Vanuatu", "Vaticano", "Venezuela",
+                                "Vietnam", "Yemen", "Yibuti", "Zambia", "Zimbabue"
+                            ];
+
+
+                            // Función para llenar el dropdown
+                            function llenarDropdownPaises() {
+                                const dropdown = document.getElementById('dropdown_pais');
+
+                                if (!dropdown) {
+                                    console.error('No se encontró el elemento con ID "dropdown_pais"');
+                                    return;
+                                }
+
+                                // Ordenar alfabéticamente
+                                paisesONU.sort((a, b) => a.localeCompare(b));
+
+                                // Agregar opciones
+                                paisesONU.forEach(pais => {
+                                    const option = document.createElement('option');
+                                    option.value = pais;
+                                    option.textContent = pais;
+                                    dropdown.appendChild(option);
+                                });
+
+                                console.log("Países cargados: ${paisesONU.length}");
+                            }
+
+                            // Llenar el dropdown cuando la página haya cargado
+                            window.addEventListener('DOMContentLoaded', llenarDropdownPaises);
+
+                            document.getElementById('dropdown_pais').addEventListener('change', function () {
+                                console.log("País seleccionado:", this.value);
+                            });
+
+                        </script>
+                    </select>
+                    <div class="error-message" id="paisError">Debe seleccionar un país</div>
+                </div>
+
+                <!-- Tono Dominante -->
+                <div class="mb-3">
+                    <label for="tono" class="form-label">Tono Dominante</label>
+                    <select class="form-select" id="tono">
+                        <option value="-1">-1</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                    </select>
+                </div>
+
+                <!-- Compás -->
+                <div class="mb-3">
+                    <label for="compas" class="form-label">Compás</label>
+                    <select class="form-select" id="compas">
+                        <option value="0">0</option>
+                        <option value="2/4">2/4</option>
+                        <option value="3/4">3/4</option>
+                        <option value="4/4" selected>4/4</option>
+                        <option value="5/4">5/4</option>
+                        <option value="6/4">6/4</option>
+                        <option value="7/4">7/4</option>
+                        <option value="8/4">8/4</option>
+                    </select>
+                </div>
+
+                <!-- Promedio de Canciones -->
+                <div class="mb-3">
+                    <label for="promedioCanciones" class="form-label">Promedio de Canciones</label>
+                    <input type="number" class="form-control" id="promedioCanciones" min="0" max="99" value="0">
+                    <div class="error-message" id="promedioCancionesError">El valor debe estar entre 0 y 99</div>
+                </div>
+
+                <!-- Rango de BPM -->
+                <div class="mb-3">
+                    <label class="form-label">Rango de BPM</label>
+                    <div class="row">
+                        <div class="col">
+                            <input type="number" class="form-control" id="bpmMin" placeholder="Mínimo" min="0" max="250"
+                                value="0">
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" id="bpmMax" placeholder="Máximo" min="0" max="250"
+                                value="120">
+                        </div>
+                    </div>
+                    <div class="error-message" id="bpmError">El BPM mínimo debe ser menor que el máximo y ambos entre
+                        0-250</div>
+                </div>
+
+                <!-- Volumen Típico -->
+                <div class="mb-3">
+                    <label for="volumen" class="form-label">Volumen Típico (dB)</label>
+                    <input type="number" class="form-control" id="volumen" min="-60" max="0" value="-12">
+                    <div class="error-message" id="volumenError">El valor debe estar entre -60 y 0 dB</div>
+                </div>
+
+                <!-- Duración -->
+                <div class="mb-3">
+                    <label for="duracion" class="form-label">Duración típica (segundos)</label>
+                    <input type="number" class="form-control" id="duracion" min="0" max="3600" value="180">
+                    <div class="error-message" id="duracionError">El valor debe estar entre 0 y 3600 segundos</div>
+                </div>
+
+                <!-- Asociar a Cluster -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="asociarCluster">
+                    <label class="form-check-label" for="asociarCluster">Asociar a un Cluster</label>
+                </div>
+
+                <div id="clusterSection" class="optional-section">
+                    <label for="cluster" class="form-label">Seleccionar Cluster</label>
+                    <select class="form-select" id="cluster">
+                        <option value="" selected disabled>Seleccione un cluster</option>
+                        <!-- Clusters se llenarán dinámicamente -->
+                    </select>
+                    <div class="error-message" id="clusterError">Debe seleccionar un cluster</div>
+                </div>
+
+                <!-- Color -->
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="color" value="#6c84d5">
+                        <span class="input-group-text color-picker"><i class="bi bi-palette"></i></span>
+                        <span id="colorPreview" class="color-preview"></span>
+                    </div>
+                </div>
+
+                <!-- Es Subgénero -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="esSubgenero">
+                    <label class="form-check-label" for="esSubgenero">Es Subgénero</label>
+                </div>
+
+                <div id="subgeneroSection" class="optional-section">
+                    <label for="generoPadre" class="form-label">Género Principal</label>
+                    <select class="form-select" id="generoPadre">
+                        <option value="" selected disabled>Seleccione un género principal</option>
+                        <!-- Géneros se llenarán dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary btn-lg" id="btnCrearGenero">Crear Género</button>
+                </div>
+            </form>
+
+            <div id="resultContainer" class="bg-light p-3">
+                <h5>Género creado exitosamente:</h5>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elementos del formulario
+            const nombreInput = document.getElementById('nombre');
+            const descripcionInput = document.getElementById('descripcion');
+            const charCount = document.getElementById('charCount');
+            const asociarClusterCheck = document.getElementById('asociarCluster');
+            const clusterSection = document.getElementById('clusterSection');
+            const clusterSelect = document.getElementById('cluster');
+            const esSubgeneroCheck = document.getElementById('esSubgenero');
+            const subgeneroSection = document.getElementById('subgeneroSection');
+            const btnCrearGenero = document.getElementById('btnCrearGenero');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultContent = document.getElementById('resultContent');
+            const colorPreview = document.getElementById('colorPreview');
+
+            // Inicializar el color picker
+            $('#color').colorpicker({
+                format: 'hex',
+                component: '.color-picker',
+            }).on('changeColor', function (e) {
+                colorPreview.style.backgroundColor = e.color.toHex();
+            });
+
+            // Establecer color inicial
+            colorPreview.style.backgroundColor = $('#color').val();
+
+
+            // Llenar clusters de ejemplo
+            const clustersEjemplo = [
+                { id: 1, nombre: "Rock Clásico" },
+                { id: 2, nombre: "Pop Internacional" },
+                { id: 3, nombre: "Electrónica" },
+                { id: 4, nombre: "Hip Hop/Rap" }
+            ];
+
+            clustersEjemplo.forEach(cluster => {
+                const option = document.createElement('option');
+                option.value = cluster.id;
+                option.textContent = cluster.nombre;
+                clusterSelect.appendChild(option);
+            });
+
+            // Llenar géneros principales de ejemplo
+            const generosEjemplo = [
+                { id: 1, nombre: "Rock" },
+                { id: 2, nombre: "Pop" },
+                { id: 3, nombre: "Electrónica" },
+                { id: 4, nombre: "Hip Hop" },
+                { id: 5, nombre: "Jazz" },
+                { id: 6, nombre: "Clásica" }
+            ];
+
+            const generoPadreSelect = document.getElementById('generoPadre');
+            generosEjemplo.forEach(genero => {
+                const option = document.createElement('option');
+                option.value = genero.id;
+                option.textContent = genero.nombre;
+                generoPadreSelect.appendChild(option);
+            });
+
+            // Contador de caracteres para la descripción
+            descripcionInput.addEventListener('input', function () {
+                const remaining = 1000 - this.value.length;
+                charCount.textContent = remaining;
+
+                if (remaining < 0) {
+                    charCount.style.color = '#dc3545';
+                } else {
+                    charCount.style.color = '#6c757d';
+                }
+            });
+
+            // Mostrar/ocultar sección de cluster
+            asociarClusterCheck.addEventListener('change', function () {
+                if (this.checked) {
+                    clusterSection.style.display = 'block';
+                } else {
+                    clusterSection.style.display = 'none';
+                    clusterSelect.value = '';
+                }
+            });
+
+            // Mostrar/ocultar sección de subgénero
+            esSubgeneroCheck.addEventListener('change', function () {
+                if (this.checked) {
+                    subgeneroSection.style.display = 'block';
+                } else {
+                    subgeneroSection.style.display = 'none';
+                    generoPadreSelect.value = '';
+                }
+            });
+
+            // Validar y crear género
+            btnCrearGenero.addEventListener('click', function () {
+                let isValid = true;
+
+                // Validar nombre (3-30 caracteres)
+                const nombre = nombreInput.value.trim();
+                const nombreError = document.getElementById('nombreError');
+
+                if (nombre.length < 3 || nombre.length > 30) {
+                    nombreInput.classList.add('is-invalid');
+                    nombreError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    nombreInput.classList.remove('is-invalid');
+                    nombreError.style.display = 'none';
+                }
+
+                // Validar descripción (max 1000 caracteres)
+                const descripcion = descripcionInput.value.trim();
+                const descripcionError = document.getElementById('descripcionError');
+
+                if (descripcion.length > 1000) {
+                    descripcionInput.classList.add('is-invalid');
+                    descripcionError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    descripcionInput.classList.remove('is-invalid');
+                    descripcionError.style.display = 'none';
+                }
+
+                // Validar país (requerido)
+                const pais = paisSelect.value;
+                const paisError = document.getElementById('paisError');
+
+                console.log("Paises Crgados:", paisesONU.length);
+
+                if (!pais) {
+                    paisSelect.classList.add('is-invalid');
+                    if (!paisError) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.id = 'paisError';
+                        errorDiv.className = 'error-message';
+                        errorDiv.textContent = 'Debe seleccionar un país';
+                        paisSelect.parentNode.insertBefore(errorDiv, paisSelect.nextSibling);
+                    } else {
+                        paisError.style.display = 'block';
+                    }
+                    isValid = false;
+                } else {
+                    paisSelect.classList.remove('is-invalid');
+                    if (paisError) paisError.style.display = 'none';
+                }
+
+                // Validar promedio de canciones (0-99)
+                const promedioCanciones = parseInt(document.getElementById('promedioCanciones').value);
+                const promedioCancionesError = document.getElementById('promedioCancionesError');
+
+                if (isNaN(promedioCanciones) || promedioCanciones < 0 || promedioCanciones > 99) {
+                    document.getElementById('promedioCanciones').classList.add('is-invalid');
+                    promedioCancionesError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('promedioCanciones').classList.remove('is-invalid');
+                    promedioCancionesError.style.display = 'none';
+                }
+
+                // Validar BPM
+                const bpmMin = parseInt(document.getElementById('bpmMin').value);
+                const bpmMax = parseInt(document.getElementById('bpmMax').value);
+                const bpmError = document.getElementById('bpmError');
+
+                if (isNaN(bpmMin)) {
+                    document.getElementById('bpmMin').classList.add('is-invalid');
+                    bpmError.style.display = 'block';
+                    isValid = false;
+                } else if (isNaN(bpmMax)) {
+                    document.getElementById('bpmMax').classList.add('is-invalid');
+                    bpmError.style.display = 'block';
+                    isValid = false;
+                } else if (bpmMin < 0 || bpmMin > 250 || bpmMax < 0 || bpmMax > 250 || bpmMin >= bpmMax) {
+                    document.getElementById('bpmMin').classList.add('is-invalid');
+                    document.getElementById('bpmMax').classList.add('is-invalid');
+                    bpmError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('bpmMin').classList.remove('is-invalid');
+                    document.getElementById('bpmMax').classList.remove('is-invalid');
+                    bpmError.style.display = 'none';
+                }
+
+                // Validar volumen (-60 a 0)
+                const volumen = parseInt(document.getElementById('volumen').value);
+                const volumenError = document.getElementById('volumenError');
+
+                if (isNaN(volumen)) {
+                    document.getElementById('volumen').classList.add('is-invalid');
+                    volumenError.style.display = 'block';
+                    isValid = false;
+                } else if (volumen < -60 || volumen > 0) {
+                    document.getElementById('volumen').classList.add('is-invalid');
+                    volumenError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('volumen').classList.remove('is-invalid');
+                    volumenError.style.display = 'none';
+                }
+
+                // Validar duración (0-3600)
+                const duracion = parseInt(document.getElementById('duracion').value);
+                const duracionError = document.getElementById('duracionError');
+
+                if (isNaN(duracion)) {
+                    document.getElementById('duracion').classList.add('is-invalid');
+                    duracionError.style.display = 'block';
+                    isValid = false;
+                } else if (duracion < 0 || duracion > 3600) {
+                    document.getElementById('duracion').classList.add('is-invalid');
+                    duracionError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('duracion').classList.remove('is-invalid');
+                    duracionError.style.display = 'none';
+                }
+
+                // Validar cluster si el checkbox está marcado
+                if (asociarClusterCheck.checked) {
+                    const cluster = clusterSelect.value;
+                    const clusterError = document.getElementById('clusterError');
+
+                    if (!cluster) {
+                        clusterSelect.classList.add('is-invalid');
+                        clusterError.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        clusterSelect.classList.remove('is-invalid');
+                        clusterError.style.display = 'none';
+                    }
+                }
+
+                // Si todo es válido, crear el género
+                if (isValid) {
+                    crearGenero();
+                }
+            });
+
+            function crearGenero() {
+                // Obtener valores del formulario
+                const nombre = nombreInput.value.trim();
+                const descripcion = descripcionInput.value.trim();
+                const identificador = document.getElementById('identificador').value === 'true';
+                const pais = document.getElementById('pais').value;
+                const tono = document.getElementById('tono').value;
+                const compas = document.getElementById('compas').value;
+                const promedioCanciones = document.getElementById('promedioCanciones').value;
+                const bpmMin = document.getElementById('bpmMin').value;
+                const bpmMax = document.getElementById('bpmMax').value;
+                const volumen = document.getElementById('volumen').value;
+                const duracion = document.getElementById('duracion').value;
+                const asociarCluster = asociarClusterCheck.checked;
+                const cluster = asociarCluster ? document.getElementById('cluster').value : null;
+                const color = asociarCluster ? null : document.getElementById('color').value;
+                const esSubgenero = esSubgeneroCheck.checked;
+                const generoPadre = esSubgenero ? document.getElementById('generoPadre').value : null;
+
+                // Generar fecha y hora actual
+                const now = new Date();
+                const fechaCreacion = now.toISOString();
+
+                // Crear objeto con los datos del género
+                const genero = {
+                    nombre,
+                    descripcion: descripcion || null,
+                    identificador,
+                    pais_origen: pais,
+                    tono_dominante: parseInt(tono),
+                    compas,
+                    promedio_canciones: parseInt(promedioCanciones),
+                    bpm_min: parseInt(bpmMin),
+                    bpm_max: parseInt(bpmMax),
+                    volumen_typical: parseInt(volumen),
+                    duracion_typical: parseInt(duracion),
+                    cluster_id: cluster ? parseInt(cluster) : null,
+                    color,
+                    genero_padre_id: generoPadre ? parseInt(generoPadre) : null,
+                    fecha_creacion: fechaCreacion
+                };
+
+                // Mostrar resultados
+                resultContent.innerHTML = `
+                    <p><strong>Nombre:</strong> ${genero.nombre}</p>
+                    <p><strong>Descripción:</strong> ${genero.descripcion || 'N/A'}</p>
+                    <p><strong>Estado:</strong> ${genero.identificador ? 'Activo' : 'Inactivo'}</p>
+                    <p><strong>País de Origen:</strong> ${genero.pais_origen}</p>
+                    <p><strong>Tono Dominante:</strong> ${genero.tono_dominante}</p>
+                    <p><strong>Compás:</strong> ${genero.compas}</p>
+                    <p><strong>Promedio de Canciones:</strong> ${genero.promedio_canciones}</p>
+                    <p><strong>Rango de BPM:</strong> ${genero.bpm_min} - ${genero.bpm_max}</p>
+                    <p><strong>Volumen Típico:</strong> ${genero.volumen_typical} dB</p>
+                    <p><strong>Duración Típica:</strong> ${genero.duracion_typical} segundos</p>
+                    <p><strong>Cluster Asociado:</strong> ${genero.cluster_id ? 'ID ' + genero.cluster_id : 'Ninguno'}</p>
+                    <p><strong>Color:</strong> ${genero.color || 'Ninguno (asociado a cluster)'}</p>
+                    <p><strong>Es Subgénero:</strong> ${genero.genero_padre_id ? 'Sí (ID ' + genero.genero_padre_id + ')' : 'No'}</p>
+                    <p><strong>Fecha de Creación:</strong> ${new Date(genero.fecha_creacion).toLocaleString()}</p>
+                `;
+
+                resultContainer.style.display = 'block';
+
+                // También imprimir en consola
+                console.log('Género musical creado:', genero);
+
+                // Aquí iría la llamada AJAX para enviar los datos al servidor
+                /*
+                fetch('/api/generos/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(genero),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    // Mostrar mensaje de éxito
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Mostrar mensaje de error
+                });
+                */
+            }
+        });
+    </script>
+</body>
+
+</html>
