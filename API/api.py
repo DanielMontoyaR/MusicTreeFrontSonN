@@ -68,36 +68,6 @@ def obtener_clusters_genero():
     except Exception as e:
         return jsonify({"error": f"Error al obtener los clusters: {str(e)}"}), 500
 
-"""
-
-    
-
-
-
-
-
-# Endpoint para verificar credenciales
-@app.route("/verificar_credenciales", methods=["POST"])
-def verificar():
-    data = request.json
-    usuario = data.get("usuario")
-    contraseña = data.get("contraseña")
-
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
-        resultado = cursor.fetchone()
-        conn.close()
-
-        if resultado:
-            return jsonify({"autenticado": True}), 200
-        else:
-            return jsonify({"autenticado": False}), 401
-    except Exception as e:
-        print("Error al verificar credenciales:", e)
-        return jsonify({"error": "Error interno"}), 500
-"""
 #Endpoint para crear géneros
 @app.route('/api/create_genres', methods=['POST'])
 def crear_genero():
