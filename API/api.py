@@ -15,14 +15,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-"""
 @app.route('/')
 def index():
      clusters = GenreCluster.query.all()
      
      return jsonify([c.to_dict() for c in clusters])
 
-"""
 
 @app.route('/create_cluster_genero', methods=['POST'])
 def crear_cluster_genero():
