@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -35,7 +34,7 @@
             margin-bottom: 10px;
             display: none;
         }
-        .form-control.is-invalid {
+        .form-control.is-invalid, .form-select.is-invalid {
             border-color: #dc3545;
         }
         #resultContainer {
@@ -43,6 +42,18 @@
             padding: 15px;
             border-radius: 5px;
             display: none;
+        }
+        .success-message {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .error-api {
+            color: #842029;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -55,37 +66,45 @@
             
             <h2 class="cluster-title">Crear Cluster de Género</h2>
             
-            <form id="clusterForm">
+            <!-- Mensajes de éxito/error desde Django -->
+            {% if error %}
+                <div class="error-api mb-3">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="success-message mb-3">
+                    ¡Cluster creado exitosamente!<br>
+                    <strong>ID:</strong> {{ cluster.cluster_id }}<br>
+                    <strong>Nombre:</strong> {{ cluster.name }}
+                </div>
+            {% endif %}
+            
+            <form id="clusterForm" method="post" action="{% url 'crear_cluster' %}">
+                {% csrf_token %}
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre *</label>
-                    <input type="text" class="form-control" id="nombre" placeholder="Ingrese el nombre (3-30 caracteres)" required>
+                    <input type="text" class="form-control" id="nombre" name="name" placeholder="Ingrese el nombre (3-30 caracteres)" required>
                     <div class="error-message" id="nombreError">El nombre debe tener entre 3 y 30 caracteres</div>
                 </div>
                 
                 <div class="mb-3">
                     <label for="descripcion" class="form-label">Descripción</label>
-                    <textarea class="form-control" id="descripcion" rows="3" placeholder="Ingrese una descripción (máximo 300 caracteres)"></textarea>
+                    <textarea class="form-control" id="descripcion" name="description" rows="3" placeholder="Ingrese una descripción (máximo 300 caracteres)"></textarea>
                     <div class="error-message" id="descripcionError">La descripción no puede exceder los 300 caracteres</div>
                     <div class="form-text">Caracteres restantes: <span id="charCount">300</span></div>
                 </div>
                 
                 <div class="mb-3">
-                    <label for="identificador" class="form-label">Identificador</label>
-                    <select class="form-select" id="identificador">
-                        <option value="Activo" selected>Activo</option>
-                        <option value="Inactivo">Inactivo</option>
+                    <label for="is_active" class="form-label">Estado</label>
+                    <select class="form-select" id="is_active" name="is_active">
+                        <option value="true" selected>Activo</option>
+                        <option value="false">Inactivo</option>
                     </select>
                 </div>
                 
                 <div class="d-grid">
-                    <button type="button" class="btn btn-primary btn-lg" id="btnCrearCluster">Crear Cluster</button>
+                    <button type="submit" class="btn btn-primary btn-lg">Crear Cluster</button>
                 </div>
             </form>
-            
-            <div id="resultContainer" class="bg-light p-3">
-                <h5>Cluster creado exitosamente:</h5>
-                <div id="resultContent"></div>
-            </div>
         </div>
     </div>
 
@@ -94,106 +113,38 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const nombreInput = document.getElementById('nombre');
             const descripcionInput = document.getElementById('descripcion');
             const charCount = document.getElementById('charCount');
-            const btnCrearCluster = document.getElementById('btnCrearCluster');
-            const resultContainer = document.getElementById('resultContainer');
-            const resultContent = document.getElementById('resultContent');
             
             // Contador de caracteres para la descripción
             descripcionInput.addEventListener('input', function() {
                 const remaining = 300 - this.value.length;
                 charCount.textContent = remaining;
-                
-                if (remaining < 0) {
-                    charCount.style.color = '#dc3545';
-                } else {
-                    charCount.style.color = '#6c757d';
-                }
+                charCount.style.color = remaining < 0 ? '#dc3545' : '#6c757d';
             });
             
-            // Validar y crear cluster
-            btnCrearCluster.addEventListener('click', function() {
+            // Validación básica del formulario
+            document.getElementById('clusterForm').addEventListener('submit', function(e) {
                 let isValid = true;
-                
-                // Validar nombre (3-30 caracteres)
-                const nombre = nombreInput.value.trim();
-                const nombreError = document.getElementById('nombreError');
-                
-                if (nombre.length < 3 || nombre.length > 30) {
-                    nombreInput.classList.add('is-invalid');
-                    nombreError.style.display = 'block';
-                    isValid = false;
-                } else {
-                    nombreInput.classList.remove('is-invalid');
-                    nombreError.style.display = 'none';
-                }
-                
-                // Validar descripción (max 300 caracteres)
+                const nombre = document.getElementById('nombre').value.trim();
                 const descripcion = descripcionInput.value.trim();
-                const descripcionError = document.getElementById('descripcionError');
                 
-                if (descripcion.length > 300) {
-                    descripcionInput.classList.add('is-invalid');
-                    descripcionError.style.display = 'block';
+                // Validar nombre
+                if (nombre.length < 3 || nombre.length > 30) {
+                    document.getElementById('nombreError').style.display = 'block';
                     isValid = false;
-                } else {
-                    descripcionInput.classList.remove('is-invalid');
-                    descripcionError.style.display = 'none';
                 }
                 
-                // Si todo es válido, crear el cluster
-                if (isValid) {
-                    crearCluster(nombre, descripcion);
+                // Validar descripción
+                if (descripcion.length > 300) {
+                    document.getElementById('descripcionError').style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault(); // Detener envío si hay errores
                 }
             });
-            
-            function crearCluster(nombre, descripcion) {
-                // Obtener valores del formulario
-                const identificador = document.getElementById('identificador').value;
-                
-                // Generar fecha y hora actual
-                const now = new Date();
-                const fecha = now.toLocaleDateString();
-                const hora = now.toLocaleTimeString();
-                
-                // Generar llave identificadora única
-                const llave = generarLlaveUnica();
-                
-                // Mostrar resultados
-                resultContent.innerHTML = `
-                    <p><strong>Nombre:</strong> ${nombre}</p>
-                    <p><strong>Descripción:</strong> ${descripcion || 'N/A'}</p>
-                    <p><strong>Identificador:</strong> ${identificador}</p>
-                    <p><strong>Fecha de creación:</strong> ${fecha}</p>
-                    <p><strong>Hora de creación:</strong> ${hora}</p>
-                    <p><strong>Llave identificadora:</strong> ${llave}</p>
-                `;
-                
-                resultContainer.style.display = 'block';
-                
-                // También imprimir en consola
-                console.log('Cluster creado:');
-                console.log('Nombre:', nombre);
-                console.log('Descripción:', descripcion || 'N/A');
-                console.log('Identificador:', identificador);
-                console.log('Fecha:', fecha);
-                console.log('Hora:', hora);
-                console.log('Llave identificadora:', llave);
-            }
-            
-            function generarLlaveUnica() {
-                // Generar 12 caracteres alfanuméricos aleatorios
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                let result = 'C-';
-                
-                for (let i = 0; i < 12; i++) {
-                    result += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                
-                return result;
-            }
         });
     </script>
 </body>

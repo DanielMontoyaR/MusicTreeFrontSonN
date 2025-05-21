@@ -5,6 +5,7 @@ from utils.models import *
 from utils.queries import *
 from sqlalchemy.exc import IntegrityError
 import uuid
+import traceback
 
 
 app = Flask(__name__)
@@ -37,9 +38,9 @@ def crear_cluster_genero():
 
     nuevo_cluster = GenreCluster(
         cluster_id=cluster_id,
-        name=name,
-        description=description,
-        created_at=datetime.now(datetime.timezone.utc)
+        name=data['name'],
+        description=data.get('description'),
+        is_active=data.get('is_active', True)
     )
 
     try:
@@ -97,11 +98,12 @@ def verificar():
         print("Error al verificar credenciales:", e)
         return jsonify({"error": "Error interno"}), 500
 """
-
-# --- POST /api/genres ---
+#Endpoint para crear géneros
 @app.route('/api/create_genres', methods=['POST'])
 def crear_genero():
     data = request.get_json()
+
+    print("\n\n\n\n\n\n\n\n\n\n\nDatos recibidos:", data)  # Imprime los datos para depuración
 
     # Validaciones clave
     if not data.get('name'):
@@ -113,14 +115,44 @@ def crear_genero():
     if data.get('is_subgenre') and data.get('color'):
         return jsonify({"error": "Subgéneros no deben tener color"}), 400
 
-    if data.get('bpm_lower') and data.get('bpm_upper') and data['bpm_lower'] > data['bpm_upper']:
+    if data.get('bpm_lower') and data.get('bpm_upper') and int(data['bpm_lower']) > int(data['bpm_upper']):
         return jsonify({"error": "bpm_lower no puede ser mayor que bpm_upper"}), 400
-    
-    if not data.get('cluster.id'):
-        return jsonify({"error": "Se debe especificar el cluster"}), 400
+
+    # Conversión de tipos para asegurar consistencia con la base de datos
+    try:
+        if data.get('bpm_lower') is not None and data['bpm_lower'] != '':
+            data['bpm_lower'] = int(data['bpm_lower'])
+
+        if data.get('bpm_upper') is not None and data['bpm_upper'] != '':
+            data['bpm_upper'] = int(data['bpm_upper'])
+
+        if data.get('average_duration') is not None and data['average_duration'] != '':
+            data['average_duration'] = int(data['average_duration'])
+
+        if data.get('average_mode') is not None and data['average_mode'] != '':
+            data['average_mode'] = float(data['average_mode'])
+
+        if data.get('typical_volume') is not None and data['typical_volume'] != '':
+            data['typical_volume'] = float(data['typical_volume'])
+
+        if data.get('creation_year') is not None and data['creation_year'] != '':
+            data['creation_year'] = int(data['creation_year'])
+
+        if data.get('dominant_key') == '' or data.get('dominant_key') is None:
+            data['dominant_key'] = None
+        else:
+            data['dominant_key'] = data['dominant_key']  # Si es ENUM tipo texto
+
+        if data.get('time_signature') == '' or data.get('time_signature') is None:
+            data['time_signature'] = None
+        else:
+            data['time_signature'] = data['time_signature']  # Si es ENUM tipo texto
+
+    except ValueError as e:
+        return jsonify({"error": "Error de formato de tipo", "detalle": str(e)}), 400
 
     try:
-        genre_id = generar_genre_id(data.get('is_subgenre', False))
+        genre_id = str(uuid.uuid4())[:27]
 
         nuevo_genero = Genre(
             genre_id=genre_id,
@@ -152,11 +184,18 @@ def crear_genero():
 
     except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "Restricción de integridad violada", "detalle": str(e)}), 409
+        return jsonify({
+            "error": "Restricción de integridad violada",
+            "detalle": str(e)
+        }), 409
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Error inesperado", "detalle": str(e)}), 500
+        print("Error en servidor:", traceback.format_exc())  # Log detallado en consola
+        return jsonify({
+            "error": "Error inesperado",
+            "detalle": str(e)
+        }), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5000,debug=True)

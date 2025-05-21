@@ -6,9 +6,12 @@ class TodoItem(models.Model):
     completed = models.BooleanField(default=False)
 
 class ClusterGenero(models.Model):
-    llave = models.CharField(max_length=15)
-    nombre = models.CharField(max_length=30)
-    descripcion = models.CharField(max_length=300)
-    identificador = models.BooleanField(default=True)
-    fecha_y_hora = models.DateTimeField()
+    cluster_id = models.CharField(max_length=15)
+    created_at = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=300)
+    is_active = models.BooleanField(default=True)
+    name = models.CharField(max_length=30)
+    
+    
+    
 
