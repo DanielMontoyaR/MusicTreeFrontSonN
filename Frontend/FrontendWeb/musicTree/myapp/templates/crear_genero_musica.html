@@ -185,7 +185,7 @@
                                     dropdown.appendChild(option);
                                 });
 
-                                console.log("Países cargados: ${paisesONU.length}");
+                                //console.log("Países cargados: ${paisesONU.length}");
                             }
 
                             // Llenar el dropdown cuando la página haya cargado
@@ -290,12 +290,14 @@
                 <!-- Color -->
                 <div class="mb-3">
                     <label for="color" class="form-label">Color</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="color" value="#6c84d5">
-                        <span class="input-group-text color-picker"><i class="bi bi-palette"></i></span>
-                        <span id="colorPreview" class="color-preview"></span>
+                    <div class="input-group colorpicker-component">
+                        <input type="text" class="form-control" id="color" value="" selected disabled>
+                        <span id="colorPickerButton" class="input-group-text color-picker"><i
+                                class="bi bi-palette"></i></span>
+                        <span id="colorPreview" style="display:inline-block; width:10px; height:10px;"></span>
                     </div>
                 </div>
+
 
                 <!-- Es Subgénero -->
                 <div class="mb-3 form-check">
@@ -323,11 +325,23 @@
         </div>
     </div>
 
+    <!-- jQuery (REQUIRED for Bootstrap Colorpicker) -->
+    <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
     <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
     <!-- Color Picker JS -->
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js"></script>-->
+
+    <!-- Pickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
+
+    <!-- Pickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr"></script>
+
+    <!-- Contenedor -->
+    <div id="color-picker-container"></div>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -345,17 +359,53 @@
             const resultContent = document.getElementById('resultContent');
             const colorPreview = document.getElementById('colorPreview');
 
-            // Inicializar el color picker
-            $('#color').colorpicker({
-                format: 'hex',
-                component: '.color-picker',
-            }).on('changeColor', function (e) {
-                colorPreview.style.backgroundColor = e.color.toHex();
+            /*
+            //Color picker 
+            $(document).ready(function () {
+                $('#color').colorpicker({
+                    format: 'hex',
+                    component: '.color-picker',
+                }).on('changeColor', function (e) {
+                    document.getElementById('colorPreview').style.backgroundColor = e.color.toString('hex');
+                });
+
+                // Establecer color inicial
+                document.getElementById('colorPreview').style.backgroundColor = $('#color').val();
             });
+
 
             // Establecer color inicial
             colorPreview.style.backgroundColor = $('#color').val();
+            */
 
+            const pickr = Pickr.create({
+                el: '#colorPickerButton',
+                theme: 'classic',
+                default: '#000000',
+                components: {
+                    preview: true,
+                    opacity: true,
+                    hue: true,
+                    interaction: {
+                        input: true,
+                        save: true
+                    }
+                }
+            });
+
+            // Actualiza el preview en tiempo real
+            pickr.on('change', (color) => {
+                const hexColor = color.toHEXA().toString();
+                document.getElementById('colorPreview').style.backgroundColor = hexColor;
+            });
+
+            pickr.on('save', (color) => {
+                const hexColor = color.toHEXA().toString();
+                document.getElementById('color').value = hexColor;
+                console.log('Color confirmado:', hexColor);
+            });
+
+            //console.log("El primer color es", color.value)
 
             // Llenar clusters de ejemplo
             const clustersEjemplo = [
@@ -453,25 +503,25 @@
                 }
 
                 // Validar país (requerido)
-                const pais = paisSelect.value;
+                const pais = dropdown_pais.value;
                 const paisError = document.getElementById('paisError');
 
-                console.log("Paises Crgados:", paisesONU.length);
+                //console.log("Paises Crgados:", paisesONU.length);
 
                 if (!pais) {
-                    paisSelect.classList.add('is-invalid');
+                    dropdown_pais.classList.add('is-invalid');
                     if (!paisError) {
                         const errorDiv = document.createElement('div');
                         errorDiv.id = 'paisError';
                         errorDiv.className = 'error-message';
                         errorDiv.textContent = 'Debe seleccionar un país';
-                        paisSelect.parentNode.insertBefore(errorDiv, paisSelect.nextSibling);
+                        dropdown_pais.parentNode.insertBefore(errorDiv, dropdown_pais.nextSibling);
                     } else {
                         paisError.style.display = 'block';
                     }
                     isValid = false;
                 } else {
-                    paisSelect.classList.remove('is-invalid');
+                    dropdown_pais.classList.remove('is-invalid');
                     if (paisError) paisError.style.display = 'none';
                 }
 
@@ -572,7 +622,7 @@
                 const nombre = nombreInput.value.trim();
                 const descripcion = descripcionInput.value.trim();
                 const identificador = document.getElementById('identificador').value === 'true';
-                const pais = document.getElementById('pais').value;
+                const pais = document.getElementById('dropdown_pais').value;
                 const tono = document.getElementById('tono').value;
                 const compas = document.getElementById('compas').value;
                 const promedioCanciones = document.getElementById('promedioCanciones').value;
@@ -586,6 +636,12 @@
                 const esSubgenero = esSubgeneroCheck.checked;
                 const generoPadre = esSubgenero ? document.getElementById('generoPadre').value : null;
 
+
+                // Al crear un género, llamarías:
+                const generoPadreId = document.getElementById('generoPadre').value;
+                const llave = generarLlaveGenero(esSubgenero, generoPadreId);
+
+// Esto lo puedes incluir en tu función crearGenero()
                 // Generar fecha y hora actual
                 const now = new Date();
                 const fechaCreacion = now.toISOString();
@@ -606,7 +662,8 @@
                     cluster_id: cluster ? parseInt(cluster) : null,
                     color,
                     genero_padre_id: generoPadre ? parseInt(generoPadre) : null,
-                    fecha_creacion: fechaCreacion
+                    fecha_creacion: fechaCreacion,
+                    llave_unica: llave
                 };
 
                 // Mostrar resultados
@@ -625,6 +682,7 @@
                     <p><strong>Color:</strong> ${genero.color || 'Ninguno (asociado a cluster)'}</p>
                     <p><strong>Es Subgénero:</strong> ${genero.genero_padre_id ? 'Sí (ID ' + genero.genero_padre_id + ')' : 'No'}</p>
                     <p><strong>Fecha de Creación:</strong> ${new Date(genero.fecha_creacion).toLocaleString()}</p>
+                    <p><strong>Llave:</strong> ${llave}</p>
                 `;
 
                 resultContainer.style.display = 'block';
@@ -652,6 +710,39 @@
                 });
                 */
             }
+
+
+            function generarLlaveGenero(esSubgenero = false, generoPadreId = null) {
+                // Función para generar 12 caracteres alfanuméricos aleatorios
+                const generarIdAleatorio = () => {
+                    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                    let resultado = '';
+                    for (let i = 0; i < 12; i++) {
+                        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+                    }
+                    return resultado;
+                };
+
+                // Parte fija de género
+                const parteGenero = 'G-' + generarIdAleatorio();
+
+                // Parte de subgénero
+                let parteSubgenero;
+                if (esSubgenero && generoPadreId) {
+                    // Si es subgénero y tiene padre, generamos código para el subgénero
+                    parteSubgenero = 'S-' + generarIdAleatorio();
+                } else if (esSubgenero) {
+                    // Si es subgénero pero no tiene padre (no debería pasar según validaciones)
+                    parteSubgenero = 'S-000000000000';
+                } else {
+                    // Si no es subgénero
+                    parteSubgenero = 'S-000000000000';
+                }
+
+                return parteGenero + '-' + parteSubgenero;
+            }
+
+
         });
     </script>
 </body>
