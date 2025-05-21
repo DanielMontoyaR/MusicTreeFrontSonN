@@ -130,7 +130,7 @@ def crear_genero():
             data['average_duration'] = int(data['average_duration'])
 
         if data.get('average_mode') is not None and data['average_mode'] != '':
-            data['average_mode'] = float(data['average_mode'])
+            data['average_mode'] = float(int(data['average_mode'])/100)
 
         if data.get('typical_volume') is not None and data['typical_volume'] != '':
             data['typical_volume'] = float(data['typical_volume'])
