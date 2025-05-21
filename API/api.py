@@ -73,8 +73,6 @@ def obtener_clusters_genero():
 def crear_genero():
     data = request.get_json()
 
-    print("\n\n\n\n\n\n\n\n\n\n\nDatos recibidos:", data)  # Imprime los datos para depuración
-
     # Validaciones clave
     if not data.get('name'):
         return jsonify({"error": "El nombre es obligatorio"}), 400
