@@ -59,7 +59,7 @@ def crear_cluster(request):
             print("Data to send:", data)  # Imprime los datos para depuración
 
             response = requests.post(
-                "http://127.0.0.1:5000/create_cluster_genero",
+                "https://musictreeapi.azurewebsites.net/create_cluster_genero",
                 json=data
             )
             response.raise_for_status()
@@ -98,7 +98,7 @@ def crear_genero_musica(request):
             print("Data to send:", data)  # Debugging
 
             response = requests.post(
-                "http://127.0.0.1:5000/api/create_genres",
+                "https://musictreeapi.azurewebsites.net/api/create_genres",
                 json=data
             )
             response.raise_for_status()
