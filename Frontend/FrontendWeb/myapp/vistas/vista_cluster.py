@@ -30,9 +30,23 @@ def crear_cluster(request):
                 json=data
             )
             response.raise_for_status()
-            return render(request, ruta_crear_cluster, {"success": True, "response": response.json()})
+            return render(request, ruta_crear_cluster, {
+                "success": True, 
+                "response": response.json()
+            })
+        
         except Exception as e:
-            return render(request, ruta_crear_cluster, {"error": str(e)})
+
+            if e.response.status_code == 409:
+                error_message = "Error: El nombre ya existe en el sistema. No se puede crear un cluster duplicado."
+            else:
+                error_message = "Error: No se pudo crear el cluster: {str(e)}"
+
+            return render(request, ruta_crear_cluster, {
+                "error": error_message,
+                "response": e.response.json() if e.response else None
+            })
+        
     return render(request, ruta_crear_cluster)
 
 def get_cluster_genero(request):

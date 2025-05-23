@@ -47,3 +47,13 @@ def crear_genero_musica(request):
         except Exception as e:
             return render(request, ruta_crear_genero, {"error": str(e)})
     return render(request, ruta_crear_genero)
+
+
+
+
+@csrf_exempt
+def importar_generos(request):
+
+    ruta_importar_genero = "Genero/importar_generos.html"
+
+    return render(request, ruta_importar_genero)
