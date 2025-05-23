@@ -18,3 +18,7 @@ def registrar_artista(request):
     ruta_crear_artista = "Artista/registrar_artista.html"
 
     return render(request, ruta_crear_artista)
+
+def ver_catalogo_artista(request):
+    ruta_catalogo_artistas = "Artista/ver_catalogo_artista.html"
+    return render(request, ruta_catalogo_artistas)

@@ -22,4 +22,5 @@ urlpatterns=[
     path("crear_genero_musica/", vista_genero.crear_genero_musica, name="crear_genero_musica"),
     path("importar_generos/", vista_genero.importar_generos, name="importar_generos"),
     path("registrar_artista/", vista_artista.registrar_artista, name="registrar_artista"),
+    path("ver_catalogo_artista/", vista_artista.ver_catalogo_artista, name="ver_catalogo_artista"),
 ]
