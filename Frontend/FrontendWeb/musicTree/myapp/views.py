@@ -1,3 +1,4 @@
+"""
 from django.shortcuts import render, HttpResponse
 from .models import TodoItem
 from .models import ClusterGenero
@@ -109,3 +110,4 @@ def crear_genero_musica(request):
 
 #def crear_genero_musica(request):
 #    return render(request, "crear_genero_musica.html")
+"""
