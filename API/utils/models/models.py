@@ -1,13 +1,31 @@
-# utils/models.py
-
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy import Enum, CheckConstraint
-
-db = SQLAlchemy()
+from sqlalchemy import Enum
+from utils.database.database import db
 
 key_enum = Enum('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '-1', name='key_type')
 time_signature_enum = Enum('0', '2', '3', '4', '5', '6', '7', '8', name='time_signature_type')
+
+class Cluster(db.Model):
+    
+    __tablename__ = 'genre_clusters'
+
+    cluster_id = db.Column(db.String(15), primary_key=True)
+    name = db.Column(db.String(30), unique=True, nullable=False)
+    description = db.Column(db.String(300))
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+
+    genres = db.relationship('Genre', back_populates='cluster')
+
+    def to_dict(self):
+        return {
+            "cluster_id": self.cluster_id,
+            "name": self.name,
+            "description": self.description,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
 
 class Genre(db.Model):
     __tablename__ = 'genres'
@@ -33,7 +51,7 @@ class Genre(db.Model):
     parent_genre = db.relationship('Genre', remote_side=[genre_id])
 
     cluster_id = db.Column(db.String(15), db.ForeignKey('genre_clusters.cluster_id'))
-    cluster = db.relationship('GenreCluster', back_populates='genres')
+    cluster = db.relationship('Cluster', back_populates='genres')
 
     def to_dict(self):
         return {

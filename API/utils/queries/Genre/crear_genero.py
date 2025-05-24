@@ -3,7 +3,7 @@ import traceback
 from utils.database.database import db
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.Genre import genre_model
+from utils.models.models import Genre
 
 def crearGeneroData(data):
 
@@ -55,7 +55,7 @@ def crearGeneroData(data):
 
     genre_id = str(uuid.uuid4())[:27]
 
-    nuevo_genero = genre_model(
+    nuevo_genero = Genre(
         genre_id=genre_id,
         name=data['name'],
         description=data.get('description'),

@@ -1,6 +1,5 @@
 # API/api.py (o API/routes.py)
 from flask import Flask, jsonify, request
-from sqlalchemy.exc import IntegrityError
 from utils.database.database import db
 from utils.queries.Cluster.crear_cluster_genero import *
 from utils.queries.Cluster.get_clusters_genero import *

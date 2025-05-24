@@ -2,7 +2,7 @@ import uuid
 from utils.database.database import db
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.Cluster import cluster_model
+from utils.models.models import Cluster
 
 def crearClusterGeneroData(data):
     name = data.get('name')
@@ -14,7 +14,7 @@ def crearClusterGeneroData(data):
 
     cluster_id = str(uuid.uuid4())[:15]
 
-    nuevo_cluster = cluster_model(
+    nuevo_cluster = Cluster(
         cluster_id=cluster_id,
         name=name,
         description=description,

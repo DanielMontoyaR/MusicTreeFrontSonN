@@ -1,10 +1,10 @@
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.Cluster import cluster_model
+from utils.models.models import Cluster
 
 def getClusterGenero():
     try:
-        clusters = cluster_model.query.all()
+        clusters = Cluster.query.all()
         clusters_json = [cluster.to_dict() for cluster in clusters]
         return jsonify(clusters_json), 200
     except Exception as e:
