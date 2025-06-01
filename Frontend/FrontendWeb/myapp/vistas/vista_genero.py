@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from flask import Flask, jsonify, render_template
-from flask_cors import CORS  # Importa el módulo CORS
+#from flask_cors import CORS  # Importa el módulo CORS
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ..models import ClusterGenero  # Asegúrate de importar tu modelo
