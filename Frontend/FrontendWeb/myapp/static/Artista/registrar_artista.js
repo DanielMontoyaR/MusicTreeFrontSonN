@@ -1,4 +1,4 @@
-console.log("Script de registro de artista cargado");
+console.log("Script de registro de artista cargado 123");
 document.addEventListener('DOMContentLoaded', function() {
     // Variables para contar grupos
     let currentMemberCount = 0;

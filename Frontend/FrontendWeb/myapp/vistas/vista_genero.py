@@ -49,7 +49,33 @@ def crear_genero_musica(request):
     return render(request, ruta_crear_genero)
 
 
+@csrf_exempt
+def get_clusters(request):
+    if request.method == 'GET':
+        try:
+            # Simulación de datos - reemplazar con tu lógica real
+            clusters = [
+                {'id': 1, 'nombre': 'Cluster Rock'},
+                {'id': 2, 'nombre': 'Cluster Pop'},
+                {'id': 3, 'nombre': 'Cluster Electrónica'}
+            ]
+            return JsonResponse(clusters, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
+@csrf_exempt
+def get_genres(request):
+    if request.method == 'GET':
+        try:
+            # Simulación de datos - reemplazar con tu lógica real
+            generos = [
+                {'id': 1, 'nombre': 'Rock'},
+                {'id': 2, 'nombre': 'Pop'},
+                {'id': 3, 'nombre': 'Jazz'}
+            ]
+            return JsonResponse(generos, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 def importar_generos(request):
