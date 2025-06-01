@@ -12,10 +12,7 @@ def crearClusterGeneroData(data):
     if not name:
         return None, {"error": "El campo 'name' es obligatorio."}, 400
 
-    cluster_id = str(uuid.uuid4())[:15]
-
     nuevo_cluster = Cluster(
-        cluster_id=cluster_id,
         name=name,
         description=description,
         is_active=is_active

@@ -53,10 +53,7 @@ def crearGeneroData(data):
     except ValueError as e:
         return None, jsonify({"error": "Error de formato de tipo", "detalle": str(e)}), 400
 
-    genre_id = str(uuid.uuid4())[:27]
-
     nuevo_genero = Genre(
-        genre_id=genre_id,
         name=data['name'],
         description=data.get('description'),
         is_active=data.get('is_active', True),

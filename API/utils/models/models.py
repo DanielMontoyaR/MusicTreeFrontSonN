@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy import Enum
+from sqlalchemy import Enum, text
 from utils.database.database import db
 
 key_enum = Enum('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '-1', name='key_type')
@@ -10,7 +10,12 @@ class Cluster(db.Model):
     
     __tablename__ = 'genre_clusters'
 
-    cluster_id = db.Column(db.String(15), primary_key=True)
+    cluster_id = db.Column(
+        db.String(15),
+        primary_key=True,
+        server_default=text("'C-' || substr(md5(random()::text), 0, 12)")
+    )
+
     name = db.Column(db.String(30), unique=True, nullable=False)
     description = db.Column(db.String(300))
     is_active = db.Column(db.Boolean, default=True, nullable=False)
@@ -30,7 +35,11 @@ class Cluster(db.Model):
 class Genre(db.Model):
     __tablename__ = 'genres'
 
-    genre_id = db.Column(db.String(27), primary_key=True)
+    genre_id = db.Column(
+        db.String(27),
+        primary_key=True,
+        server_default=text("'G-' || substr(md5(random()::text), 0, 12) || 'S-000000000000'")
+    )
     name = db.Column(db.String(30), nullable=False)
     description = db.Column(db.String(1000))
     is_active = db.Column(db.Boolean, default=True, nullable=False)
@@ -61,3 +70,5 @@ class Genre(db.Model):
             "created_at": self.created_at.isoformat(),
             "is_active": self.is_active
         }
+    
+
