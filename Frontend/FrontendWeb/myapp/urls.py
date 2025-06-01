@@ -23,4 +23,6 @@ urlpatterns=[
     path("importar_generos/", vista_genero.importar_generos, name="importar_generos"),
     path("registrar_artista/", vista_artista.registrar_artista, name="registrar_artista"),
     path("ver_catalogo_artista/", vista_artista.ver_catalogo_artista, name="ver_catalogo_artista"),
+    path("api/clusters/", vista_genero.get_clusters, name='get_clusters'),
+    path("api/genres/", vista_genero.get_genres, name='get_genres'),
 ]

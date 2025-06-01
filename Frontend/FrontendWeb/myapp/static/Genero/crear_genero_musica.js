@@ -22,88 +22,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('color').value = hexColor;
     });
 
-
-    console.log("asdasdadasdasdasd")
-
-
-    // Agregar estas funciones al final del archivo, antes del cierre del DOMContentLoaded
-
-    // Función para cargar clusters
-    async function cargarClusters() {
-        try {
-            const response = await fetch('https://musictreeapi.azurewebsites.net/api/get_clusters');
-            if (!response.ok) throw new Error('Error al cargar clusters');
-
-            const clusters = await response.json();
-            const select = document.getElementById('cluster_id');
-
-            // Limpiar opciones existentes (excepto la primera)
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-
-            // Agregar nuevas opciones
-            clusters.forEach(cluster => {
-                const option = document.createElement('option');
-                option.value = cluster.id;
-                option.textContent = cluster.nombre;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            alert('No se pudieron cargar los clusters. Por favor intente más tarde.');
-        }
-    }
-
-    // Función para cargar géneros principales
-    async function cargarGenerosPrincipales() {
-        try {
-            const response = await fetch('https://musictreeapi.azurewebsites.net/api/get_genres');
-            if (!response.ok) throw new Error('Error al cargar géneros');
-
-            const generos = await response.json();
-            const select = document.getElementById('parent_genre_id');
-
-            // Limpiar opciones existentes (excepto la primera)
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-
-            // Agregar nuevas opciones
-            generos.forEach(genero => {
-                const option = document.createElement('option');
-                option.value = genero.id;
-                option.textContent = genero.nombre;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            alert('No se pudieron cargar los géneros principales. Por favor intente más tarde.');
-        }
-    }
-
-    // Modificar los event listeners para los checkboxes
-    document.getElementById('asociarCluster').addEventListener('change', function () {
-        const clusterSection = document.getElementById('clusterSection');
-        clusterSection.style.display = this.checked ? 'block' : 'none';
-        console.log("Se quiere asociar a un cluster");
-        if (this.checked) {
-            console.log("Se quiere asociar a un cluster");
-            cargarClusters();
-        }
-    });
-
-    document.getElementById('is_subgenre').addEventListener('change', function () {
-        const subgeneroSection = document.getElementById('subgeneroSection');
-        subgeneroSection.style.display = this.checked ? 'block' : 'none';
-
-        if (this.checked) {
-            cargarGenerosPrincipales();
-        }
-    });
-
-
-
     // Establecer color inicial
     document.getElementById('colorPreview').style.backgroundColor = '#6c84d5';
 
@@ -237,4 +155,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+    // Agregar estas funciones al final del archivo, antes del cierre del DOMContentLoaded
+
+    // Función para cargar clusters
+    async function cargarClusters() {
+        try {
+            const response = await fetch('/api/clusters/');
+            if (!response.ok) throw new Error('Error al cargar clusters');
+            
+            const clusters = await response.json();
+            const select = document.getElementById('cluster_id');
+            
+            // Limpiar y poblar el select
+            select.innerHTML = '<option value="" selected disabled>Seleccione un cluster</option>';
+            clusters.forEach(cluster => {
+                const option = new Option(cluster.nombre, cluster.id);
+                select.add(option);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al cargar clusters');
+        }
+    }
+
+    // Función para cargar géneros desde Django
+    async function cargarGenerosPrincipales() {
+        try {
+            const response = await fetch('/api/genres/');
+            if (!response.ok) throw new Error('Error al cargar géneros');
+            
+            const generos = await response.json();
+            const select = document.getElementById('parent_genre_id');
+            
+            // Limpiar y poblar el select
+            select.innerHTML = '<option value="" selected disabled>Seleccione un género principal</option>';
+            generos.forEach(genero => {
+                const option = new Option(genero.nombre, genero.id);
+                select.add(option);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al cargar géneros');
+        }
+    }
+
+    // Event listeners
+    document.getElementById('asociarCluster').addEventListener('change', function() {
+        const section = document.getElementById('clusterSection');
+        section.style.display = this.checked ? 'block' : 'none';
+        if (this.checked) cargarClusters();
+    });
+
+    document.getElementById('is_subgenre').addEventListener('change', function() {
+        const section = document.getElementById('subgeneroSection');
+        section.style.display = this.checked ? 'block' : 'none';
+        if (this.checked) cargarGenerosPrincipales();
+    });
 });

@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from flask import Flask, jsonify, render_template
-#from flask_cors import CORS  # Importa el módulo CORS
+from flask_cors import CORS  # Importa el módulo CORS
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ..models import ClusterGenero  # Asegúrate de importar tu modelo
@@ -51,31 +51,24 @@ def crear_genero_musica(request):
 
 @csrf_exempt
 def get_clusters(request):
-    if request.method == 'GET':
-        try:
-            # Simulación de datos - reemplazar con tu lógica real
-            clusters = [
-                {'id': 1, 'nombre': 'Cluster Rock'},
-                {'id': 2, 'nombre': 'Cluster Pop'},
-                {'id': 3, 'nombre': 'Cluster Electrónica'}
-            ]
-            return JsonResponse(clusters, safe=False)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+    # Datos mockeados
+    MOCK_CLUSTERS = [
+        {"id": 1, "nombre": "Cluster Rock"},
+        {"id": 2, "nombre": "Cluster Pop"},
+        {"id": 3, "nombre": "Cluster Electrónica"}
+    ]
+    """Endpoint para obtener clusters mockeados"""
+    return JsonResponse(MOCK_CLUSTERS, safe=False)
 
 @csrf_exempt
 def get_genres(request):
-    if request.method == 'GET':
-        try:
-            # Simulación de datos - reemplazar con tu lógica real
-            generos = [
-                {'id': 1, 'nombre': 'Rock'},
-                {'id': 2, 'nombre': 'Pop'},
-                {'id': 3, 'nombre': 'Jazz'}
-            ]
-            return JsonResponse(generos, safe=False)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+    MOCK_GENEROS = [
+    {"id": 1, "nombre": "Rock"},
+    {"id": 2, "nombre": "Pop"},
+    {"id": 3, "nombre": "Jazz"}
+    ]
+    """Endpoint para obtener géneros mockeados"""
+    return JsonResponse(MOCK_GENEROS, safe=False)
 
 @csrf_exempt
 def importar_generos(request):
