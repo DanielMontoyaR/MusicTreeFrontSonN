@@ -1,4 +1,4 @@
-CREATE TYPE key_type AS ENUM ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '-1');
+Vivi_sr2010CREATE TYPE key_type AS ENUM ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '-1');
 CREATE TYPE time_signature_type AS ENUM ('0', '2', '3', '4', '5', '6', '7', '8');
 
 -- Genre clusters table
