@@ -19,9 +19,13 @@ db.init_app(app)
 def crear_cluster_genero():
     data = request.get_json()
 
-    cluster, error_response, status_code = crearClusterGeneroData(data)
+    try:
 
-    if error_response:
+        cluster, error_response, status_code = crearClusterGeneroData(data)
+
+    except Exception as e:
+        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        status_code = 500
         return jsonify(error_response), status_code
 
     return guardarClusterDB(cluster)
