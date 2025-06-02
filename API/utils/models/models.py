@@ -31,6 +31,11 @@ class Cluster(db.Model):
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
+    def partial_to_dict(self):
+        return {
+            "cluster_id": self.cluster_id,
+            "name": self.name
+        }
 
 class Genre(db.Model):
     __tablename__ = 'genres'
@@ -69,6 +74,11 @@ class Genre(db.Model):
             "description": self.description,
             "created_at": self.created_at.isoformat(),
             "is_active": self.is_active
+        }
+    def partial_to_dict(self):
+        return {
+            "genre_id": self.genre_id,
+            "name": self.name
         }
     
 

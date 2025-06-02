@@ -4,6 +4,8 @@ from utils.database.database import db
 from utils.queries.Cluster.crear_cluster_genero import *
 from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
+from utils.queries.Genre.get_generos import *
+from utils.queries.Cluster.get_clusters import *
 
 app = Flask(__name__)
 
@@ -34,13 +36,24 @@ def obtener_clusters_genero():
 def crear_genero():
     data = request.get_json()
 
-    genero, error_response, status_code = crearGeneroData(data)
+    try:
+        genero, error_response, status_code = crearGeneroData(data)
 
-    if error_response:
+    except Exception as e:
+        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        status_code = 500
         return jsonify(error_response), status_code
-    
 
     return guardarGeneroDB(genero)
+
+@app.route('/api/get_genres', methods=['GET'])
+def obtener_generos():
+    return getGeneros()
+
+@app.route('/api/get_clusters', methods=['GET'])
+def obtener_clusters():
+    return getClusters()
+    
 
 if __name__ == "__main__":
     app.run(port=5000,debug=True)
