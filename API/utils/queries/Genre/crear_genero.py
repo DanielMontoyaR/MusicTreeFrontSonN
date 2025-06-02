@@ -78,6 +78,11 @@ def crearGeneroData(data):
 
     return nuevo_genero, None, None
 
+def safe_float(value):
+    return float(value) if value is not None else None
+
+
+
 def guardarGeneroDB(genero):
     try:
         if genero is None:
@@ -100,11 +105,11 @@ def guardarGeneroDB(genero):
                 'color': None if genero.is_subgenre else genero.color,
                 'creation_year': genero.creation_year,
                 'country': genero.country_of_origin,
-                'average_mode': float(genero.average_mode),
+                'average_mode': safe_float(genero.average_mode),
                 'bpm_lower': genero.bpm_lower,
                 'bpm_upper': genero.bpm_upper,
                 'dominant_key': str(genero.dominant_key),
-                'volume': float(genero.typical_volume),
+                'volume': safe_float(genero.typical_volume),
                 'time_signature': str(genero.time_signature),
                 'duration': genero.average_duration,
                 'is_subgenre': genero.is_subgenre,
