@@ -34,6 +34,7 @@ def crear_cluster_genero():
 def obtener_clusters_genero():
 
     return getClusterGenero()
+#cambio para vcer
 
 #Endpoint para crear géneros
 @app.route('/api/create_genres', methods=['POST'])
