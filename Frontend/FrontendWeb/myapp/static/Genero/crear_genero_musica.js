@@ -151,6 +151,48 @@ document.addEventListener('DOMContentLoaded', function () {
             // Desplazarse al primer error
             document.querySelector('.is-invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        // Validar Promedio de Canciones (0.1 - 0.99)
+        const averageMode = parseFloat(document.getElementById('average_mode').value);
+        if (isNaN(averageMode) || averageMode < 0.1 || averageMode > 0.99) {
+            e.preventDefault();
+            document.getElementById('average_mode').classList.add('is-invalid');
+            document.getElementById('promedioCancionesError').textContent = 
+                'El valor debe estar entre 0.1 y 0.99';
+            document.getElementById('promedioCancionesError').style.display = 'block';
+            
+            // Desplazarse al error
+            document.getElementById('average_mode').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        }
+        //e.preventDefault();
+        // Obtener todos los datos del formulario
+        const formData = {
+            nombre: document.getElementById('nombre').value,
+            descripcion: document.getElementById('descripcion').value,
+            is_active: document.getElementById('is_active').value,
+            color: document.getElementById('color').value,
+            country_of_origin: document.getElementById('country_of_origin').value,
+            creation_year: document.getElementById('creation_year').value,
+            average_mode: document.getElementById('average_mode').value,
+            bpm_lower: document.getElementById('bpm_lower').value,
+            bpm_upper: document.getElementById('bpm_upper').value,
+            dominant_key: document.getElementById('dominant_key').value,
+            typical_volume: document.getElementById('typical_volume').value,
+            time_signature: document.getElementById('time_signature').value,
+            average_duration: document.getElementById('average_duration').value,
+            asociarCluster: document.getElementById('asociarCluster').checked,
+            cluster_id: document.getElementById('cluster_id').value,
+            is_subgenre: document.getElementById('is_subgenre').checked,
+            parent_genre_id: document.getElementById('parent_genre_id').value
+        };
+
+        // Imprimir en consola
+        console.log("Datos del formulario:", formData);
+
+
     });
 
 

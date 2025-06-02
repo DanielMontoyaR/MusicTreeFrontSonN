@@ -17,23 +17,24 @@ def crear_genero_musica(request):
     if request.method == 'POST':
         try:
             data = {
-                'genre_id': request.POST.get('genre_id'),
                 'name': request.POST.get('name'),
                 'description': request.POST.get('description'),
-                'is_active': request.POST.get('is_active', 'false') == 'true',
                 'color': request.POST.get('color'),
                 'creation_year': int(request.POST.get('creation_year')),
-                'country_of_origin': request.POST.get('country_of_origin'),
-                'average_mode': request.POST.get('average_mode'),
-                'bpm_lower': request.POST.get('bpm_lower'),
-                'bpm_upper': request.POST.get('bpm_upper'),
+                'country': request.POST.get('country_of_origin'),
+                'average_mode': float(request.POST.get('average_mode')),
+                'bpm_lower': int(request.POST.get('bpm_lower')),
+                'bpm_upper': int(request.POST.get('bpm_upper')),
                 'dominant_key': request.POST.get('dominant_key'),
-                'typical_volume': request.POST.get('typical_volume'),
+                'volume': float(request.POST.get('typical_volume')),
                 'time_signature': request.POST.get('time_signature'),
-                'average_duration': request.POST.get('average_duration'),
+                'duration': int(request.POST.get('average_duration')),
                 'is_subgenre': request.POST.get('is_subgenre', 'false') == 'true',
                 'parent_genre_id': request.POST.get('parent_genre_id'),
                 'cluster_id': request.POST.get('cluster_id'),
+
+                #'genre_id': request.POST.get('genre_id'),
+                #'is_active': request.POST.get('is_active', 'false') == 'true',
             }
 
             print("Data to send:", data)  # Debugging
@@ -48,7 +49,7 @@ def crear_genero_musica(request):
             return render(request, ruta_crear_genero, {"error": str(e)})
     return render(request, ruta_crear_genero)
 
-
+"""
 @csrf_exempt
 def get_clusters(request):
     # Datos mockeados
@@ -57,9 +58,37 @@ def get_clusters(request):
         {"id": 2, "nombre": "Cluster Pop"},
         {"id": 3, "nombre": "Cluster Electrónica"}
     ]
-    """Endpoint para obtener clusters mockeados"""
+    #Endpoint para obtener clusters mockeados
     return JsonResponse(MOCK_CLUSTERS, safe=False)
+"""
 
+@csrf_exempt
+def get_clusters(request):
+    """Endpoint para obtener clusters desde el API externo"""
+    try:
+        response = requests.get(
+            'https://musictreeapi.azurewebsites.net/api/get_clusters',
+            timeout=5  # 5 segundos de timeout
+        )
+        response.raise_for_status()  # Lanza error si hay problemas
+        
+        # Transforma los datos para mantener consistencia
+        clusters = [{
+            'id': item['cluster_id'],
+            'nombre': item['name']
+        } for item in response.json()]
+        
+        return JsonResponse(clusters, safe=False)
+        
+    except Exception as e:
+        # Retorna datos mockeados si falla la conexión (para desarrollo)
+        backup_data = [
+            {'id': 'C-D067F8195E78', 'nombre': 'Popular Music'},
+            {'id': 'C-EFB0A68EAEA5', 'nombre': 'Traditional'}
+        ]
+        return JsonResponse(backup_data, safe=False)
+
+"""
 @csrf_exempt
 def get_genres(request):
     MOCK_GENEROS = [
@@ -67,8 +96,36 @@ def get_genres(request):
     {"id": 2, "nombre": "Pop"},
     {"id": 3, "nombre": "Jazz"}
     ]
-    """Endpoint para obtener géneros mockeados"""
+    #Endpoint para obtener géneros mockeados
     return JsonResponse(MOCK_GENEROS, safe=False)
+"""
+
+def get_genres(request):
+    """Endpoint para obtener géneros desde el API externo"""
+    try:
+        response = requests.get(
+            'https://musictreeapi.azurewebsites.net/api/get_genres',
+            timeout=5
+        )
+        response.raise_for_status()
+        
+        # Transforma los datos
+        genres = [{
+            'id': item['genre_id'],
+            'nombre': item['name']
+        } for item in response.json()]
+        
+        return JsonResponse(genres, safe=False)
+        
+    except Exception as e:
+        # Datos de respaldo
+        backup_data = [
+            {'id': 'G-105AD5A53709000000000000', 'nombre': 'Rock'},
+            {'id': 'G-792432650DE6000000000000', 'nombre': 'Jazz'}
+        ]
+        return JsonResponse(backup_data, safe=False)
+
+
 
 @csrf_exempt
 def importar_generos(request):
@@ -76,3 +133,7 @@ def importar_generos(request):
     ruta_importar_genero = "Genero/importar_generos.html"
 
     return render(request, ruta_importar_genero)
+
+
+
+
