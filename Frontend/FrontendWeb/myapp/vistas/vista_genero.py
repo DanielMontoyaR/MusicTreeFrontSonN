@@ -21,26 +21,25 @@ def crear_genero_musica(request):
                 'description': request.POST.get('description'),
                 'color': request.POST.get('color'),
                 'creation_year': int(request.POST.get('creation_year')),
-                'country': request.POST.get('country_of_origin'),
+                'country_of_origin': request.POST.get('country_of_origin'),
                 'average_mode': float(request.POST.get('average_mode')),
                 'bpm_lower': int(request.POST.get('bpm_lower')),
                 'bpm_upper': int(request.POST.get('bpm_upper')),
                 'dominant_key': request.POST.get('dominant_key'),
-                'volume': float(request.POST.get('typical_volume')),
+                'typical_volume': float(request.POST.get('typical_volume')),
                 'time_signature': request.POST.get('time_signature'),
-                'duration': int(request.POST.get('average_duration')),
-                'is_subgenre': request.POST.get('is_subgenre', 'false') == 'true',
+                'average_duration': int(request.POST.get('average_duration')),
+                'is_subgenre': request.POST.get('is_subgenre') == 'on',
                 'parent_genre_id': request.POST.get('parent_genre_id'),
                 'cluster_id': request.POST.get('cluster_id'),
 
                 #'genre_id': request.POST.get('genre_id'),
                 #'is_active': request.POST.get('is_active', 'false') == 'true',
             }
-
             print("Data to send:", data)  # Debugging
-
+            #Link local http://127.0.0.1:5000
             response = requests.post(
-                "https://musictreeapi.azurewebsites.net/api/create_genres",
+                "http://127.0.0.1:5000/api/create_genres",
                 json=data
             )
             response.raise_for_status()

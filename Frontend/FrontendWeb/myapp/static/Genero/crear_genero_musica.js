@@ -98,7 +98,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('is_subgenre').addEventListener('change', function () {
+        const subgeneroSection = document.getElementById('subgeneroSection');
+        const colorInput = document.getElementById('color');
+        const colorPickerButton = document.getElementById('colorPickerButton');
+
         document.getElementById('subgeneroSection').style.display = this.checked ? 'block' : 'none';
+
+        subgeneroSection.style.display = this.checked ? 'block' : 'none';
+
+        // Deshabilitar/limpiar color cuando es subgénero
+        if (this.checked) {
+            colorInput.value = 'none';
+            colorInput.disabled = true;
+            colorPickerButton.disabled = true;
+            document.getElementById('colorPreview').style.backgroundColor = 'transparent';
+        } else {
+            colorInput.disabled = false;
+            colorPickerButton.disabled = false;
+            colorInput.value = '#6c84d5'; // Valor por defecto
+            document.getElementById('colorPreview').style.backgroundColor = '#6c84d5';
+        }
+
+        if (this.checked) {
+            cargarGenerosPrincipales();
+        }
     });
 
     // Contador de caracteres
@@ -111,6 +134,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Validación del formulario
     document.getElementById('genreForm').addEventListener('submit', function (e) {
         let isValid = true;
+
+        // Si es subgénero, forzar color a 'none'
+        if (document.getElementById('is_subgenre').checked) {
+            document.getElementById('color').value = 'none';
+        }
 
         // Validar nombre
         const nombre = document.getElementById('nombre').value.trim();
@@ -157,14 +185,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isNaN(averageMode) || averageMode < 0.1 || averageMode > 0.99) {
             e.preventDefault();
             document.getElementById('average_mode').classList.add('is-invalid');
-            document.getElementById('promedioCancionesError').textContent = 
+            document.getElementById('promedioCancionesError').textContent =
                 'El valor debe estar entre 0.1 y 0.99';
             document.getElementById('promedioCancionesError').style.display = 'block';
-            
+
             // Desplazarse al error
-            document.getElementById('average_mode').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
+            document.getElementById('average_mode').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
             });
         }
         //e.preventDefault();
@@ -206,10 +234,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch('/api/clusters/');
             if (!response.ok) throw new Error('Error al cargar clusters');
-            
+
             const clusters = await response.json();
             const select = document.getElementById('cluster_id');
-            
+
             // Limpiar y poblar el select
             select.innerHTML = '<option value="" selected disabled>Seleccione un cluster</option>';
             clusters.forEach(cluster => {
@@ -227,10 +255,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch('/api/genres/');
             if (!response.ok) throw new Error('Error al cargar géneros');
-            
+
             const generos = await response.json();
             const select = document.getElementById('parent_genre_id');
-            
+
             // Limpiar y poblar el select
             select.innerHTML = '<option value="" selected disabled>Seleccione un género principal</option>';
             generos.forEach(genero => {
@@ -244,13 +272,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Event listeners
-    document.getElementById('asociarCluster').addEventListener('change', function() {
+    document.getElementById('asociarCluster').addEventListener('change', function () {
         const section = document.getElementById('clusterSection');
         section.style.display = this.checked ? 'block' : 'none';
         if (this.checked) cargarClusters();
     });
 
-    document.getElementById('is_subgenre').addEventListener('change', function() {
+    document.getElementById('is_subgenre').addEventListener('change', function () {
         const section = document.getElementById('subgeneroSection');
         section.style.display = this.checked ? 'block' : 'none';
         if (this.checked) cargarGenerosPrincipales();
