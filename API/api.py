@@ -1,96 +1,64 @@
 # API/api.py (o API/routes.py)
-
-from flask import Flask, request, jsonify
-import psycopg2
+from flask import Flask, jsonify, request
+from utils.database.database import db
+from utils.queries.Cluster.crear_cluster_genero import *
+from utils.queries.Cluster.get_clusters_genero import *
+from utils.queries.Genre.crear_genero import *
+from utils.queries.Genre.get_generos import *
+from utils.queries.Cluster.get_clusters import *
 
 app = Flask(__name__)
 
-# Configuración de la conexión (modifica según tu servidor Azure PostgreSQL)
-DB_CONFIG = {
-    "host": "tuservidor.postgres.database.azure.com",
-    "database": "tu_base",
-    "user": "admin@tuservidor",
-    "password": "tu_contraseña",
-    "port": "5432",
-    "sslmode": "require"
-}
+# Configuración para conectarte a Azure PostgreSQL
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://musictreeadmin:AxpHDxGS2BcFdaf@musictree-server.postgres.database.azure.com:5432/postgres?sslmode=require'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route("/crear_cluster_gen", methods=["POST"])
-def crear_cluster():
-    data = request.json
-    nombre = data.get("nombre")
-    descripcion = data.get("descripcion")
-    fecha = data.get("fecha")
-    hora = data.get("hora")
+db.init_app(app)
 
-    if not nombre:
-        return jsonify({"error": "El nombre es obligatorio"}), 400
+@app.route('/create_cluster_genero', methods=['POST'])
+def crear_cluster_genero():
+    data = request.get_json()
 
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO genero_cluster (nombre, descripcion, fecha, hora)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id;
-        ''', (nombre, descripcion, fecha, hora))
-        cluster_id = cursor.fetchone()[0]
-        conn.commit()
-        conn.close()
-        return jsonify({"mensaje": "Cluster creado", "id": cluster_id}), 201
+
+        cluster, error_response, status_code = crearClusterGeneroData(data)
+
     except Exception as e:
-        print("Error al crear cluster:", e)
-        return jsonify({"error": "Error interno"}), 500
+        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        status_code = 500
+        return jsonify(error_response), status_code
+
+    return guardarClusterDB(cluster)
+
+@app.route('/get_clusters_genero', methods=['GET'])
+def obtener_clusters_genero():
+
+    return getClusterGenero()
+#cambio para vcer
+
+#Endpoint para crear géneros
+@app.route('/api/create_genres', methods=['POST'])
+def crear_genero():
+    data = request.get_json()
+
+    try:
+        genero, error_response, status_code = crearGeneroData(data)
+
+    except Exception as e:
+        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        status_code = 500
+        return jsonify(error_response), status_code
+
+    return guardarGeneroDB(genero)
+
+@app.route('/api/get_genres', methods=['GET'])
+def obtener_generos():
+    return getGeneros()
+
+@app.route('/api/get_clusters', methods=['GET'])
+def obtener_clusters():
+    return getClusters()
     
 
-
-@app.route("/clusters_genero", methods=["GET"])
-def obtener_clusters_genero():
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, nombre, descripcion, fecha, hora FROM genero_cluster")
-        resultados = cursor.fetchall()
-        conn.close()
-
-        clusters = []
-        for fila in resultados:
-            clusters.append({
-                "id": fila[0],
-                "nombre": fila[1],
-                "descripcion": fila[2],
-                "fecha": str(fila[3]),
-                "hora": str(fila[4])
-            })
-
-        return jsonify(clusters), 200
-
-    except Exception as e:
-        print("Error al obtener clusters:", e)
-        return jsonify({"error": "Error interno"}), 500
-
-
-# Endpoint para verificar credenciales
-@app.route("/verificar_credenciales", methods=["POST"])
-def verificar():
-    data = request.json
-    usuario = data.get("usuario")
-    contraseña = data.get("contraseña")
-
-    try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
-        resultado = cursor.fetchone()
-        conn.close()
-
-        if resultado:
-            return jsonify({"autenticado": True}), 200
-        else:
-            return jsonify({"autenticado": False}), 401
-    except Exception as e:
-        print("Error al verificar credenciales:", e)
-        return jsonify({"error": "Error interno"}), 500
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5000,debug=True)
