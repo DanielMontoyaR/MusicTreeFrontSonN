@@ -1,4 +1,3 @@
-import uuid
 from utils.database.database import db
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError

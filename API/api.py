@@ -6,6 +6,8 @@ from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
 from utils.queries.Cluster.get_clusters import *
+from utils.queries.Artist.get_artists import *
+
 
 app = Flask(__name__)
 
@@ -58,6 +60,13 @@ def obtener_generos():
 @app.route('/api/get_clusters', methods=['GET'])
 def obtener_clusters():
     return getClusters()
+
+@app.route('/api/get_artists', methods=['GET'])
+def obtener_artistas():
+    return getArtists()
+
+
+
     
 
 if __name__ == "__main__":
