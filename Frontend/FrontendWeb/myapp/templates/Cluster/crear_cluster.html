@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cluster de Género</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+        .cluster-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .cluster-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+        #resultContainer {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success-message {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .error-api {
+            color: #842029;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cluster-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+            
+            <h2 class="cluster-title">Crear Cluster de Género</h2>
+            
+            <!-- Mensajes de éxito/error desde Django -->
+            {% if error %}
+                <div class="error-api mb-3">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="success-message mb-3">
+                    ¡Cluster creado exitosamente!<br>
+                    <strong>ID:</strong> {{ cluster.cluster_id }}<br>
+                    <strong>Nombre:</strong> {{ cluster.name }}
+                </div>
+            {% endif %}
+            
+            <form id="clusterForm" method="post" action="{% url 'crear_cluster' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="nombre" name="name" placeholder="Ingrese el nombre (3-30 caracteres)" required>
+                    <div class="error-message" id="nombreError">El nombre debe tener entre 3 y 30 caracteres</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <textarea class="form-control" id="descripcion" name="description" rows="3" placeholder="Ingrese una descripción (máximo 300 caracteres)"></textarea>
+                    <div class="error-message" id="descripcionError">La descripción no puede exceder los 300 caracteres</div>
+                    <div class="form-text">Caracteres restantes: <span id="charCount">300</span></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="is_active" class="form-label">Estado</label>
+                    <select class="form-select" id="is_active" name="is_active">
+                        <option value="true" selected>Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Crear Cluster</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'Cluster/crear_cluster.js' %}"></script>
+
+</body>
+</html>
