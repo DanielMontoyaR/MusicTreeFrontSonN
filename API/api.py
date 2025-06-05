@@ -5,6 +5,7 @@ from utils.queries.Cluster.crear_cluster_genero import *
 from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
+from utils.queries.Genre.get_subgeneros import *
 from utils.queries.Cluster.get_clusters import *
 from utils.queries.Genre.importjsongenre import *
 from utils.queries.Artist.get_artists import *
@@ -76,6 +77,9 @@ def procesar_generos():
 def obtener_generos():
     return getGeneros()
 
+@app.route('/api/get_subgenres', methods=['GET'])
+def obtener_subgeneros():
+    return getSubGeneros()
 
 @app.route('/api/get_clusters', methods=['GET'])
 def obtener_clusters():
