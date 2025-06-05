@@ -11,8 +11,93 @@ import requests
 
 
 
+@csrf_exempt
+def registrar_artista(request):
+    ruta_template = "Artista/registrar_artista.html"
+    
+    if request.method == 'GET':
+        return render(request, ruta_template)
+    
+    elif request.method == 'POST':
+        try:
+            # Construimos el data igual que en tu ejemplo
+            data = {
+                'is_band': request.POST.get('es_banda', 'false') == 'true',
+                'nombre': request.POST.get('nombre'),
+                'biografia': request.POST.get('biografia'),
+                'pais': request.POST.get('pais'),
+                'año_desde': request.POST.get('anio_desde'),
+                'año_hasta': request.POST.get('anio_hasta'),
+                'cover_image_path': request.FILES.get('portada').name if request.FILES.get('portada') else None,
+                'miembros': [],
+                'albumes': [],
+                'genre_ids': [],
+                'subgenre_ids': [],
+            }
 
+            # Procesar miembros dinámicos
+            i = 1
+            while f'MemberName{i}' in request.POST:
+                data['miembros'].append({
+                    'nombre': request.POST.get(f'MemberName{i}'),
+                    'instrumento': request.POST.get(f'MemberInstrument{i}'),
+                    'desde': request.POST.get(f'MemberSince{i}'),
+                    'hasta': request.POST.get(f'MemberUntil{i}'),
+                    'is_current': False
+                })
+                i += 1
 
+            # Procesar álbumes dinámicos
+            i = 1
+            while f'albumName{i}' in request.POST:
+                data['albumes'].append({
+                    'titulo': request.POST.get(f'albumName{i}'),
+                    'año': request.POST.get(f'albumYear{i}'),
+                    'duration_seconds': request.POST.get(f'albumDuration{i}'),
+                    'cover_image_path': request.FILES.get(f'albumImage{i}').name if request.FILES.get(f'albumImage{i}') else None
+                })
+                i += 1
+
+            # Procesar géneros y subgéneros (arrays)
+            if 'generos[]' in request.POST:
+                data['genre_ids'] = [{'id': id} for id in request.POST.getlist('generos[]')]
+            
+            if 'subgeneros[]' in request.POST:
+                data['subgenre_ids'] = [{'id': id} for id in request.POST.getlist('subgeneros[]')]
+
+            print("Datos a enviar a la API:", json.dumps(data, indent=2, ensure_ascii=False))
+            print(data)
+            # Enviar a la API externa
+            response = requests.post(
+                "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
+                json=data,
+                headers={'Content-Type': 'application/json'},
+                timeout=10
+            )
+            response.raise_for_status()
+
+            return render(request, ruta_template, {
+                "success": True,
+                "response": response.json()
+            })
+
+        except requests.exceptions.HTTPError as e:
+            error_message = f"Error de la API: {str(e)}"
+            if e.response.status_code == 409:
+                error_message = "El artista ya existe en el sistema"
+            
+            return render(request, ruta_template, {
+                "error": error_message,
+                "response": e.response.json() if e.response else None
+            })
+
+        except Exception as e:
+            return render(request, ruta_template, {
+                "error": f"Error interno: {str(e)}",
+                "response": None
+            })
+
+"""
 @csrf_exempt
 def registrar_artista(request):
     if request.method == 'GET':
@@ -67,6 +152,9 @@ def registrar_artista(request):
                 'success': False,
                 'message': f'Error interno del servidor: {str(e)}'
             }, status=500)
+"""
+
+
 
 def ver_catalogo_artista(request):
     ruta_catalogo_artistas = "Artista/ver_catalogo_artista.html"

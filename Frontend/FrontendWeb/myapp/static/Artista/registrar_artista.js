@@ -438,139 +438,118 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 3. Función para mostrar datos en console.log al enviar
     document.getElementById('artistForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+    e.preventDefault();
 
-        let isValid = true;
+    // Validaciones (las que ya tenías)
+    let isValid = true;
+    if (generoCount === 0) {
+        document.getElementById('generoError').style.display = 'block';
+        isValid = false;
+    } else {
+        document.getElementById('generoError').style.display = 'none';
+    }
 
-        //Validar al menos un género
-        if (generoCount === 0) {
-            document.getElementById('generoError').style.display = 'block';
-            isValid = false;
-        } else {
-            document.getElementById('generoError').style.display = 'none';
-        }
+    const portada = document.getElementById('portada').files[0];
+    if (!portada) {
+        alert('Debes seleccionar una imagen de portada');
+        isValid = false;
+    }
 
-        //Validar Portada
-        const portada = document.getElementById('portada').files[0];
-        if (!portada) {
-            alert('Debes seleccionar una imagen de portada');
-            isValid = false;
-        }
+    if (albumCount === 0) {
+        alert('Debes agregar al menos un álbum');
+        isValid = false;
+    }
 
-        // Validar discografía
-        if (albumCount === 0) {
-            alert('Debes agregar al menos un álbum');
-            isValid = false;
-        }
+    if (!isValid) return;
 
-        // Obtener todos los datos del formulario
-        const formData = {
-            es_banda: document.getElementById('es_banda').checked,
-            nombre: document.getElementById('nombre').value,
-            biografia: document.getElementById('biografia').value,
-            pais: document.getElementById('pais').value,
-            anio_desde: document.getElementById('anio_desde').value,
-            anio_hasta: document.getElementById('anio_hasta').value,
-            portada: document.getElementById('portada').files[0]?.name,
+    try {
+        // 1. Crear FormData para enviar archivos y datos
+        const formData = new FormData();
 
-            miembros: [],
-            albumes: [],
-            generos: [],
-            subgeneros: [],
-        };
+        // 2. Agregar campos básicos
+        formData.append('es_banda', document.getElementById('es_banda').checked);
+        formData.append('nombre', document.getElementById('nombre').value);
+        formData.append('biografia', document.getElementById('biografia').value);
+        formData.append('pais', document.getElementById('pais').value);
+        formData.append('anio_desde', document.getElementById('anio_desde').value);
+        formData.append('anio_hasta', document.getElementById('anio_hasta').value);
+        formData.append('portada', portada);
 
-        // Obtener miembros
-        for (let i = 1; i <= MemberCount; i++) {
-            if (document.getElementById(`Member${i}`)) {
-                formData.miembros.push({
-                    nombre: document.getElementById(`MemberName${i}`).value,
-                    instrumento: document.getElementById(`MemberInstrument${i}`).value,
-                    desde: document.getElementById(`MemberSince${i}`).value,
-                    hasta: document.getElementById(`MemberUntil${i}`).value
-                });
-            }
-        }
-
-        // Obtener álbumes
-        for (let i = 1; i <= albumCount; i++) {
-            if (document.getElementById(`album${i}`)) {
-                formData.albumes.push({
-                    nombre: document.getElementById(`albumName${i}`).value,
-                    año: document.getElementById(`albumYear${i}`).value,
-                    duracion: document.getElementById(`albumDuration${i}`).value,
-                    imagen: document.getElementById(`albumImage${i}`).files[0]?.name
-                });
-            }
-        }
-
-        // Obtener géneros seleccionados
-        formData.generos = []; // Reiniciar el array
+        // 3. Agregar géneros (como array)
         for (let i = 1; i <= generoCount; i++) {
             const generoSelect = document.getElementById(`generoSelect${i}`);
             if (generoSelect && generoSelect.value) {
-                formData.generos.push({
-                    id: generoSelect.value, // Ahora guardará el ID completo
-                    //nombre: generoSelect.options[generoSelect.selectedIndex].text
-                });
+                formData.append('generos[]', generoSelect.value);
             }
         }
 
-        // Obtener subgéneros seleccionados
-        formData.subgeneros = [];//Reiniciar el array
+        // 4. Agregar subgéneros (como array)
         for (let i = 1; i <= subgeneroCount; i++) {
             const subgeneroSelect = document.getElementById(`subgeneroSelect${i}`);
             if (subgeneroSelect && subgeneroSelect.value) {
-                formData.subgeneros.push({
-                    id: subgeneroSelect.value,
-                    //nombre: subgeneroSelect.options[subgeneroSelect.selectedIndex].text
-                });
+                formData.append('subgeneros[]', subgeneroSelect.value);
             }
         }
 
-        // Mostrar en consola
-        console.group("Datos del Artista");
-        console.log("Información Básica:", {
-            nombre: formData.nombre,
-            biografia: formData.biografia,
-            pais: formData.pais,
-            año_desde: formData.anio_desde,
-            año_hasta: formData.anio_hasta,
-            generos: formData.generos,
-            subgeneros: formData.subgeneros,
-            portada: formData.portada,
-            es_banda: formData.es_banda,
-            miembros: formData.miembros,
-            albumes: formData.albumes
+        // 5. Agregar miembros
+        for (let i = 1; i <= MemberCount; i++) {
+            if (document.getElementById(`Member${i}`)) {
+                formData.append(`MemberName${i}`, document.getElementById(`MemberName${i}`).value);
+                formData.append(`MemberInstrument${i}`, document.getElementById(`MemberInstrument${i}`).value);
+                formData.append(`MemberSince${i}`, document.getElementById(`MemberSince${i}`).value);
+                formData.append(`MemberUntil${i}`, document.getElementById(`MemberUntil${i}`).value);
+            }
+        }
 
+        // 6. Agregar álbumes
+        for (let i = 1; i <= albumCount; i++) {
+            if (document.getElementById(`album${i}`)) {
+                formData.append(`albumName${i}`, document.getElementById(`albumName${i}`).value);
+                formData.append(`albumYear${i}`, document.getElementById(`albumYear${i}`).value);
+                formData.append(`albumDuration${i}`, document.getElementById(`albumDuration${i}`).value);
+                
+                const albumImage = document.getElementById(`albumImage${i}`).files[0];
+                if (albumImage) {
+                    formData.append(`albumImage${i}`, albumImage);
+                }
+            }
+        }
 
+        // 7. Enviar al backend Django
+        const response = await fetch('/registrar_artista/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
         });
-        console.groupEnd();
 
-
-        // NUEVO: Enviar los datos a Django
-        try {
-            const response = await fetch('/registrar_artista/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-
-            const data = await response.json();
-            console.log('Respuesta de Django:', data);
-            alert('Datos recibidos por Django. Verifica la consola del servidor.');
-
-        } catch (error) {
-            console.error('Error al enviar a Django:', error);
-            alert('Error al enviar los datos. Revisa la consola para más detalles.');
+        // 8. Manejar respuesta
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en el servidor');
         }
 
-    });
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Artista registrado exitosamente!');
+            // Redirigir o limpiar formulario
+            window.location.href = '/ver_artista'; // Ajusta la ruta según necesites
+        } else {
+            alert(result.message || 'Error al registrar artista');
+        }
 
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'Ocurrió un error al enviar el formulario');
+        
+        // Mostrar error en la interfaz si es necesario
+        const errorElement = document.getElementById('formError');
+        if (errorElement) {
+            errorElement.textContent = error.message;
+            errorElement.style.display = 'block';
+        }
+    }
+});
 });
