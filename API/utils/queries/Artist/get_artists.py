@@ -1,7 +1,7 @@
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
 # Assuming you have an Artist model defined in your models.py
-from API.utils.models.genre_models import Artist
+from utils.models.genre_models import Artist
 
 def getArtists():
     try:

@@ -1,6 +1,6 @@
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from API.utils.models.genre_models import Cluster
+from utils.models.genre_models import Cluster
 
 def getClusters():
     try:

@@ -6,6 +6,8 @@ from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
 from utils.queries.Cluster.get_clusters import *
+from utils.queries.Artist.crear_artista import *
+from utils.queries.Artist.guardar_album import *
 
 app = Flask(__name__)
 
@@ -58,6 +60,45 @@ def obtener_generos():
 @app.route('/api/get_clusters', methods=['GET'])
 def obtener_clusters():
     return getClusters()
+
+@app.route('/api/crear_artista_completo', methods=['POST'])
+def crear_artista_completo():
+    data = request.get_json()
+
+    try:
+        # Paso 1: Validar y preparar datos
+        artista_data, error_response, status_code = crearArtistaData(data)
+        if error_response:
+            return error_response, status_code
+
+        # Paso 2: Guardar artista → obtener ID
+        error_response, artist_id = guardarArtistaDB(artista_data)
+        if error_response:
+            return error_response, 400  # O el código de estado apropiado
+
+        # Paso 3: Procesar álbumes
+        album_ids, error_response = guardar_albumes(data, artist_id)
+        if error_response:
+            return error_response, 400
+
+        # Paso 4: Si es banda, guardar miembros
+        if data.get('is_band', False):
+            miembros = data.get('members', [])
+            for miembro in miembros:
+                guardarMiembroDB(miembro, artist_id)
+
+        return jsonify({
+            "mensaje": "Artista, álbumes y miembros registrados exitosamente.",
+            "artist_id": artist_id
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Error inesperado en el registro completo",
+            "detalle": str(e)
+        }), 500
+
     
 
 if __name__ == "__main__":
