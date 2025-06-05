@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,55 +15,63 @@
             padding: 30px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
+
         .catalog-title {
             text-align: center;
             margin-bottom: 30px;
             color: #0d6efd;
         }
+
         .btn-back {
             margin-bottom: 20px;
         }
+
         .table-responsive {
             overflow-x: auto;
         }
+
         .empty-catalog {
             text-align: center;
             padding: 50px;
             background-color: #f8f9fa;
             border-radius: 10px;
         }
+
         .artist-link {
             color: #0d6efd;
             text-decoration: none;
             font-weight: 500;
         }
+
         .artist-link:hover {
             text-decoration: underline;
         }
+
         .badge-albums {
             background-color: #6c757d;
             font-size: 0.85em;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="catalog-container">
             <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
                 ← Regresar al menú principal
             </button>
-            
+
             <h2 class="catalog-title">Catálogo de Artistas</h2>
-            
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-info-circle me-2"></i>
                     <span>Mostrando artistas ordenados por fecha de creación (más recientes primero)</span>
                 </div>
             </div>
-            
+
             {% if artistas %}
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
@@ -71,9 +80,10 @@
                             <th>ID</th>
                             <th>Artista</th>
                             <th>País</th>
+                            <th>Años Activo</th>
                             <th>Discografía</th>
                             <th>Fecha de Registro</th>
-                            <th>Acciones</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,7 +91,7 @@
                         <tr>
                             <td>{{ artista.id }}</td>
                             <td>
-                                <a href="{% url 'detalle_artista' artista.id %}" class="artist-link">
+                                <a href="#" class="artist-link">
                                     {{ artista.nombre }}
                                 </a>
                             </td>
@@ -90,20 +100,27 @@
                                     {{ artista.pais }}
                                 </span>
                             </td>
+                            <td>{{ artista.años_actividad }}</td>
                             <td>
                                 <span class="badge badge-albums rounded-pill">
                                     {{ artista.albums_count }} disco{{ artista.albums_count|pluralize }}
                                 </span>
                             </td>
                             <td>
-                                <small class="text-muted">{{ artista.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                                <small class="text-muted">{{ artista.fecha_creacion }}</small>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge bg-{% if artista.estado == 'active' %}success{% else %}secondary{% endif %}">
+                                    {{ artista.estado }}
+                                </span>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Paginación -->
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
@@ -119,13 +136,13 @@
                         </a>
                     </li>
                     {% endif %}
-                    
+
                     <li class="page-item active">
                         <span class="page-link">
                             Página {{ artistas.number }} de {{ artistas.paginator.num_pages }}
                         </span>
                     </li>
-                    
+
                     {% if artistas.has_next %}
                     <li class="page-item">
                         <a class="page-link" href="?page={{ artistas.next_page_number }}" aria-label="Next">
@@ -155,13 +172,14 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-        
+
         // Opcional: Si quieres añadir búsqueda en el cliente
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Podrías implementar búsqueda/filtrado aquí
         });
     </script>
 </body>
+
 </html>

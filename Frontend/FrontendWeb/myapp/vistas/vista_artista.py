@@ -69,8 +69,9 @@ def registrar_artista(request):
             print(data)
             # Enviar a la API externa
             #Enlace local http://127.0.0.1:5000
+            #Enlace online https://musictreeapi.azurewebsites.net/api/crear_artista_completo
             response = requests.post(
-                "http://127.0.0.1:5000/api/crear_artista_completo",
+                "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
                 json=data,
                 headers={'Content-Type': 'application/json'},
                 timeout=10
@@ -159,7 +160,42 @@ def registrar_artista(request):
 
 def ver_catalogo_artista(request):
     ruta_catalogo_artistas = "Artista/ver_catalogo_artista.html"
-    return render(request, ruta_catalogo_artistas)
+    
+    try:
+        # Obtener datos de la API
+        response = requests.get(
+            'https://musictreeapi.azurewebsites.net/api/artists_view',
+            timeout=5
+        )
+        response.raise_for_status()
+        
+        # Transformar los datos a la estructura que espera la plantilla
+        artistas = []
+        for artista in response.json():
+            artistas.append({
+                'id': artista.get('ID Artista', ''),
+                'nombre': artista.get('Nombre', ''),
+                'pais': artista.get('País de Origen', ''),
+                'albums_count': artista.get('Álbumes Asociados', 0),
+                'fecha_creacion': artista.get('Fecha y Hora de Registro', ''),
+                'años_actividad': artista.get('Años de Actividad', ''),
+                'estado': artista.get('Estado', '')
+            })
+        
+        # Ordenar por fecha de registro (más recientes primero)
+        artistas.sort(key=lambda x: x['fecha_creacion'], reverse=True)
+        
+        return render(request, ruta_catalogo_artistas, {
+            'artistas': artistas
+        })
+        
+    except requests.exceptions.RequestException as e:
+        # En caso de error, mostrar catálogo vacío con mensaje
+        print(f"Error al obtener artistas: {str(e)}")
+        return render(request, ruta_catalogo_artistas, {
+            'artistas': [],
+            'error': 'No se pudo cargar el catálogo de artistas. Por favor intenta más tarde.'
+        })
 
 def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
@@ -185,6 +221,8 @@ def get_genres(request):
             {'id': 'G-792432650DE6000000000000', 'nombre': 'Jazz'}
         ]
         return JsonResponse(backup_data, safe=False)
+
+
 
 def get_subgenres(request):
     """Endpoint para obtener géneros desde el API externo"""

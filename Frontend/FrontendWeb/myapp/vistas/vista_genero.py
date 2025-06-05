@@ -111,8 +111,9 @@ def importar_generos(request):
             print("JSON recibido:", data)  # Debugging
 
             # Enviar datos a la API externa
+            #link local http://127.0.0.1:5000/api/procesar-generos
             response = requests.post(
-                "http://127.0.0.1:5000/api/procesar-generos",
+                "https://musictreeapi.azurewebsites.net/api/procesar-generos",
                 json=data,
                 headers={'Content-Type': 'application/json'}
             )
