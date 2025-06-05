@@ -2,7 +2,7 @@ import uuid
 from utils.database.database import db
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.models import Cluster
+from API.utils.models.genre_models import Cluster
 from sqlalchemy import func, text
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN

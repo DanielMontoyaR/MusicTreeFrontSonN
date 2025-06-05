@@ -1,6 +1,6 @@
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.models import Genre
+from API.utils.models.genre_models import Genre
 
 def getGeneros():
     try:
