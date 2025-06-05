@@ -130,4 +130,10 @@ class ArtistView(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(activity_status_enum, nullable=False)
     activity_years = db.Column(db.String(100))
+
+class ArtistSearch(db.Model):
+    __tablename__ = 'artist_search'
+
+    p_search = db.Column(db.String(10000), nullable=False)
+    
     

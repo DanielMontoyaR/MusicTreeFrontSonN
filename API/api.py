@@ -9,6 +9,7 @@ from utils.queries.Genre.get_subgeneros import *
 from utils.queries.Cluster.get_clusters import *
 from utils.queries.Genre.importjsongenre import *
 from utils.queries.Artist.get_artists import *
+from utils.queries.Artist.search_artist import *
 
 app = Flask(__name__)
 
@@ -32,6 +33,7 @@ def crear_cluster_genero():
         return jsonify(error_response), status_code
 
     return guardarClusterDB(cluster)
+    
 
 @app.route('/get_clusters_genero', methods=['GET'])
 def obtener_clusters_genero():
@@ -89,6 +91,31 @@ def obtener_clusters():
 @app.route('/api/artists_view')
 def get_artist_view():
     return getArtists()
+
+@app.route('/api/search_artist', methods=['POST'])
+def buscar_artista():
+    data = request.get_json()
+
+    try:
+        search_term = data.get('search')
+
+        if not search_term:
+            return jsonify({"error": "Falta el parámetro 'search'"}), 400
+
+        # Ejecutar función SQL con parámetro
+        result = db.session.execute(
+            text("SELECT * FROM search_artist_json(:search_term)"),
+            {"search_term": search_term}
+        )
+
+        # Convertir el resultado a lista de diccionarios
+        artists = [dict(row._mapping) for row in result]
+
+        return jsonify(artists)
+
+    except Exception as e:
+        error_response = {"error": str(e)}
+        return jsonify(error_response), 500
     
 
 if __name__ == "__main__":
