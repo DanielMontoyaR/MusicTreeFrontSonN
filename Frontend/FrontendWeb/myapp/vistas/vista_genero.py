@@ -48,19 +48,6 @@ def crear_genero_musica(request):
             return render(request, ruta_crear_genero, {"error": str(e)})
     return render(request, ruta_crear_genero)
 
-"""
-@csrf_exempt
-def get_clusters(request):
-    # Datos mockeados
-    MOCK_CLUSTERS = [
-        {"id": 1, "nombre": "Cluster Rock"},
-        {"id": 2, "nombre": "Cluster Pop"},
-        {"id": 3, "nombre": "Cluster Electrónica"}
-    ]
-    #Endpoint para obtener clusters mockeados
-    return JsonResponse(MOCK_CLUSTERS, safe=False)
-"""
-
 @csrf_exempt
 def get_clusters(request):
     """Endpoint para obtener clusters desde el API externo"""
@@ -87,17 +74,7 @@ def get_clusters(request):
         ]
         return JsonResponse(backup_data, safe=False)
 
-"""
-@csrf_exempt
-def get_genres(request):
-    MOCK_GENEROS = [
-    {"id": 1, "nombre": "Rock"},
-    {"id": 2, "nombre": "Pop"},
-    {"id": 3, "nombre": "Jazz"}
-    ]
-    #Endpoint para obtener géneros mockeados
-    return JsonResponse(MOCK_GENEROS, safe=False)
-"""
+
 
 def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
@@ -125,14 +102,35 @@ def get_genres(request):
         return JsonResponse(backup_data, safe=False)
 
 
-
 @csrf_exempt
 def importar_generos(request):
-
     ruta_importar_genero = "Genero/importar_generos.html"
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print("JSON recibido:", data)  # Debugging
 
-    return render(request, ruta_importar_genero)
+            # Enviar datos a la API externa
+            response = requests.post(
+                "http://127.0.0.1:5000/api/procesar-generos",
+                json=data,
+                headers={'Content-Type': 'application/json'}
+            )
+            response.raise_for_status()  # Lanza error si la solicitud falla
 
-
-
-
+            return JsonResponse({
+                'success': True,
+                'response': response.json()
+            })
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({
+                'success': False,
+                'error': f"Error al conectar con la API: {str(e)}"
+            }, status=500)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f"Error interno: {str(e)}"
+            }, status=500)
+    else:
+        return render(request, ruta_importar_genero)
