@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 
 
-def _guardar_album_individual(album_data, artist_id):
+def guardar_album_individual(album_data, artist_id):
     """Función interna para guardar un solo álbum"""
     try:
         # Validaciones básicas
@@ -76,7 +76,7 @@ def guardar_albumes(data, artist_id):
 
     album_ids = []
     for album in albumes_data:
-        album_id, error = _guardar_album_individual(album, artist_id)
+        album_id, error = guardar_album_individual(album, artist_id)
         if error:
             return None, error
         album_ids.append(album_id)

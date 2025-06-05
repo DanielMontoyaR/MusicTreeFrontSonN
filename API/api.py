@@ -8,6 +8,8 @@ from utils.queries.Genre.get_generos import *
 from utils.queries.Cluster.get_clusters import *
 from utils.queries.Artist.crear_artista import *
 from utils.queries.Artist.guardar_album import *
+from utils.queries.Artist.guardar_miembro import *
+from utils.queries.Artist.guardar_miembro import *
 
 app = Flask(__name__)
 
@@ -61,6 +63,7 @@ def obtener_generos():
 def obtener_clusters():
     return getClusters()
 
+
 @app.route('/api/crear_artista_completo', methods=['POST'])
 def crear_artista_completo():
     data = request.get_json()
@@ -74,18 +77,17 @@ def crear_artista_completo():
         # Paso 2: Guardar artista → obtener ID
         error_response, artist_id = guardarArtistaDB(artista_data)
         if error_response:
-            return error_response, 400  # O el código de estado apropiado
+            return error_response, 400  # Ya incluye status_code si lo ajustaste
 
-        # Paso 3: Procesar álbumes
+        # Paso 3: Guardar álbumes
         album_ids, error_response = guardar_albumes(data, artist_id)
         if error_response:
-            return error_response, 400
+            return error_response, 400  # Igual, se espera que incluya status code
 
-        # Paso 4: Si es banda, guardar miembros
-        if data.get('is_band', False):
-            miembros = data.get('members', [])
-            for miembro in miembros:
-                guardarMiembroDB(miembro, artist_id)
+        # Paso 4: Guardar miembros si es banda
+        error_response, status_code = guardarMiembro(data, artist_id)
+        if error_response:
+            return error_response, status_code
 
         return jsonify({
             "mensaje": "Artista, álbumes y miembros registrados exitosamente.",
