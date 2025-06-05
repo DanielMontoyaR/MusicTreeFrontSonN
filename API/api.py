@@ -5,11 +5,15 @@ from utils.queries.Cluster.crear_cluster_genero import *
 from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
+from utils.queries.Genre.get_subgeneros import *
 from utils.queries.Cluster.get_clusters import *
 from utils.queries.Artist.crear_artista import *
 from utils.queries.Artist.guardar_album import *
 from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Artist.guardar_miembro import *
+from utils.queries.Genre.importjsongenre import *
+from utils.queries.Artist.get_artists import *
+from utils.queries.Artist.search_artist import *
 
 app = Flask(__name__)
 
@@ -33,6 +37,7 @@ def crear_cluster_genero():
         return jsonify(error_response), status_code
 
     return guardarClusterDB(cluster)
+    
 
 @app.route('/get_clusters_genero', methods=['GET'])
 def obtener_clusters_genero():
@@ -54,9 +59,32 @@ def crear_genero():
 
     return guardarGeneroDB(genero)
 
+@app.route('/api/procesar-generos', methods=['POST'])
+def procesar_generos():
+    try:
+        generos = request.get_json(force=True)
+
+        if not isinstance(generos, list):
+            return jsonify({"error": "Se esperaba un array de géneros"}), 400
+
+        resultado = procesar_generos_batch(generos)
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Error en servidor",
+            "detalle": str(e)
+        }), 500
+
+
 @app.route('/api/get_genres', methods=['GET'])
 def obtener_generos():
     return getGeneros()
+
+@app.route('/api/get_subgenres', methods=['GET'])
+def obtener_subgeneros():
+    return getSubGeneros()
 
 @app.route('/api/get_clusters', methods=['GET'])
 def obtener_clusters():
@@ -100,6 +128,34 @@ def crear_artista_completo():
             "detalle": str(e)
         }), 500
 
+@app.route('/api/artists_view')
+def get_artist_view():
+    return getArtists()
+
+@app.route('/api/search_artist', methods=['POST'])
+def buscar_artista():
+    data = request.get_json()
+
+    try:
+        search_term = data.get('search')
+
+        if not search_term:
+            return jsonify({"error": "Falta el parámetro 'search'"}), 400
+
+        # Ejecutar función SQL con parámetro
+        result = db.session.execute(
+            text("SELECT * FROM search_artist_json(:search_term)"),
+            {"search_term": search_term}
+        )
+
+        # Convertir el resultado a lista de diccionarios
+        artists = [dict(row._mapping) for row in result]
+
+        return jsonify(artists)
+
+    except Exception as e:
+        error_response = {"error": str(e)}
+        return jsonify(error_response), 500
     
 
 if __name__ == "__main__":

@@ -8,7 +8,25 @@ from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN
 from sqlalchemy import Numeric as DECIMAL
 
+def validar_genero(data):
+    if data.get("is_subgenre") and not data.get("parent_genre_id"):
+        return None, jsonify({"error": "Un subgénero debe tener un 'parent_genre_id'"}), 400
+
+    # Validar que el género padre exista si se indicó
+    parent_id = data.get("parent_genre_id")
+    if parent_id:
+        parent = db.session.get(Genre, parent_id)
+        if not parent:
+            return None, jsonify({"error": f"El género padre con ID {parent_id} no existe"}), 400
+    
+    return None, None, None
+
+
 def crearGeneroData(data):
+
+    genero_obj, resp, status = validar_genero(data)
+    if resp is not None:
+        return genero_obj, resp, status
 
     # Validaciones clave
     if not data.get('name'):
@@ -128,15 +146,14 @@ def guardarGeneroDB(genero):
 
     except IntegrityError as e:
         db.session.rollback()
-        return jsonify({
-            "error": "Restricción de integridad violada",
-            "detalle": str(e)
-        }), 409
-
+        if 'unique constraint' in str(e.orig):
+            return jsonify({"error": f"El género '{genero.name}' ya existe"}), 409
+        return jsonify({"error": "Error de integridad", "detalle": str(e)}), 400
+    
     except Exception as e:
-        db.session.rollback()
-        print("Error en servidor:", traceback.format_exc())  # Log detallado en consola
-        return jsonify({
+       db.session.rollback()
+       print("Error en servidor:", traceback.format_exc())  # Log detallado en consola
+       return jsonify({
             "error": "Error inesperado",
             "detalle": str(e)
-        }), 500
+        }), 500 
