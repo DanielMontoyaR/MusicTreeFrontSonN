@@ -1,4 +1,3 @@
-import uuid
 import traceback
 from utils.database.database import db
 from flask import jsonify

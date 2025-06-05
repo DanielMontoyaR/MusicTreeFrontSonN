@@ -7,6 +7,10 @@ from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
 from utils.queries.Genre.get_subgeneros import *
 from utils.queries.Cluster.get_clusters import *
+from utils.queries.Artist.crear_artista import *
+from utils.queries.Artist.guardar_album import *
+from utils.queries.Artist.guardar_miembro import *
+from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Genre.importjsongenre import *
 from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.search_artist import *
@@ -87,6 +91,43 @@ def obtener_subgeneros():
 def obtener_clusters():
     return getClusters()
 
+
+@app.route('/api/crear_artista_completo', methods=['POST'])
+def crear_artista_completo():
+    data = request.get_json()
+
+    try:
+        # Paso 1: Validar y preparar datos
+        artista_data, error_response, status_code = crearArtistaData(data)
+        if error_response:
+            return error_response, status_code
+
+        # Paso 2: Guardar artista → obtener ID
+        error_response, artist_id = guardarArtistaDB(artista_data)
+        if error_response:
+            return error_response, 400  # Ya incluye status_code si lo ajustaste
+
+        # Paso 3: Guardar álbumes
+        album_ids, error_response = guardar_albumes(data, artist_id)
+        if error_response:
+            return error_response, 400  # Igual, se espera que incluya status code
+
+        # Paso 4: Guardar miembros si es banda
+        error_response, status_code = guardarMiembro(data, artist_id)
+        if error_response:
+            return error_response, status_code
+
+        return jsonify({
+            "mensaje": "Artista, álbumes y miembros registrados exitosamente.",
+            "artist_id": artist_id
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Error inesperado en el registro completo",
+            "detalle": str(e)
+        }), 500
 
 @app.route('/api/artists_view')
 def get_artist_view():
