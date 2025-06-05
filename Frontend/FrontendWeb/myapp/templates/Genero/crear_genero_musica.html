@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Género Musical</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Pickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .genre-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .genre-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .optional-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .error-api {
+            color: #842029;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="genre-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+
+            <h2 class="genre-title">Crear Género Musical</h2>
+
+            <!-- Mensajes desde Django -->
+            {% if error %}
+            <div class="error-api">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+            <div class="success-message">
+                ¡Género creado exitosamente!
+            </div>
+            {% endif %}
+
+            <form method="post" id="genreForm">
+                {% csrf_token %}
+
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre *</label>
+                    <input type="text" class="form-control" id="nombre" name="name"
+                        placeholder="Ingrese el nombre (3-30 caracteres)" required>
+                    <div class="error-message" id="nombreError">El nombre debe tener entre 3 y 30 caracteres</div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <textarea class="form-control" id="descripcion" name="description" rows="3"
+                        placeholder="Ingrese una descripción (máximo 1000 caracteres)"></textarea>
+                    <div class="error-message" id="descripcionError">La descripción no puede exceder los 1000 caracteres
+                    </div>
+                    <div class="form-text">Caracteres restantes: <span id="charCount">1000</span></div>
+                </div>
+
+                <!-- Estado -->
+                <div class="mb-3">
+                    <label for="is_active" class="form-label">Estado</label>
+                    <select class="form-select" id="is_active" name="is_active">
+                        <option value="true" selected>Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+
+                <!-- País de Origen -->
+                <div class="mb-3">
+                    <label for="country_of_origin" class="form-label">País de Origen</label>
+                    <select class="form-select" id="country_of_origin" name="country_of_origin" required>
+                        <option value="" selected disabled>Seleccione un país</option>
+                        <!-- Países se llenarán con JavaScript -->
+                    </select>
+                    <div class="error-message" id="paisError">Debe seleccionar un país</div>
+                </div>
+
+                <!-- Año de Creación -->
+                <div class="mb-3">
+                    <label for="creation_year" class="form-label">Año de Creación</label>
+                    <select class="form-select" id="creation_year" name="creation_year" required>
+                        <option value="" selected disabled>Seleccione un año</option>
+                        <!-- Años se llenarán con JavaScript -->
+                    </select>
+                </div>
+
+                <!-- Tono Dominante -->
+                <div class="mb-3">
+                    <label for="dominant_key" class="form-label">Tono Dominante</label>
+                    <select class="form-select" id="dominant_key" name="dominant_key">
+                        <option value="-1">-1</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                    </select>
+                </div>
+
+                <!-- Compás -->
+                <div class="mb-3">
+                    <label for="time_signature" class="form-label">Compás</label>
+                    <select class="form-select" id="time_signature" name="time_signature">
+                        <option value="0">0</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </div>
+
+                <!-- Promedio de Canciones -->
+                <div class="mb-3">
+                    <label for="average_mode" class="form-label">Promedio de Canciones</label>
+                    <input type="number" class="form-control" id="average_mode" name="average_mode" min="0.1" max="0.99"
+                        step="0.01" value="0.5" required>
+                    <div class="error-message" id="promedioCancionesError">El valor debe estar entre 0.1 y 0.99 (ej: 0.75)</div>
+                </div>
+
+                <!-- Rango de BPM -->
+                <div class="mb-3">
+                    <label class="form-label">Rango de BPM</label>
+                    <div class="row">
+                        <div class="col">
+                            <input type="number" class="form-control" id="bpm_lower" name="bpm_lower"
+                                placeholder="Mínimo" min="0" max="250" value="0">
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" id="bpm_upper" name="bpm_upper"
+                                placeholder="Máximo" min="0" max="250" value="120">
+                        </div>
+                    </div>
+                    <div class="error-message" id="bpmError">El BPM mínimo debe ser menor que el máximo y ambos entre
+                        0-250</div>
+                </div>
+
+                <!-- Volumen Típico -->
+                <div class="mb-3">
+                    <label for="typical_volume" class="form-label">Volumen Típico (dB)</label>
+                    <input type="number" class="form-control" id="typical_volume" name="typical_volume" min="-60"
+                        max="0" value="-12">
+                    <div class="error-message" id="volumenError">El valor debe estar entre -60 y 0 dB</div>
+                </div>
+
+                <!-- Duración -->
+                <div class="mb-3">
+                    <label for="average_duration" class="form-label">Duración típica (segundos)</label>
+                    <input type="number" class="form-control" id="average_duration" name="average_duration" min="0"
+                        max="3600" value="180">
+                    <div class="error-message" id="duracionError">El valor debe estar entre 0 y 3600 segundos</div>
+                </div>
+
+                <!-- Asociar a Cluster -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="asociarCluster" name="asociarCluster">
+                    <label class="form-check-label" for="asociarCluster">Asociar a un Cluster</label>
+                </div>
+
+                <div id="clusterSection" class="optional-section">
+                    <label for="cluster_id" class="form-label">Seleccionar Cluster</label>
+                    <select class="form-select" id="cluster_id" name="cluster_id">
+                        <option value="" selected disabled>Seleccione un cluster</option>
+                        <!-- Clusters se llenarán dinámicamente -->
+                    </select>
+                    <div class="error-message" id="clusterError">Debe seleccionar un cluster</div>
+                </div>
+
+                <!-- Color -->
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="color" name="color" value="#6c84d5">
+                        <span class="input-group-text" id="colorPickerButton"><i class="bi bi-palette"></i></span>
+                        <span id="colorPreview" class="color-preview"></span>
+                    </div>
+                </div>
+
+                <!-- Es Subgénero -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="is_subgenre" name="is_subgenre">
+                    <label class="form-check-label" for="is_subgenre">Es Subgénero</label>
+                </div>
+
+                <div id="subgeneroSection" class="optional-section">
+                    <label for="parent_genre_id" class="form-label">Género Principal</label>
+                    <select class="form-select" id="parent_genre_id" name="parent_genre_id">
+                        <option value="" selected disabled>Seleccione un género principal</option>
+                        <!-- Géneros se llenarán dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Crear Género</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr"></script>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'Genero/crear_genero_musica.js' %}"></script>
+
+</body>
+
+</html>

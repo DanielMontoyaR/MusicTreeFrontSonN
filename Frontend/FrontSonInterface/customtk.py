@@ -90,6 +90,8 @@ def cluster_genero_crear():
             print("Llave:", llave_cluster)
 
             #Aqui se supone que hacemos lo del API ****************888 nombre, descripcion, id, fecha y hora, y una llave id.
+            api.crear_cluster(nombre, descripcion, cluster_identificador, cluster_identificador)
+
         
 
 
