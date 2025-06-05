@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Función para cargar géneros desde Django
         async function cargarSubGenerosPrincipalesEnSelect(selectId) {
             try {
-                const response = await fetch('/api/genres/');
+                const response = await fetch('/api/subgenres/');
                 if (!response.ok) throw new Error('Error al cargar géneros');
 
                 const subgeneros = await response.json();
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // 3. Función para mostrar datos en console.log al enviar
-    document.getElementById('artistForm').addEventListener('submit', function (e) {
+    document.getElementById('artistForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         let isValid = true;
@@ -547,48 +547,30 @@ document.addEventListener('DOMContentLoaded', function () {
         console.groupEnd();
 
 
-        /*
-        if (!isValid) {
-            e.preventDefault();
-            // Desplazarse al primer error
-            document.querySelector('.is-invalid')?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
-        } else {
-            // Mostrar datos en consola
-            const formData = {
-                // ... (tu código existente para recoger datos)
-                generos: [],
-                subgeneros: []
-            };
-
-            // Recoger géneros seleccionados
-            document.querySelectorAll('.genero-select').forEach(select => {
-                if (select.value) formData.generos.push(select.value);
+        // NUEVO: Enviar los datos a Django
+        try {
+            const response = await fetch('/registrar_artista/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(formData)
             });
 
-            // Recoger subgéneros seleccionados
-            document.querySelectorAll('.subgenero-select').forEach(select => {
-                if (select.value) formData.subgeneros.push(select.value);
-            });
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
 
-            console.log("Datos del formulario:", formData);
+            const data = await response.json();
+            console.log('Respuesta de Django:', data);
+            alert('Datos recibidos por Django. Verifica la consola del servidor.');
 
-            // Para producción, quitar preventDefault()
-            // this.submit();
-        }*/
-
-        /*
-        if (formData.es_banda && formData.miembros.length > 0) {
-            console.log("Miembros:", formData.miembros);
+        } catch (error) {
+            console.error('Error al enviar a Django:', error);
+            alert('Error al enviar los datos. Revisa la consola para más detalles.');
         }
 
-        console.log("Discografía:", formData.albumes);*/
-
-
-        // Para producción: quitar preventDefault y enviar el formulario
-        // this.submit();
     });
 
 });

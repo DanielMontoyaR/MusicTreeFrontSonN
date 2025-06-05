@@ -12,12 +12,61 @@ import requests
 
 
 
+
 @csrf_exempt
 def registrar_artista(request):
-
-    ruta_crear_artista = "Artista/registrar_artista.html"
-
-    return render(request, ruta_crear_artista)
+    if request.method == 'GET':
+        return render(request, "Artista/registrar_artista.html")
+    
+    elif request.method == 'POST':
+        try:
+            # Cargar los datos JSON recibidos
+            data = json.loads(request.body)
+            
+            # 1. Imprimir los datos recibidos (para verificación)
+            print("\n--- DATOS RECIBIDOS DEL FORMULARIO ---")
+            print(data)
+            print("\n--- FIN DE DATOS RECIBIDOS ---\n")
+            
+            # 2. Enviar a la API externa
+            api_url = 'https://musictreeapi.azurewebsites.net/api/crear_artista_completo'
+            response = requests.post(
+                api_url,
+                json=data,  # Esto envía el JSON directamente
+                headers={
+                    'Content-Type': 'application/json',
+                    # Agrega aquí otros headers necesarios (ej. API key)
+                },
+                timeout=10  # Tiempo de espera en segundos
+            )
+            
+            # Verificar si la API respondió correctamente
+            response.raise_for_status()
+            
+            # Opcional: Imprimir la respuesta de la API
+            api_response = response.json()
+            print("Respuesta de la API externa:", api_response)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Artista creado exitosamente',
+                'api_response': api_response  # Puedes omitir esto si no lo necesitas
+            })
+            
+        except requests.exceptions.RequestException as e:
+            print(f"Error al enviar a la API: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al comunicarse con la API externa: {str(e)}',
+                'error_details': str(e.response.text) if hasattr(e, 'response') else None
+            }, status=500)
+            
+        except Exception as e:
+            print(f"Error interno: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Error interno del servidor: {str(e)}'
+            }, status=500)
 
 def ver_catalogo_artista(request):
     ruta_catalogo_artistas = "Artista/ver_catalogo_artista.html"
@@ -52,7 +101,7 @@ def get_subgenres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_genres',
+            'https://musictreeapi.azurewebsites.net/api/get_subgenres',
             timeout=5
         )
         response.raise_for_status()
