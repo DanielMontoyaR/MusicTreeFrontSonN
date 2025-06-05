@@ -60,16 +60,17 @@ def registrar_artista(request):
 
             # Procesar géneros y subgéneros (arrays)
             if 'generos[]' in request.POST:
-                data['genre_ids'] = [{'id': id} for id in request.POST.getlist('generos[]')]
+                data['genre_ids'] = request.POST.getlist('generos[]')
             
             if 'subgeneros[]' in request.POST:
-                data['subgenre_ids'] = [{'id': id} for id in request.POST.getlist('subgeneros[]')]
+                data['subgenre_ids'] = request.POST.getlist('subgeneros[]')
 
             print("Datos a enviar a la API:", json.dumps(data, indent=2, ensure_ascii=False))
             print(data)
             # Enviar a la API externa
+            #Enlace local http://127.0.0.1:5000
             response = requests.post(
-                "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
+                "http://127.0.0.1:5000/api/crear_artista_completo",
                 json=data,
                 headers={'Content-Type': 'application/json'},
                 timeout=10
