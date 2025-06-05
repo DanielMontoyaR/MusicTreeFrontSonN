@@ -32,7 +32,7 @@ def crear_cluster_genero():
         cluster, error_response, status_code = crearClusterGeneroData(data)
 
     except Exception as e:
-        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        error_response = {"error": str(e)}  
         status_code = 500
         return jsonify(error_response), status_code
 
@@ -43,9 +43,8 @@ def crear_cluster_genero():
 def obtener_clusters_genero():
 
     return getClusterGenero()
-#cambio para vcer
 
-#Endpoint para crear géneros
+
 @app.route('/api/create_genres', methods=['POST'])
 def crear_genero():
     data = request.get_json()
@@ -54,7 +53,7 @@ def crear_genero():
         genero, error_response, status_code = crearGeneroData(data)
 
     except Exception as e:
-        error_response = {"error": str(e)}  # Ensure this is a dictionary
+        error_response = {"error": str(e)}  
         status_code = 500
         return jsonify(error_response), status_code
 
@@ -97,22 +96,20 @@ def crear_artista_completo():
     data = request.get_json()
 
     try:
-        # Paso 1: Validar y preparar datos
         artista_data, error_response, status_code = crearArtistaData(data)
         if error_response:
             return error_response, status_code
 
-        # Paso 2: Guardar artista → obtener ID
         error_response, artist_id = guardarArtistaDB(artista_data)
         if error_response:
-            return error_response, 400  # Ya incluye status_code si lo ajustaste
+            return error_response, 400  
 
-        # Paso 3: Guardar álbumes
+
         album_ids, error_response = guardar_albumes(data, artist_id)
         if error_response:
-            return error_response, 400  # Igual, se espera que incluya status code
+            return error_response, 400  
 
-        # Paso 4: Guardar miembros si es banda
+
         error_response, status_code = guardarMiembro(data, artist_id)
         if error_response:
             return error_response, status_code
@@ -143,13 +140,12 @@ def buscar_artista():
         if not search_term:
             return jsonify({"error": "Falta el parámetro 'search'"}), 400
 
-        # Ejecutar función SQL con parámetro
         result = db.session.execute(
             text("SELECT * FROM search_artist_json(:search_term)"),
             {"search_term": search_term}
         )
 
-        # Convertir el resultado a lista de diccionarios
+    
         artists = [dict(row._mapping) for row in result]
 
         return jsonify(artists)
