@@ -6,6 +6,7 @@ from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
 from utils.queries.Genre.get_generos import *
 from utils.queries.Cluster.get_clusters import *
+from utils.queries.Genre.importjsongenre import *
 
 app = Flask(__name__)
 
@@ -50,6 +51,25 @@ def crear_genero():
         return jsonify(error_response), status_code
 
     return guardarGeneroDB(genero)
+
+@app.route('/api/procesar-generos', methods=['POST'])
+def procesar_generos():
+    try:
+        generos = request.get_json(force=True)
+
+        if not isinstance(generos, list):
+            return jsonify({"error": "Se esperaba un array de géneros"}), 400
+
+        resultado = procesar_generos_batch(generos)
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Error en servidor",
+            "detalle": str(e)
+        }), 500
+
 
 @app.route('/api/get_genres', methods=['GET'])
 def obtener_generos():
