@@ -14,10 +14,10 @@ class Artist(db.Model):
     __tablename__ = 'artists'
 
     artist_id = db.Column(db.String(15), primary_key=True)
+    status = db.Column(activity_status_enum, default='active', nullable=False)
     name = db.Column(db.String(100), nullable=False)
     biography = db.Column(db.Text)
-    country_of_origin = db.Column(db.String(100))
-    status = db.Column(activity_status_enum, default='active', nullable=False)
+    country_of_origin = db.Column(db.String(100))   
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     cover_image_path = db.Column(db.Text)
 
@@ -118,3 +118,22 @@ class ArtistEvent(db.Model):
     event_date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
+
+class ArtistView(db.Model):
+    __tablename__ = 'artist_catalog_view'
+    __table_args__ = {'info': dict(is_view = True)}
+
+    artist_id = db.Column(db.String(15), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    country_of_origin = db.Column(db.String(100))   
+    album_count = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(activity_status_enum, nullable=False)
+    activity_years = db.Column(db.String(100))
+
+class ArtistSearch(db.Model):
+    __tablename__ = 'artist_search'
+
+    p_search = db.Column(db.String(10000), nullable=False)
+    
+    
