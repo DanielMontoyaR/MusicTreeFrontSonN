@@ -90,7 +90,7 @@ def obtener_subgeneros():
 def obtener_clusters():
     return getClusters()
 
-
+#Crear artista nuevo
 @app.route('/api/crear_artista_completo', methods=['POST'])
 def crear_artista_completo():
     data = request.get_json()
