@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
         MemberCount++;
         const html = `
             <div class="member-group" id="Member${MemberCount}">
-                <h5>Miembro Antiguo ${MemberCount}</h5>
+                <h5>Miembro ${MemberCount}</h5>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="MemberName${MemberCount}" class="form-label">Nombre*</label>

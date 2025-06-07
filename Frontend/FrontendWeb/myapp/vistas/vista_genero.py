@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ..models import ClusterGenero  # Asegúrate de importar tu modelo
 import json
 import requests
+import logging
 
 @csrf_exempt
 def crear_genero_musica(request):
@@ -39,7 +40,7 @@ def crear_genero_musica(request):
             print("Data to send:", data)  # Debugging
             #Link local http://127.0.0.1:5000
             response = requests.post(
-                "http://127.0.0.1:5000/api/create_genres",
+                "https://musictreeapi.azurewebsites.net/api/create_genres",
                 json=data
             )
             response.raise_for_status()
@@ -102,36 +103,82 @@ def get_genres(request):
         return JsonResponse(backup_data, safe=False)
 
 
+logger = logging.getLogger(__name__)          # usa logging en lugar de print
+
 @csrf_exempt
 def importar_generos(request):
-    ruta_importar_genero = "Genero/importar_generos.html"
-    if request.method == 'POST':
+    template = "Genero/importar_generos.html"
+
+    if request.method != "POST":
+        return render(request, template)
+
+    try:
+        data = json.loads(request.body)
+
+        # Llamada a la API externa
+        api_resp = requests.post(
+            "https://musictreeapi.azurewebsites.net/api/procesar-generos",
+            json=data,
+            headers={"Content-Type": "application/json"},
+            timeout=30,
+        )
+
         try:
-            data = json.loads(request.body)
-            print("JSON recibido:", data)  # Debugging
-
-            # Enviar datos a la API externa
-            #link local http://127.0.0.1:5000/api/procesar-generos
-            response = requests.post(
-                "https://musictreeapi.azurewebsites.net/api/procesar-generos",
-                json=data,
-                headers={'Content-Type': 'application/json'}
+            api_json = api_resp.json()
+        except ValueError:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "La API no devolvió JSON válido",
+                },
+                status=502,
             )
-            response.raise_for_status()  # Lanza error si la solicitud falla
 
-            return JsonResponse({
-                'success': True,
-                'response': response.json()
-            })
-        except requests.exceptions.RequestException as e:
-            return JsonResponse({
-                'success': False,
-                'error': f"Error al conectar con la API: {str(e)}"
-            }, status=500)
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': f"Error interno: {str(e)}"
-            }, status=500)
-    else:
-        return render(request, ruta_importar_genero)
+        errores = api_json.get("errores", [])
+        if errores:
+            mensajes_errores = []
+            status_code = 400  # valor por defecto si no hay 500
+
+            for error in errores:
+                codigo = error.get("status_code", 400)
+                index = error.get("index", -1)
+
+                if codigo == 500:
+                    mensajes_errores.append(
+                        f"Error: se está intentando ingresar un género repetido en la posición {index}"
+                    )
+                    status_code = 500 
+                else:
+                    mensajes_errores.append(
+                        f"Error en posición {index}: {error.get('error', 'Error desconocido')}"
+                    )
+            print("ERROR: " ,mensajes_errores)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "status_code": status_code,
+                    "errores": mensajes_errores,
+                    "mensaje": api_json.get("mensaje", ""),
+                },
+                status=status_code,
+            )
+
+        return JsonResponse(
+            {
+                "success": True,
+                "data": api_json,
+            }
+        )
+    
+
+    except requests.exceptions.RequestException as e:
+        return JsonResponse(
+            {"success": False, "error": f"Error al conectar con la API: {e}"},
+            status=502,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"success": False, "error": f"Error interno: {e}"},
+            status=500,
+        )
+    

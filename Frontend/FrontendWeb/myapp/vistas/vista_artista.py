@@ -11,152 +11,121 @@ import requests
 
 
 
+import json
+import re
+import requests
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+
+
 @csrf_exempt
 def registrar_artista(request):
     ruta_template = "Artista/registrar_artista.html"
-    
-    if request.method == 'GET':
+
+    if request.method == "GET":
         return render(request, ruta_template)
-    
-    elif request.method == 'POST':
-        try:
-            # Construimos el data igual que en tu ejemplo
-            data = {
-                'is_band': request.POST.get('es_banda', 'false') == 'true',
-                'nombre': request.POST.get('nombre'),
-                'biografia': request.POST.get('biografia'),
-                'pais': request.POST.get('pais'),
-                'año_desde': request.POST.get('anio_desde'),
-                'año_hasta': request.POST.get('anio_hasta'),
-                'cover_image_path': request.FILES.get('portada').name if request.FILES.get('portada') else None,
-                'miembros': [],
-                'albumes': [],
-                'genre_ids': [],
-                'subgenre_ids': [],
-            }
 
-            # Procesar miembros dinámicos
-            i = 1
-            while f'MemberName{i}' in request.POST:
-                data['miembros'].append({
-                    'nombre': request.POST.get(f'MemberName{i}'),
-                    'instrumento': request.POST.get(f'MemberInstrument{i}'),
-                    'desde': request.POST.get(f'MemberSince{i}'),
-                    'hasta': request.POST.get(f'MemberUntil{i}'),
-                    'is_current': False
-                })
-                i += 1
+    if request.method != "POST":
+        # Por si acaso llega otro verbo HTTP
+        return render(request, ruta_template, {"error": "Método no permitido"}, status=405)
 
-            # Procesar álbumes dinámicos
-            i = 1
-            while f'albumName{i}' in request.POST:
-                data['albumes'].append({
-                    'titulo': request.POST.get(f'albumName{i}'),
-                    'año': request.POST.get(f'albumYear{i}'),
-                    'duration_seconds': request.POST.get(f'albumDuration{i}'),
-                    'cover_image_path': request.FILES.get(f'albumImage{i}').name if request.FILES.get(f'albumImage{i}') else None
-                })
-                i += 1
+    try:
+        data = {
+            "is_band": request.POST.get("es_banda", "false") == "true",
+            "nombre": request.POST.get("nombre"),
+            "biografia": request.POST.get("biografia"),
+            "pais": request.POST.get("pais"),
+            "año_desde": request.POST.get("anio_desde"),
+            "año_hasta": request.POST.get("anio_hasta"),
+            "cover_image_path": (
+                request.FILES.get("portada").name if request.FILES.get("portada") else None
+            ),
+            "miembros": [],
+            "albumes": [],
+            "genre_ids": [],
+            "subgenre_ids": [],
+        }
 
-            # Procesar géneros y subgéneros (arrays)
-            if 'generos[]' in request.POST:
-                data['genre_ids'] = request.POST.getlist('generos[]')
-            
-            if 'subgeneros[]' in request.POST:
-                data['subgenre_ids'] = request.POST.getlist('subgeneros[]')
-
-            print("Datos a enviar a la API:", json.dumps(data, indent=2, ensure_ascii=False))
-            print(data)
-            # Enviar a la API externa
-            #Enlace local http://127.0.0.1:5000
-            #Enlace online https://musictreeapi.azurewebsites.net/api/crear_artista_completo
-            response = requests.post(
-                "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
-                json=data,
-                headers={'Content-Type': 'application/json'},
-                timeout=10
+        # miembros dinámicos
+        i = 1
+        while f"MemberName{i}" in request.POST:
+            data["miembros"].append(
+                {
+                    "nombre": request.POST.get(f"MemberName{i}"),
+                    "instrumento": request.POST.get(f"MemberInstrument{i}"),
+                    "desde": request.POST.get(f"MemberSince{i}"),
+                    "hasta": request.POST.get(f"MemberUntil{i}"),
+                    "is_current": False,
+                }
             )
-            response.raise_for_status()
+            i += 1
 
-            return render(request, ruta_template, {
-                "success": True,
-                "response": response.json()
-            })
+        # álbumes dinámicos
+        i = 1
+        while f"albumName{i}" in request.POST:
+            data["albumes"].append(
+                {
+                    "titulo": request.POST.get(f"albumName{i}"),
+                    "año": request.POST.get(f"albumYear{i}"),
+                    "duration_seconds": request.POST.get(f"albumDuration{i}"),
+                    "cover_image_path": (
+                        request.FILES.get(f"albumImage{i}").name
+                        if request.FILES.get(f"albumImage{i}")
+                        else None
+                    ),
+                }
+            )
+            i += 1
 
-        except requests.exceptions.HTTPError as e:
+        # géneros y subgéneros
+        if "generos[]" in request.POST:
+            data["genre_ids"] = request.POST.getlist("generos[]")
+        if "subgeneros[]" in request.POST:
+            data["subgenre_ids"] = request.POST.getlist("subgeneros[]")
+
+        response = requests.post(
+            "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
+            json=data,
+            headers={"Content-Type": "application/json"},
+            timeout=10,
+        )
+
+        # Si el backend responde 2xx, todo bien:
+        response.raise_for_status()
+        return JsonResponse({
+            'success': True,
+            'message': 'Artista registrado exitosamente'
+        })
+
+    except requests.exceptions.HTTPError as e:
+        # Mantén tu lógica original de manejo de errores
+        detalle = ""
+        try:
+            err_json = e.response.json()
+            detalle = err_json.get("detalle", "")
+        except Exception:
+            err_json = None
+
+        if "psycopg2.errors.UniqueViolation" in detalle:
+            match = re.search(r"Key \(name\)=\((.*?)\)", detalle)
+            artista_dup = match.group(1) if match else "el artista"
+            error_message = f"Error: el nombre del artista «{artista_dup}» ya existe en el sistema"
+        elif e.response.status_code == 409:
+            error_message = "El artista ya existe en el sistema"
+        else:
             error_message = f"Error de la API: {str(e)}"
-            if e.response.status_code == 409:
-                error_message = "El artista ya existe en el sistema"
-            
-            return render(request, ruta_template, {
-                "error": error_message,
-                "response": e.response.json() if e.response else None
-            })
 
-        except Exception as e:
-            return render(request, ruta_template, {
-                "error": f"Error interno: {str(e)}",
-                "response": None
-            })
+        return JsonResponse({
+            'success': False,
+            'error': error_message
+        }, status=e.response.status_code)
 
-"""
-@csrf_exempt
-def registrar_artista(request):
-    if request.method == 'GET':
-        return render(request, "Artista/registrar_artista.html")
-    
-    elif request.method == 'POST':
-        try:
-            # Cargar los datos JSON recibidos
-            data = json.loads(request.body)
-            
-            # 1. Imprimir los datos recibidos (para verificación)
-            print("\n--- DATOS RECIBIDOS DEL FORMULARIO ---")
-            print(data)
-            print("\n--- FIN DE DATOS RECIBIDOS ---\n")
-            
-            # 2. Enviar a la API externa
-            api_url = 'https://musictreeapi.azurewebsites.net/api/crear_artista_completo'
-            response = requests.post(
-                api_url,
-                json=data,  # Esto envía el JSON directamente
-                headers={
-                    'Content-Type': 'application/json',
-                    # Agrega aquí otros headers necesarios (ej. API key)
-                },
-                timeout=10  # Tiempo de espera en segundos
-            )
-            
-            # Verificar si la API respondió correctamente
-            response.raise_for_status()
-            
-            # Opcional: Imprimir la respuesta de la API
-            api_response = response.json()
-            print("Respuesta de la API externa:", api_response)
-            
-            return JsonResponse({
-                'success': True,
-                'message': 'Artista creado exitosamente',
-                'api_response': api_response  # Puedes omitir esto si no lo necesitas
-            })
-            
-        except requests.exceptions.RequestException as e:
-            print(f"Error al enviar a la API: {str(e)}")
-            return JsonResponse({
-                'success': False,
-                'message': f'Error al comunicarse con la API externa: {str(e)}',
-                'error_details': str(e.response.text) if hasattr(e, 'response') else None
-            }, status=500)
-            
-        except Exception as e:
-            print(f"Error interno: {str(e)}")
-            return JsonResponse({
-                'success': False,
-                'message': f'Error interno del servidor: {str(e)}'
-            }, status=500)
-"""
-
-
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f"Error interno: {str(e)}"
+        }, status=500)
 
 def ver_catalogo_artista(request):
     ruta_catalogo_artistas = "Artista/ver_catalogo_artista.html"
@@ -167,6 +136,7 @@ def ver_catalogo_artista(request):
             'https://musictreeapi.azurewebsites.net/api/artists_view',
             timeout=5
         )
+        
         response.raise_for_status()
         
         # Transformar los datos a la estructura que espera la plantilla

@@ -50,7 +50,19 @@ document.getElementById('guardarGeneros').addEventListener('click', function () 
         },
         body: JSON.stringify(window.jsonDataToSend),
     })
-    .then(response => response.json())
+    //.then(response => response.json())
+        .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                // Si hay errores en la respuesta, lanzar un error con los detalles
+                if (data.errores) {
+                    throw new Error(data.errores.join('\n'));
+                }
+                throw new Error(data.error || 'Error desconocido');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             resultContainer.innerHTML = `
@@ -58,7 +70,7 @@ document.getElementById('guardarGeneros').addEventListener('click', function () 
                     Géneros importados exitosamente!
                 </div>
             `;
-            // Opcional: Recargar la página después de un tiempo
+            // Recargar la página después de un tiempo
             setTimeout(() => location.reload(), 2000);
         } else {
             resultContainer.innerHTML = `
@@ -71,7 +83,7 @@ document.getElementById('guardarGeneros').addEventListener('click', function () 
     .catch(error => {
         resultContainer.innerHTML = `
             <div class="alert alert-danger">
-                Error al enviar los datos: ${error.message}
+                ${error.message.split('\n').map(err => `<p>${err}</p>`).join('')}
             </div>
         `;
     });
