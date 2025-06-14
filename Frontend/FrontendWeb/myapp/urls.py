@@ -5,16 +5,11 @@ from .vistas import vista_menu
 from .vistas import vista_genero
 from .vistas import vista_cluster
 from .vistas import vista_artista
+from .vistas import vista_fanatico
 
 
 
 urlpatterns=[
-    #path("home/",views.home,name="home"),
-    #path("todos/", views.todos, name="Todos"),
-    #path("main_menu/", views.main_menu, name="main_menu"),
-    #path("crear_cluster/",views.crear_cluster, name="crear_cluster"),
-    #path("get_cluster_genero/", views.get_cluster_genero, name="get_clusters"),
-    #path("crear_genero_musica/", views.crear_genero_musica, name="crear_genero_musica")
     path("home/", vista_home.home, name="home"),
     path("main_menu/", vista_menu.main_menu, name="main_menu"),
     #Cluster
@@ -29,6 +24,8 @@ urlpatterns=[
     path("registrar_artista/", vista_artista.registrar_artista, name="registrar_artista"),
     path("ver_artista/",vista_artista.ver_artista, name="ver_artista"),
     path("ver_catalogo_artista/", vista_artista.ver_catalogo_artista, name="ver_catalogo_artista"),
-    path("api/subgenres/", vista_artista.get_subgenres, name = "get_subgenres")
+    path("api/subgenres/", vista_artista.get_subgenres, name = "get_subgenres"),
+    #Fanatico
+    path("registrar_fanatico/", vista_fanatico.registrar_fanatico, name="registrar_fanatico")
     
 ]

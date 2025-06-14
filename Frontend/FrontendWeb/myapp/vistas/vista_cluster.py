@@ -10,6 +10,10 @@ import json
 import requests
 
 
+ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/"
+
+route = [ruta_local_api, ruta_online_api]
 
 @csrf_exempt
 def crear_cluster(request):
@@ -26,7 +30,7 @@ def crear_cluster(request):
             print("Data to send:", data)  # Imprime los datos para depuración
 
             response = requests.post(
-                "https://musictreeapi.azurewebsites.net/create_cluster_genero",
+                route[1]+"create_cluster_genero",
                 json=data
             )
             response.raise_for_status()
@@ -53,7 +57,9 @@ def get_cluster_genero(request):
     ruta_get_cluster = "Cluster/get_cluster_genero.html"
     if request.method == 'GET':
         try:
-            response = requests.get("https://musictreeapi.azurewebsites.net/get_clusters_genero")
+            response = requests.get(
+                route[1]+"get_clusters_genero"
+            )
             response.raise_for_status()
             clusters = response.json()
 

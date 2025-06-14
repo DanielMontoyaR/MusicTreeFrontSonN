@@ -19,6 +19,13 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 
+ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/api/"
+
+route = [ruta_local_api, ruta_online_api]
+
+
+
 @csrf_exempt
 def registrar_artista(request):
     ruta_template = "Artista/registrar_artista.html"
@@ -85,7 +92,7 @@ def registrar_artista(request):
             data["subgenre_ids"] = request.POST.getlist("subgeneros[]")
 
         response = requests.post(
-            "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
+            route[1]+"crear_artista_completo",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10,
@@ -133,7 +140,7 @@ def ver_catalogo_artista(request):
     try:
         # Obtener datos de la API
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/artists_view',
+            route[1]+"artists_view",
             timeout=5
         )
         
@@ -171,7 +178,7 @@ def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_genres',
+            route[1]+"get_genres",
             timeout=5
         )
         response.raise_for_status()
@@ -198,7 +205,7 @@ def get_subgenres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_subgenres',
+            route[1]+"get_subgenres",
             timeout=5
         )
         response.raise_for_status()
