@@ -1,6 +1,7 @@
 # API/api.py (o API/routes.py)
 from flask import Flask, jsonify, request
 from utils.database.database import db
+from utils.database.Fanatico.guardar_fanatico_db import *
 from utils.queries.Cluster.crear_cluster_genero import *
 from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Genre.crear_genero import *
@@ -14,6 +15,7 @@ from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Genre.importjsongenre import *
 from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.search_artist import *
+from utils.queries.Fanatico.crear_fanatico import *
 
 app = Flask(__name__)
 
@@ -154,6 +156,22 @@ def buscar_artista():
         error_response = {"error": str(e)}
         return jsonify(error_response), 500
     
+
+#Crear fanatico nuevo
+@app.route('/api/registro_fanatico', methods=['POST'])
+def crear_fanatico():
+    data = request.get_json()
+
+    try:
+        fanaticoData, error_response, status_code = crearFanatico(data)
+
+    except Exception as e:
+        error_response = {"error": str(e)}  
+        status_code = 500
+        return jsonify(error_response), status_code
+    
+    return guardarFanaticoDB(fanaticoData)
+
 
 if __name__ == "__main__":
     app.run(port=5000,debug=True)
