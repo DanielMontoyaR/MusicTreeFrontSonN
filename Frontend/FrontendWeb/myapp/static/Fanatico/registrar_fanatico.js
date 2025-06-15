@@ -1,6 +1,9 @@
 console.log("Script de registro de fanatico cargado!");
+//import { paisesONU } from "../GeneralData/paises";  
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded',async function () {
+    
+    
     // Variables para contar géneros seleccionados
     let generoCount = 0;
     let selectedAvatar = null;
@@ -46,9 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
         this.classList.toggle('is-invalid', this.value.length > 100);
     });
 
+    const { paisesONU } = await import("../GeneralData/paises.js");
     // Llenar países (simplificado)
     const paisSelect = document.getElementById('pais');
-    ['México', 'USA'].forEach(pais => {
+    paisesONU.sort().forEach(pais => {
         const option = document.createElement('option');
         option.value = pais;
         option.textContent = pais;
@@ -234,14 +238,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
 
-            if (result.success) {/*
+            if (result.success) {
                 document.getElementById('successMessage').textContent = result.message;
                 document.getElementById('successMessage').style.display = 'block';
 
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
                     window.location.href = '/login';
-                }, 2000);*/
+                }, 2000);
             } else {
                 throw new Error(result.message || 'Error al registrar usuario');
             }
