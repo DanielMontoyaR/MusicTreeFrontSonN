@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('togglePassword').addEventListener('click', function () {
         const passwordInput = document.getElementById('password');
         const icon = this;
-        
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
             icon.classList.remove('fa-eye');
@@ -32,12 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const hasUpperCase = /[A-Z]/.test(password);
         const hasLowerCase = /[a-z]/.test(password);
         const hasNumbers = /\d/.test(password);
-        const isValid = password.length >= 8 && 
-                       password.length <= 12 && 
-                       hasUpperCase && 
-                       hasLowerCase && 
-                       hasNumbers;
-        
+        const isValid = password.length >= 8 &&
+            password.length <= 12 &&
+            hasUpperCase &&
+            hasLowerCase &&
+            hasNumbers;
+
         this.classList.toggle('is-invalid', !isValid);
     });
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.avatar-option').forEach(a => {
                 a.classList.remove('selected');
             });
-            
+
             // Marcar como seleccionado
             this.classList.add('selected');
             selectedAvatar = this.getAttribute('data-avatar');
@@ -193,53 +193,62 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
+            const formData = new FormData(this);
+
             // Crear objeto con los datos del formulario
-            const formData = {
-                username: username,
-                password: password,
-                fullname: fullname,
-                generos: [],
-                pais: pais,
-                avatar: selectedAvatar
+            const formDataObj = {
+                username: formData.get('username'),
+                password: '******', // Ocultamos la contraseña por seguridad
+                fullname: formData.get('fullname'),
+                pais: formData.get('pais'),
+                avatar: formData.get('avatar')
             };
 
-            // Agregar géneros seleccionados
+            // Procesar géneros (solo los valores sin las llaves)
+            const generosValues = [];
             for (let i = 1; i <= generoCount; i++) {
                 const generoSelect = document.getElementById(`generoSelect${i}`);
                 if (generoSelect && generoSelect.value) {
-                    formData.generos.push(generoSelect.value);
+                    generosValues.push(generoSelect.value);
                 }
             }
+            formDataObj.generos = generosValues;
 
-            // Simular envío al servidor (en un caso real sería una llamada fetch)
-            console.log('Datos a enviar:', formData);
-            
-            // Simular respuesta exitosa del servidor
-            const success = true; // En un caso real esto vendría de la respuesta del servidor
-            
-            if (success) {
-                document.getElementById('successMessage').textContent = 'Usuario creado exitosamente! Redirigiendo...';
+            // Mostrar en consola
+            console.log("Datos a enviar:", formDataObj);
+
+            // 3. Enviar al backend Django
+            const response = await fetch('/registrar_fanatico/', {
+                method: 'POST',
+                body: formData, // Enviamos FormData directamente
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            // 4. Manejar respuesta
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error en el servidor');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {/*
+                document.getElementById('successMessage').textContent = result.message;
                 document.getElementById('successMessage').style.display = 'block';
-                
-                // Limpiar formulario
-                this.reset();
-                document.querySelectorAll('.avatar-option').forEach(a => {
-                    a.classList.remove('selected');
-                });
-                selectedAvatar = null;
-                generoCount = 0;
-                document.getElementById('generosContainer').innerHTML = '';
-                
+
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
-                    window.location.href = '/home';
-                }, 2000);
+                    window.location.href = '/login';
+                }, 2000);*/
             } else {
-                throw new Error('Error al registrar usuario');
+                throw new Error(result.message || 'Error al registrar usuario');
             }
+
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('errorMessage').textContent = error.message || 'Ocurrió un error al registrar el usuario.';
+            document.getElementById('errorMessage').textContent = error.message;
             document.getElementById('errorMessage').style.display = 'block';
         }
     });
