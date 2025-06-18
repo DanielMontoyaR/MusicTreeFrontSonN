@@ -279,3 +279,99 @@ def ver_artista(request):
             })
     
     return render(request, ruta_ver_artista, {'search_performed': False})
+
+
+
+@csrf_exempt
+def buscar_artista_por_genero(request):
+    ruta_buscar_artista_genero = "Artista/buscar_artista_genero.html"
+
+    if request.method=="GET":
+        return render(request, ruta_buscar_artista_genero)
+    
+    elif request.method != "POST":
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido'
+        }, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        artist_name = data.get('artist_name', '').strip().lower()
+        main_genre = data.get('main_genre').strip().lower() #'Rock'
+        subgenres = data.get('subgenres', [])
+        
+
+        print("El usuario busca a alguien con el género", main_genre)
+        # Validación básica
+        if not main_genre:
+            return JsonResponse({
+                'success': False,
+                'error': 'Se requiere un género principal'
+            }, status=400)
+        
+        # Simulación de datos para pruebas
+        mock_artists = [
+            {
+                'id': 'A1',
+                'name': 'Artista de Rock 1',
+                'image': 'https://via.placeholder.com/150',
+                'albums_count': 5,
+                'genres': ['g-421e37be0fa2000000000000'],
+                'subgenres': ['Rock Alternativo']
+            },
+            {
+                'id': 'A2',
+                'name': 'Artista de Pop 1',
+                'image': 'https://via.placeholder.com/150',
+                'albums_count': 3,
+                'genres': ['g-421e37be0fa2000000000000'],
+                'subgenres': ['Pop Rock']
+            },
+            {
+                'id': 'A3',
+                'name': 'Artista Mixto',
+                'image': 'https://via.placeholder.com/150',
+                'albums_count': 7,
+                'genres': ['Rock', 'Pop'],
+                'subgenres': ['Rock Clásico', 'Pop Electrónico']
+            }
+        ]
+        
+        # Filtrar por género principal (convertimos todo a minúsculas para comparar)
+        filtered_artists = [
+            artist for artist in mock_artists
+            if main_genre in [g.lower() for g in artist['genres']]
+        ]
+        print(f"Artistas después de filtrar por género principal ({main_genre}): {len(filtered_artists)}")
+
+        # Filtrar por subgéneros si se especificaron
+        if subgenres:
+            filtered_artists = [
+                artist for artist in filtered_artists
+                if any(
+                    any(sg in s.lower() for s in artist.get('subgenres', []))
+                    for sg in subgenres
+                )
+            ]
+            print(f"Artistas después de filtrar por subgéneros: {len(filtered_artists)}")
+        
+        # Filtrar por nombre de artista si se especificó
+        if artist_name:
+            filtered_artists = [
+                artist for artist in filtered_artists
+                if artist_name in artist['name'].lower()
+            ]
+            print(f"Artistas después de filtrar por nombre: {len(filtered_artists)}")
+        
+        return JsonResponse({
+            'success': True,
+            'artists': filtered_artists
+        })
+        
+    except Exception as e:
+        print(f"Error en búsqueda de artistas: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Error interno al realizar la búsqueda'
+        }, status=500)

@@ -7,7 +7,7 @@ import requests
 
 
 ruta_local_api = "http://127.0.0.1:5000/api/"
-ruta_online_api = "https://musictreeapi.azurewebsites.net/api/reg_fanatico"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/api/"
 
 route = [ruta_local_api,ruta_online_api]
 
@@ -75,3 +75,112 @@ def registrar_fanatico(request):
             'success': False,
             'error': f"Error interno: {str(e)}"
         }, status=500)
+    
+
+@csrf_exempt
+def login_fanatico(request):
+    ruta_fanatico = "Fanatico/login_fanatico.html"
+    if request.method == "GET":
+        return render(request, ruta_fanatico)
+    
+    elif request.method != "POST":
+        return JsonResponse({
+            'success': False, 
+            'error': 'Método no permitido'
+        }, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
+        
+        # Validación mejorada
+        if not username or not password:
+            return JsonResponse({
+                'success': False,
+                'error': 'Usuario y contraseña son requeridos'
+            }, status=400)
+        
+        # Debug seguro (no mostrar contraseña)
+        print(f"\nIntento de login para usuario: {username} con contraseña {password} ")
+        
+        # Configurar timeout para la API
+        api_timeout = 10  # segundos
+        
+        response = requests.post(
+            f"{ruta_online_api}login_fanatico",
+            json={
+                'username': username,
+                'password': password
+            },
+            headers={'Content-Type': 'application/json'},
+            timeout=api_timeout
+        )
+        
+        response.raise_for_status()
+        api_data = response.json()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Autenticación exitosa',
+            'user_data': {  # Ejemplo de datos que podrías recibir
+                'username': username,
+                'token': api_data.get('token'),
+                'avatar': api_data.get('avatar')
+            }
+        })
+        
+    except requests.exceptions.Timeout:
+        print("Error: Tiempo de espera agotado al conectar con la API")
+        return JsonResponse({
+            'success': False,
+            'error': 'El servidor no responde. Intente más tarde'
+        }, status=504)
+        
+    except requests.exceptions.HTTPError as e:
+        error_msg = "Credenciales inválidas"
+        if e.response.status_code == 400:
+            try:
+                error_data = e.response.json()
+                error_msg = error_data.get('detail', error_msg)
+            except:
+                pass
+        return JsonResponse({
+            'success': False,
+            'error': error_msg
+        }, status=e.response.status_code)
+        
+    except Exception as e:
+        print(f"Error inesperado: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Error interno del servidor'
+        }, status=500)
+
+def generos_musicales(request):
+    try:
+        # Obtener géneros de la API
+        response = requests.get(
+            route + "get_genres",
+            timeout=5
+        )
+        response.raise_for_status()
+        
+        # Ordenar alfabéticamente
+        generos = sorted(response.json(), key=lambda x: x['name'])
+        
+        return render(request, "Generos/lista_generos.html", {
+            'generos': generos
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener géneros: {str(e)}")
+        # Datos de ejemplo en caso de error
+        generos = [
+            {'genre_id': 'G-1', 'name': 'Rock', 'description': 'Género popular', 'origin': 'Años 50'},
+            {'genre_id': 'G-2', 'name': 'Pop', 'description': 'Música popular', 'origin': 'Años 60'}
+        ]
+        return render(request, "Generos/lista_generos.html", {
+            'generos': generos,
+            'error': 'No se pudieron cargar los géneros desde la API'
+        })

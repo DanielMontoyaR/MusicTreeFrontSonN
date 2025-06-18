@@ -69,15 +69,13 @@
 <body>
     <div class="container">
         <div class="form-container">
-            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/home'">
-                ← Regresar al inicio
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/login_fanatico'">
+                ← Regresar
             </button>
 
             <h2 class="form-title">Registro de Usuario</h2>
-
             <form id="userForm" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-
                 <!-- Nombre de usuario -->
                 <div class="mb-3">
                     <label for="username" class="form-label">Nombre de usuario*</label>
