@@ -157,20 +157,21 @@ def buscar_artista():
         return jsonify(error_response), 500
     
 
-#Crear fanatico nuevo
 @app.route('/api/registro_fanatico', methods=['POST'])
 def crear_fanatico():
     data = request.get_json()
 
     try:
         fanaticoData, error_response, status_code = crearFanatico(data)
+        if error_response:
+            return error_response, status_code
+
+        return guardarFanaticoDB(fanaticoData)
 
     except Exception as e:
         error_response = {"error": str(e)}  
         status_code = 500
         return jsonify(error_response), status_code
-    
-    return guardarFanaticoDB(fanaticoData)
 
 
 if __name__ == "__main__":

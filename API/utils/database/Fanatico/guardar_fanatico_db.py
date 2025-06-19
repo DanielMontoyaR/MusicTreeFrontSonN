@@ -7,10 +7,10 @@ from sqlalchemy import text
 def guardarFanaticoDB(fanatico):
     try:
         if fanatico is None:
-            raise ValueError("No se pudo crear el objeto 'fanatico'. Verifique los datos de entrada.")
+            return jsonify({"error": "Datos del fanático no proporcionados"}), 400
 
         query = text("""
-            SELECT register_fan(
+            SELECT * FROM register_fan(
                 :p_username,
                 :p_password,
                 :p_fullname,
@@ -25,28 +25,30 @@ def guardarFanaticoDB(fanatico):
             'p_password': fanatico['password'],
             'p_fullname': fanatico['fullname'],
             'p_country': fanatico['country'],
-            'p_avatar_id': fanatico['avatar_id'],
+            'p_avatar_id': fanatico['avatar'],
             'p_genre_ids': fanatico['favorite_genres']
         })
 
         fan_id = result.scalar()
         db.session.commit()
 
-        return None, fan_id
+        # Devolvemos directamente la respuesta JSON con el código 201
+        return jsonify({
+            "mensaje": "Fanático registrado exitosamente",
+            "fan_id": fan_id
+        }), 201
 
     except IntegrityError as e:
         db.session.rollback()
-        error_response = jsonify({
+        return jsonify({
             "error": "Restricción de integridad violada",
             "detalle": str(e)
-        })
-        return error_response, None
+        }), 400
 
     except Exception as e:
         db.session.rollback()
         print("Error en servidor:", traceback.format_exc())
-        error_response = jsonify({
+        return jsonify({
             "error": "Error inesperado al registrar el fanático",
             "detalle": str(e)
-        })
-        return error_response, None
+        }), 500
