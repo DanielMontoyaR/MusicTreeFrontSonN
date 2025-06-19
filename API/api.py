@@ -126,10 +126,9 @@ def crear_artista_completo():
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            "error": "Error inesperado en el registro completo",
-            "detalle": str(e)
-        }), 500
+        error_response = {"error": str(e)}
+        status_code = 500
+        return jsonify(error_response), status_code
 
 @app.route('/api/artists_view')
 def get_artist_view():
@@ -157,29 +156,25 @@ def buscar_artista():
 
     except Exception as e:
         error_response = {"error": str(e)}
-        return jsonify(error_response), 500
+        status_code = 500
+        return jsonify(error_response), status_code
 
 @app.route('/api/login_fan', methods=['POST'])    
 def login_fan():
     data = request.get_json()
     
     try:
-        
-        if not data:
-            return jsonify({
-                "error": "Los campos 'username' y 'password' son obligatorios"
-            }), 400
-
-        result = loginFanData(data)
+        result, error_response, status_code = loginFanData(data)
+        if error_response:
+            return error_response, status_code
+            
+        return jsonify(result), 200
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({
-            "error": "Error interno del servidor",
-            "detalle": str(e)
-        }), 500
-    
-    return result
+        error_response = {"error": str(e)}  
+        status_code = 500
+        return jsonify(error_response), status_code
 
 @app.route('/api/registro_fanatico', methods=['POST'])
 def crear_fanatico():

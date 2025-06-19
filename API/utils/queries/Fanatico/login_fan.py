@@ -9,14 +9,21 @@ from sqlalchemy import Numeric as DECIMAL
 
 def loginFanData(data):
     try:
+        # Validaciones (movidas desde el endpoint)
+        if not data:
+            return None, jsonify({
+                "error": "Los campos 'username' y 'password' son obligatorios"
+            }), 400
+
         user = data.get('username')
         password = data.get('password')
 
         if not user or not password:
-            return jsonify({
+            return None, jsonify({
                 "error": "Los campos 'username' y 'password' son obligatorios"
             }), 400
 
+        # Lógica de autenticación
         result = db.session.execute(
             text("SELECT * FROM authenticate_fan(:fan_username, :fan_password)"),
             {
@@ -28,7 +35,7 @@ def loginFanData(data):
         row = result.fetchone()
 
         if row is None:
-            return jsonify({
+            return None, jsonify({
                 "error": "Credenciales incorrectas",
                 "authenticated": False
             }), 401
@@ -37,13 +44,17 @@ def loginFanData(data):
             "message": row[4]
         }
 
-        return jsonify({
+        return {
             "authenticated": True,
             "fan": fan_data
-        }), 200
+        }, None, None
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"Error interno: {str(e)}"}), 500
+        return None, jsonify({
+            "error": "Error interno del servidor",
+            "detalle": str(e),
+            "trace": traceback.format_exc()
+        }), 500
 
 
