@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Artista</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .artist-header {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-card {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .album-card,
+        .photo-card {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 15px;
+            vertical-align: top;
+        }
+
+        .album-card img,
+        .photo-card img {
+            border-radius: 5px;
+        }
+
+        .badge-genre {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .comment {
+            border-left: 3px solid #0d6efd;
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        .event-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="btn btn-secondary mb-3" onclick="location.href='/main_menu'">
+            ← Regresar al Menú Principal
+        </button>
+
+        <h2 class="text-center mb-4">Información de Artista</h2>
+
+        <!-- Buscador -->
+        <div class="section-card mb-4">
+            <form method="GET" action="">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Nombre del artista"
+                        value="{{ request.GET.search|default:'' }}" required>
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        {% if search_performed %}
+            {% if error %}
+                <div class="alert alert-warning">{{ error }}</div>
+            {% elif artist %}
+                <!-- Información del Artista -->
+                <div class="artist-header">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-9">
+                            <h1>{{ artist.name }}</h1>
+                            <div class="mb-3">
+                                <h5>Géneros:</h5>
+                                {% for genre in artist.genres %}
+                                <span class="badge bg-primary badge-genre">{{ genre }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="mb-3">
+                                <h5>Miembros:</h5>
+                                <ul>
+                                    {% for member in artist.members %}
+                                    <li>{{ member }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Álbumes -->
+                <div class="section-card">
+                    <h3>Álbumes</h3>
+                    {% for album in artist.albums %}
+                    <div class="album-card">
+                        <img src="{{ album.image }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
+                        <div class="text-center mt-2">
+                            <strong>{{ album.title }}</strong><br>
+                            <small class="text-muted">{{ album.date }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Fotos -->
+                <div class="section-card">
+                    <h3>Fotos</h3>
+                    {% for photo in artist.photos %}
+                    <div class="photo-card">
+                        <img src="{{ photo }}" alt="Foto del artista" width="200" class="img-thumbnail">
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="section-card">
+                    <button id="showCommentsBtn" class="btn btn-outline-primary me-2">Cargar Comentarios</button>
+                    <button id="showEventsBtn" class="btn btn-outline-success">Mostrar Calendario de Eventos</button>
+                </div>
+
+                <!-- Comentarios (oculto inicialmente) -->
+                <div id="commentsSection" class="section-card" style="display: none;">
+                    <h3>Comentarios</h3>
+                    {% for comment in artist.comments %}
+                    <div class="comment">
+                        <strong>{{ comment.user }}:</strong>
+                        <p>{{ comment.text }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Eventos (oculto inicialmente) -->
+                <div id="eventsSection" class="section-card" style="display: none;">
+                    <h3>Próximos Eventos</h3>
+                    {% for event in artist.events %}
+                    <div class="event-item">
+                        <strong>{{ event.date }} a las {{ event.time }}</strong><br>
+                        {{ event.location }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-warning">No se encontró el artista buscado.</div>
+                {% endif %}
+            {% endif %}
+            </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Nuestro JS -->
+    <script src="{% static 'Artista/ver_artista.js' %}"></script>
+</body>
+
+</html>

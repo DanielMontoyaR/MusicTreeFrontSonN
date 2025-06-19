@@ -1,6 +1,6 @@
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
-from utils.models.genre_models import Artist
+#from utils.models.genre_models import Artist
 from sqlalchemy import func, text
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN
