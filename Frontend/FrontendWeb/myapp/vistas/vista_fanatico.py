@@ -108,7 +108,7 @@ def login_fanatico(request):
         api_timeout = 10  # segundos
         
         response = requests.post(
-            f"{ruta_online_api}login_fanatico",
+            route[1]+"login_fan",
             json={
                 'username': username,
                 'password': password
@@ -118,6 +118,7 @@ def login_fanatico(request):
         )
         
         response.raise_for_status()
+        print("Respuesta del API", response.content)
         api_data = response.json()
         
         return JsonResponse({
@@ -157,30 +158,33 @@ def login_fanatico(request):
             'error': 'Error interno del servidor'
         }, status=500)
 
-def generos_musicales(request):
+def ver_generos(request):
     try:
-        # Obtener géneros de la API
+        # Obtener géneros de la API externa
         response = requests.get(
-            route + "get_genres",
+            route[1]+'get_genres',
             timeout=5
         )
         response.raise_for_status()
         
-        # Ordenar alfabéticamente
+        # Ordenar alfabéticamente por nombre
         generos = sorted(response.json(), key=lambda x: x['name'])
+        #print("LOS GENEROS SON ", generos)
+        return render(request, 'Genero/ver_generos.html', {
+            'generos': generos,
+            'error': None
+        })
         
-        return render(request, "Generos/lista_generos.html", {
-            'generos': generos
+    except requests.exceptions.RequestException as e:
+        print(f"Error al obtener géneros: {str(e)}")
+        return render(request, 'Genero/ver_generos.html', {
+            'generos': [],
+            'error': 'No se pudieron cargar los géneros. Intente más tarde.'
         })
         
     except Exception as e:
-        print(f"Error al obtener géneros: {str(e)}")
-        # Datos de ejemplo en caso de error
-        generos = [
-            {'genre_id': 'G-1', 'name': 'Rock', 'description': 'Género popular', 'origin': 'Años 50'},
-            {'genre_id': 'G-2', 'name': 'Pop', 'description': 'Música popular', 'origin': 'Años 60'}
-        ]
-        return render(request, "Generos/lista_generos.html", {
-            'generos': generos,
-            'error': 'No se pudieron cargar los géneros desde la API'
+        print(f"Error inesperado: {str(e)}")
+        return render(request, 'Genero/ver_generos.html', {
+            'generos': [],
+            'error': 'Error interno del servidor'
         })

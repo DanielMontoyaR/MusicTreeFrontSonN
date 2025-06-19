@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             console.log('Redirigiendo a géneros musicales...');
-            window.location.href = '/generos_musicales';
+            window.location.href = '/ver_generos/';
             
         } catch (error) {
             console.error('Error en login:', error);

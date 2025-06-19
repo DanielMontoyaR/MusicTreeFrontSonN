@@ -20,6 +20,7 @@ urlpatterns=[
     path("crear_genero_musica/", vista_genero.crear_genero_musica, name="crear_genero_musica"),
     path("importar_generos/", vista_genero.importar_generos, name="importar_generos"),
     path("api/genres/", vista_genero.get_genres, name='get_genres'),
+    
     #Artista
     path("registrar_artista/", vista_artista.registrar_artista, name="registrar_artista"),
     path("ver_artista/",vista_artista.ver_artista, name="ver_artista"),
@@ -29,5 +30,6 @@ urlpatterns=[
     #Fanatico
     path("registrar_fanatico/", vista_fanatico.registrar_fanatico, name="registrar_fanatico"),
     path("login_fanatico/", vista_fanatico.login_fanatico, name="login_fanatico"),
+    path("ver_generos/",vista_fanatico.ver_generos, name="ver_generos"),
     
 ]
