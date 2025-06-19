@@ -20,8 +20,15 @@ def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     error_filename = f"{timestamp}_errores.json"
 
     errores = []
+    if not isinstance(generos, list):
+        errores.append({
+            "error": "El cuerpo de la solicitud debe ser una lista de géneros",
+            "status_code": 400
+        })
 
     for idx, genero in enumerate(generos):
+       
+        
         genero_obj, err_resp, status = crearGeneroData(genero)
         if err_resp:
             error_json_str = err_resp.get_data(as_text=True)

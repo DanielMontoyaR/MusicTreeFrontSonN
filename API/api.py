@@ -62,12 +62,10 @@ def crear_genero():
 @app.route('/api/procesar-generos', methods=['POST'])
 def procesar_generos():
     
-    data = request.get_json()
-
-    if not isinstance(data, list):
-        return jsonify({"error": "Se esperaba una lista de géneros"}), 400
+    data = request.get_json() 
 
     try:
+        
         resultado, error_response, status_code  = procesar_generos_batch(data)
         if error_response:
             return error_response, status_code
