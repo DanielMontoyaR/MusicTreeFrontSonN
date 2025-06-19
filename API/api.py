@@ -14,6 +14,7 @@ from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Genre.importjsongenre import *
 from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.search_artist import *
+from utils.queries.Fan.login_fan import *
 
 app = Flask(__name__)
 
@@ -155,6 +156,34 @@ def buscar_artista():
     except Exception as e:
         error_response = {"error": str(e)}
         return jsonify(error_response), 500
+
+@app.route('/api/login_fan', methods=['POST'])    
+def login_fan():
+    data = request.get_json()
+    
+    try:
+        
+        if not data:
+            return jsonify({
+                "error": "Los campos 'username' y 'password' son obligatorios"
+            }), 400
+
+        result = loginFanData(data)
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": "Error interno del servidor",
+            "detalle": str(e)
+        }), 500
+    
+    return result
+
+
+
+
+    
+    
     
 
 if __name__ == "__main__":
