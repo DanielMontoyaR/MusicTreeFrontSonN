@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Géneros</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .genre-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .genre-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0d6efd;
+        }
+
+        .btn-back {
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error-api {
+            color: #842029;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="genre-container">
+            <button type="button" class="btn btn-secondary btn-back" onclick="location.href='/main_menu'">
+                ← Regresar al menú principal
+            </button>
+
+            <h2 class="genre-title">Importar Géneros</h2>
+
+            <!-- Mensajes de éxito/error desde Django -->
+            {% if error %}
+            <div class="error-api mb-3">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+            <div class="success-message mb-3">
+                Género Importado Exitosamente!<br>
+            </div>
+            {% endif %}
+
+            <div class="d-grid mb-3">
+                <!-- Cambiamos el botón para que active el input file oculto -->
+                <button type="button" class="btn btn-primary btn-lg" id="importButton"
+                    onclick="document.getElementById('jsonFileInput').click()">Importar Géneros</button>
+                <!-- Input file oculto que solo acepta JSON -->
+                <input type="file" id="jsonFileInput" accept=".json,application/json" style="display: none;">
+            </div>
+
+            <div class="d-grid">
+                <button type="button" class="btn btn-primary btn-lg" id="guardarGeneros">Guardar Géneros</button>
+            </div>
+
+            <div id="resultContainer" class="mt-3"></div>
+
+            <!-- Nuevo contenedor para mostrar el JSON -->
+            <div id="jsonPreview" class="mt-3 p-3 bg-light border rounded" style="display: none;">
+                <h5 class="mb-3">Contenido del archivo JSON:</h5>
+                <pre id="jsonContent" class="p-2 bg-white border rounded"></pre>
+            </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'Genero/importar_generos.js' %}"></script>
+
+</body>
+
+</html>
