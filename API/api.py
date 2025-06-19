@@ -61,21 +61,25 @@ def crear_genero():
 
 @app.route('/api/procesar-generos', methods=['POST'])
 def procesar_generos():
+    
+    data = request.get_json()
+
+    if not isinstance(data, list):
+        return jsonify({"error": "Se esperaba una lista de géneros"}), 400
+
     try:
-        generos = request.get_json(force=True)
-
-        if not isinstance(generos, list):
-            return jsonify({"error": "Se esperaba un array de géneros"}), 400
-
-        resultado = procesar_generos_batch(generos)
-
-        return jsonify(resultado), 200
-
+        resultado, error_response, status_code  = procesar_generos_batch(data)
+        if error_response:
+            return error_response, status_code
+        
     except Exception as e:
-        return jsonify({
-            "error": "Error en servidor",
+        error_response = {
+            "error": "Error al procesar el batch de géneros",
             "detalle": str(e)
-        }), 500
+        }
+        return jsonify(error_response), 500
+    
+    return jsonify(resultado), status_code
 
 
 @app.route('/api/get_genres', methods=['GET'])

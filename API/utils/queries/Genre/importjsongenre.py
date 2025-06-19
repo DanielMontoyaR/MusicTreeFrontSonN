@@ -57,9 +57,12 @@ def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     with open(ruta_errores, "w", encoding="utf-8") as f:
         json.dump(errores, f, indent=2, ensure_ascii=False)
 
-    return {
-        "mensaje": "Procesamiento completado",
-        "archivo_original": original_filename,
-        "archivo_errores": error_filename,
-        "errores": errores
-    }
+    resultado = {
+            "mensaje": "Procesamiento completado",
+            "archivo_original": original_filename,
+            "archivo_errores": error_filename,
+            "errores": errores
+        }
+
+    return resultado, None, 200
+
