@@ -1,4 +1,4 @@
-console.log("Script de registro de fanatico cargado!");
+console.log("Script de registro de fanatico cargado!!");
 //import { paisesONU } from "../GeneralData/paises";  
 
 document.addEventListener('DOMContentLoaded',async function () {
@@ -241,10 +241,10 @@ document.addEventListener('DOMContentLoaded',async function () {
             if (result.success) {
                 document.getElementById('successMessage').textContent = result.message;
                 document.getElementById('successMessage').style.display = 'block';
-
+                console.log("REDIRIGIENDO A login_fanatico")
                 // Redirigir después de 2 segundos
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = '/login_fanatico';
                 }, 2000);
             } else {
                 throw new Error(result.message || 'Error al registrar usuario');

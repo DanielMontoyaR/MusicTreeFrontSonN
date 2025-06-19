@@ -41,7 +41,7 @@ def registrar_fanatico(request):
         
         # Realizar la petición a la API
         response = requests.post(
-            route[1] + "reg_fanatico",
+            route[1] + "registro_fanatico",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10
