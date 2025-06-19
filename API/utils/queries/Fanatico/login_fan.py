@@ -41,11 +41,12 @@ def loginFanData(data):
             }), 401
 
         fan_data = {
-            "message": row[4]
+            "mensaje": f"Bienvenido, {user}",
         }
 
         return {
             "authenticated": True,
+            "detalle": "Sesión iniciada correctamente",
             "fan": fan_data
         }, None, None
 
