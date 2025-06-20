@@ -11,6 +11,7 @@ from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN
 from sqlalchemy import Numeric as DECIMAL
 from utils.queries.Genre.crear_genero import *
+from utils.database.Genre.guardar_genero_db import guardarGeneroDB
 
 def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     os.makedirs(carpeta_destino, exist_ok=True)
