@@ -1,6 +1,7 @@
 import uuid
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
+from utils.database.database import db
 from utils.models.genre_models import Cluster
 from sqlalchemy import func, text
 from sqlalchemy import cast

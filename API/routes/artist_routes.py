@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import text
 from utils.database.database import db
 from utils.queries.Artist.crear_artista import crearArtistaData
-from utils.queries.Artist.guardar_artist_db import guardarArtistaDB
+from utils.database.Artist.guardar_artist_db import guardarArtistaDB
 from utils.queries.Artist.guardar_album import *
 from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Artist.get_artists import *
