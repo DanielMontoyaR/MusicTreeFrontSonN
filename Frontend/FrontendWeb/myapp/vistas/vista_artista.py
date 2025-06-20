@@ -91,7 +91,7 @@ def registrar_artista(request):
         if "subgeneros[]" in request.POST:
             data["subgenre_ids"] = request.POST.getlist("subgeneros[]")
 
-        print(data)
+        #print(data)
         response = requests.post(
             route[1]+"crear_artista_completo",
             json=data,
@@ -99,6 +99,14 @@ def registrar_artista(request):
             timeout=10,
         )
 
+        # Añade manejo explícito de códigos de error
+        if response.status_code >= 400:
+            return JsonResponse({
+                'success': False,
+                'error': response.json().get('error', 'Error en la API'),
+                'api_response': response.json()
+            }, status=response.status_code)
+            
         # Si el backend responde 2xx, todo bien:
         response.raise_for_status()
         return JsonResponse({
@@ -302,7 +310,7 @@ def buscar_artista_por_genero(request):
         genre_id = data.get('genre_id')
         subgenre_id = data.get('subgenre_id', [])
         limite = data.get('limite', 50)
-        print("Datos a enviar", data)
+        #print("Datos a enviar", data)
         # Validación básica
         if not genre_id:
             return JsonResponse({
@@ -328,7 +336,7 @@ def buscar_artista_por_genero(request):
         
         response.raise_for_status()
         artists = response.json()
-        print("ARTISTAS ENCONTRADOS", artists)
+        #print("ARTISTAS ENCONTRADOS", artists)
         return JsonResponse({
             'success': True,
             'artists': artists
