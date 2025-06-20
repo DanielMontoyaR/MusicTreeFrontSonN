@@ -1,27 +1,28 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let subgenreCount = 0;
-    
+
     // Cargar géneros principales al iniciar
     cargarGenerosPrincipales();
 
     // Mostrar/ocultar subgéneros según checkbox
-    document.getElementById('includeSubgenres').addEventListener('change', function() {
-        document.getElementById('subgenresContainer').style.display = 
+    document.getElementById('includeSubgenres').addEventListener('change', function () {
+        document.getElementById('subgenresContainer').style.display =
             this.checked ? 'block' : 'none';
     });
 
     // Manejar envío del formulario
-    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+    document.getElementById('searchForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const artistName = document.getElementById('artistName').value.trim();
         const mainGenre = document.getElementById('mainGenre').value;
-        
+        const limit = document.getElementById('resultLimit').value;
+
         if (!mainGenre) {
             alert('Por favor selecciona un género principal');
             return;
         }
-        
+
         // Obtener subgéneros seleccionados
         const subgenres = [];
         const subgenreSelects = document.querySelectorAll('.subgenre-select');
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('resultsContainer').style.display = 'block';
             document.getElementById('artistResults').innerHTML = '<p>Buscando artistas...</p>';
             document.getElementById('noResults').style.display = 'none';
-            
+
             // Realizar búsqueda
             const response = await fetch('/buscar_artista_genero/', {
                 method: 'POST',
@@ -43,27 +44,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
                 body: JSON.stringify({
-                    artist_name: artistName,
-                    main_genre: mainGenre,
-                    subgenres: subgenres
+                    nombre: artistName,
+                    genre_id: mainGenre,
+                    subgenre_id: subgenres,
+                    limite: limit
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Error en la búsqueda');
             }
-            
+
             mostrarResultados(result.artists);
-            
+
         } catch (error) {
             console.error('Error en la búsqueda:', error);
             document.getElementById('artistResults').innerHTML = `
-                <div class="alert alert-danger">
-                    ${error.message}
-                </div>
-            `;
+            <div class="alert alert-danger">
+                ${error.message}
+            </div>
+        `;
         }
     });
 
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para agregar subgénero
-    document.getElementById('addSubgenre').addEventListener('click', function() {
+    document.getElementById('addSubgenre').addEventListener('click', function () {
         subgenreCount++;
         const html = `
             <div class="subgenero-group" id="subgenre${subgenreCount}">
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Función para quitar subgénero
-    document.getElementById('removeSubgenre').addEventListener('click', function() {
+    document.getElementById('removeSubgenre').addEventListener('click', function () {
         if (subgenreCount > 0) {
             document.getElementById(`subgenre${subgenreCount}`).remove();
             subgenreCount--;
@@ -134,35 +136,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Función para mostrar resultados
+    // Modificar la función mostrarResultados para adaptarse al nuevo formato de datos
     function mostrarResultados(artists) {
         const resultsContainer = document.getElementById('artistResults');
         const noResults = document.getElementById('noResults');
-        
+
         if (!artists || artists.length === 0) {
             resultsContainer.innerHTML = '';
             noResults.style.display = 'block';
             return;
         }
-        
+
         noResults.style.display = 'none';
         let html = '';
-        
+
         artists.forEach(artist => {
             html += `
-                <div class="artist-card">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <h4>${artist.name}</h4>
-                            <p><strong>Álbumes:</strong> ${artist.albums_count || 0}</p>
-                            <p><strong>Géneros:</strong> ${artist.genres.join(', ')}</p>
-                            ${artist.subgenres ? `<p><strong>Subgéneros:</strong> ${artist.subgenres.join(', ')}</p>` : ''}
-                        </div>
+            <div class="artist-card">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h4>${artist.name}</h4>
+                        <p><strong>Álbumes:</strong> ${artist.album_count || 0}</p>
+                        <p><strong>Géneros:</strong> ${artist.genres}</p>
+                        ${artist.subgenres ? `<p><strong>Subgéneros:</strong> ${artist.subgenres}</p>` : ''}
                     </div>
                 </div>
-            `;
+            </div>
+        `;
         });
-        
+
         resultsContainer.innerHTML = html;
     }
 });

@@ -60,7 +60,7 @@ def registrar_fanatico(request):
     except requests.exceptions.HTTPError as e:
         # Manejo de errores HTTP de la API
         error_message = f"Error de la API: {str(e)}"
-        if e.response.status_code == 409:
+        if e.response.status_code == 500:
             error_message = "El nombre de usuario ya existe"
         
         return JsonResponse({

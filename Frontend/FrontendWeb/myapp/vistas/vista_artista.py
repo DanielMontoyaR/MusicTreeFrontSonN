@@ -53,7 +53,7 @@ def registrar_artista(request):
             "genre_ids": [],
             "subgenre_ids": [],
         }
-
+        
         # miembros dinámicos
         i = 1
         while f"MemberName{i}" in request.POST:
@@ -91,6 +91,7 @@ def registrar_artista(request):
         if "subgeneros[]" in request.POST:
             data["subgenre_ids"] = request.POST.getlist("subgeneros[]")
 
+        print(data)
         response = requests.post(
             route[1]+"crear_artista_completo",
             json=data,
@@ -286,7 +287,7 @@ def ver_artista(request):
 def buscar_artista_por_genero(request):
     ruta_buscar_artista_genero = "Artista/buscar_artista_genero.html"
 
-    if request.method=="GET":
+    if request.method == "GET":
         return render(request, ruta_buscar_artista_genero)
     
     elif request.method != "POST":
@@ -297,77 +298,50 @@ def buscar_artista_por_genero(request):
     
     try:
         data = json.loads(request.body)
-        artist_name = data.get('artist_name', '').strip().lower()
-        main_genre = data.get('main_genre').strip().lower() #'Rock'
-        subgenres = data.get('subgenres', [])
-        
-
-        print("El usuario busca a alguien con el género", main_genre)
+        nombre = data.get('nombre', '').strip()
+        genre_id = data.get('genre_id')
+        subgenre_id = data.get('subgenre_id', [])
+        limite = data.get('limite', 50)
+        print("Datos a enviar", data)
         # Validación básica
-        if not main_genre:
+        if not genre_id:
             return JsonResponse({
                 'success': False,
                 'error': 'Se requiere un género principal'
             }, status=400)
         
-        # Simulación de datos para pruebas
-        mock_artists = [
-            {
-                'id': 'A1',
-                'name': 'Artista de Rock 1',
-                'image': 'https://via.placeholder.com/150',
-                'albums_count': 5,
-                'genres': ['g-421e37be0fa2000000000000'],
-                'subgenres': ['Rock Alternativo']
-            },
-            {
-                'id': 'A2',
-                'name': 'Artista de Pop 1',
-                'image': 'https://via.placeholder.com/150',
-                'albums_count': 3,
-                'genres': ['g-421e37be0fa2000000000000'],
-                'subgenres': ['Pop Rock']
-            },
-            {
-                'id': 'A3',
-                'name': 'Artista Mixto',
-                'image': 'https://via.placeholder.com/150',
-                'albums_count': 7,
-                'genres': ['Rock', 'Pop'],
-                'subgenres': ['Rock Clásico', 'Pop Electrónico']
-            }
-        ]
+        # Preparar datos para la API
+        api_data = {
+            "genre_id": genre_id,
+            "subgenre_id": ",".join(subgenre_id) if subgenre_id else "",
+            "nombre": nombre,
+            "limite": limite
+        }
         
-        # Filtrar por género principal (convertimos todo a minúsculas para comparar)
-        filtered_artists = [
-            artist for artist in mock_artists
-            if main_genre in [g.lower() for g in artist['genres']]
-        ]
-        print(f"Artistas después de filtrar por género principal ({main_genre}): {len(filtered_artists)}")
-
-        # Filtrar por subgéneros si se especificaron
-        if subgenres:
-            filtered_artists = [
-                artist for artist in filtered_artists
-                if any(
-                    any(sg in s.lower() for s in artist.get('subgenres', []))
-                    for sg in subgenres
-                )
-            ]
-            print(f"Artistas después de filtrar por subgéneros: {len(filtered_artists)}")
+        # Llamar a la API real
+        response = requests.post(
+            route[1] + "filtrar_artistas",
+            json=api_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
         
-        # Filtrar por nombre de artista si se especificó
-        if artist_name:
-            filtered_artists = [
-                artist for artist in filtered_artists
-                if artist_name in artist['name'].lower()
-            ]
-            print(f"Artistas después de filtrar por nombre: {len(filtered_artists)}")
-        
+        response.raise_for_status()
+        artists = response.json()
+        print("ARTISTAS ENCONTRADOS", artists)
         return JsonResponse({
             'success': True,
-            'artists': filtered_artists
+            'artists': artists
         })
+        
+    except requests.exceptions.HTTPError as e:
+        error_message = f"Error en la API: {str(e)}"
+        if e.response.status_code == 404:
+            error_message = "No se encontraron artistas con los criterios especificados"
+        return JsonResponse({
+            'success': False,
+            'error': error_message
+        }, status=e.response.status_code)
         
     except Exception as e:
         print(f"Error en búsqueda de artistas: {str(e)}")
