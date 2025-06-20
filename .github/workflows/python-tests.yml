@@ -25,6 +25,8 @@ jobs:
 
       - name: Ejecutar pruebas con cobertura
         run: |
+          $env:PYTHONPATH = "API"
+          export PYTHONPATH=API
           cd API
           PYTHONPATH=. pytest Test --cov=API --cov-report=html
 
