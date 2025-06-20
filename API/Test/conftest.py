@@ -1,5 +1,11 @@
 import pytest
-from api import app  # si hiciste el paso 3 o estás en PYTHONPATH
+import sys
+import os
+
+# Agrega la raíz al path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from API.api import app  # ← Importa como módulo
 
 @pytest.fixture
 def client():
