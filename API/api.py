@@ -4,12 +4,10 @@ from routes.cluster_routes import cluster_bp
 from routes.genre_routes import genre_bp
 from routes.artist_routes import artist_bp
 from routes.fan_routes import fan_bp
+from utils.config.config import Config
 
 app = Flask(__name__)
-
-# Configuración para conectarte a Azure PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://musictreeadmin:AxpHDxGS2BcFdaf@musictree-server.postgres.database.azure.com:5432/postgres?sslmode=require'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_object(Config)
 
 db.init_app(app)
 
