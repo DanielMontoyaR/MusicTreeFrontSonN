@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from utils.queries.Cluster.crear_cluster_genero import *
+from utils.queries.Cluster.crear_cluster_genero import crearClusterGeneroData
+from utils.database.Cluster.guardar_cluster_db import guardarClusterDB
 from utils.queries.Cluster.get_clusters_genero import *
 from utils.queries.Cluster.get_clusters import *
 

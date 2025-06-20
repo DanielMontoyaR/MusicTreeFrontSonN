@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from utils.queries.Genre.crear_genero import *
+from utils.queries.Genre.crear_genero import crearGeneroData
+from utils.database.Genre.guardar_genero_db import guardarGeneroDB
 from utils.queries.Genre.get_generos import *
 from utils.queries.Genre.get_subgeneros import *
 from utils.queries.Genre.importjsongenre import *
