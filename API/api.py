@@ -17,6 +17,7 @@ from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.search_artist import *
 from utils.queries.Fanatico.login_fan import *
 from utils.queries.Fanatico.crear_fanatico import *
+from utils.queries.Fanatico.filtrar_artistas import *
 
 app = Flask(__name__)
 
@@ -191,6 +192,23 @@ def crear_fanatico():
         error_response = {"error": str(e)}  
         status_code = 500
         return jsonify(error_response), status_code
+    
+@app.route('/api/filtrar_artistas', methods=['POST'])
+def filtrar_artistas():
+    data = request.get_json()
+
+    try:
+        resultado, error_response, status_code = buscarArtistasFiltrados(data)
+        if error_response:
+            return error_response, status_code
+
+        return jsonify(resultado), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Error inesperado al procesar la solicitud",
+            "detalle": str(e)
+        }), 500 
 
 
 if __name__ == "__main__":
