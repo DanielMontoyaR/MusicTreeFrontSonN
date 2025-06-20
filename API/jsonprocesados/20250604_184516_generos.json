@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Kygo Tropical",
+    "description": "Música para festivales",
+    "color": "#6c84d5",
+    "creation_year": 2025,
+    "country": "Alemania",
+    "average_mode": 0.5,
+    "bpm_lower": 0,
+    "bpm_upper": 120,
+    "dominant_key": "-1",
+    "volume": -12,
+    "time_signature": "4",
+    "duration": 180,
+    "is_subgenre": true,
+    "parent_genre_id": "G-AA61F7B9765E000000000000",
+    "cluster_id": null
+  },
+  {
+    "name": "Patterns",
+    "description": "Música para tomar Bavaria light",
+    "color": "#6c84d5",
+    "creation_year": 2025,
+    "country": "Costa Rica",
+    "average_mode": 0.5,
+    "bpm_lower": 0,
+    "bpm_upper": 120,
+    "dominant_key": "-1",
+    "volume": -12,
+    "time_signature": "4",
+    "duration": 180,
+    "is_subgenre": true,
+    "parent_genre_id": "G-421E37BE0FA2000000000000",
+    "cluster_id": null
+  }
+]

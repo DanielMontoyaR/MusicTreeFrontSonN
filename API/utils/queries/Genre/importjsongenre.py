@@ -11,6 +11,7 @@ from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN
 from sqlalchemy import Numeric as DECIMAL
 from utils.queries.Genre.crear_genero import *
+from utils.database.Genre.guardar_genero_db import guardarGeneroDB
 
 def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     os.makedirs(carpeta_destino, exist_ok=True)
@@ -20,8 +21,15 @@ def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     error_filename = f"{timestamp}_errores.json"
 
     errores = []
+    if not isinstance(generos, list):
+        errores.append({
+            "error": "El cuerpo de la solicitud debe ser una lista de géneros",
+            "status_code": 400
+        })
 
     for idx, genero in enumerate(generos):
+       
+        
         genero_obj, err_resp, status = crearGeneroData(genero)
         if err_resp:
             error_json_str = err_resp.get_data(as_text=True)
@@ -57,9 +65,12 @@ def procesar_generos_batch(generos, carpeta_destino="API/jsonprocesados"):
     with open(ruta_errores, "w", encoding="utf-8") as f:
         json.dump(errores, f, indent=2, ensure_ascii=False)
 
-    return {
-        "mensaje": "Procesamiento completado",
-        "archivo_original": original_filename,
-        "archivo_errores": error_filename,
-        "errores": errores
-    }
+    resultado = {
+            "mensaje": "Procesamiento completado",
+            "archivo_original": original_filename,
+            "archivo_errores": error_filename,
+            "errores": errores
+        }
+
+    return resultado, None, 200
+

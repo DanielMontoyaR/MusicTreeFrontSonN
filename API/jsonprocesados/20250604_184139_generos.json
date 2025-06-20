@@ -1,0 +1,36 @@
+[
+  {
+    "name": "EDM",
+    "description": "Música para festivales",
+    "color": "#6c84d5",
+    "creation_year": 2025,
+    "country": "Alemania",
+    "average_mode": 0.0,
+    "bpm_lower": 0,
+    "bpm_upper": 120,
+    "dominant_key": "-1",
+    "volume": -12,
+    "time_signature": "4",
+    "duration": 180,
+    "is_subgenre": false,
+    "parent_genre_id": null,
+    "cluster_id": null
+  },
+  {
+    "name": "House",
+    "description": "Música para tomar Bavaria light",
+    "color": "#6c84d5",
+    "creation_year": 2025,
+    "country": "Costa Rica",
+    "average_mode": 0.0,
+    "bpm_lower": 0,
+    "bpm_upper": 120,
+    "dominant_key": "-1",
+    "volume": -12,
+    "time_signature": "4",
+    "duration": 180,
+    "is_subgenre": false,
+    "parent_genre_id": null,
+    "cluster_id": null
+  }
+]
