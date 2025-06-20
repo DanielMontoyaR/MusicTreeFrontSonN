@@ -20,8 +20,6 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          python -m venv venv
-          .\venv\Scripts\Activate
           pip install -r API/requirements.txt
           pip install pytest pytest-cov
 
