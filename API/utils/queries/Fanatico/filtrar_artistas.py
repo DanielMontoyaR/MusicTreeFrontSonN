@@ -24,18 +24,18 @@ def buscarArtistasFiltrados(data):
         # Ejecutar función SQL
         query = text("""
             SELECT * FROM search_artists_by_genre(
-                :genre_id,
-                :subgenre_id,
-                :search_text,
-                :limit_result
+                :p_genre_id,
+                :p_subgenre_id,
+                :p_name_filter,
+                :p_limit
             )
         """)
 
         result = db.session.execute(query, {
-            'genre_id': genre_id,
-            'subgenre_id': subgenre_id,
-            'search_text': nombre,
-            'limit_result': limite
+            'p_genre_id': genre_id,
+            'p_subgenre_id': subgenre_id,
+            'p_name_filter': nombre,
+            'p_limit': limite
         })
 
         artistas = [dict(row._mapping) for row in result]
