@@ -10,6 +10,11 @@ import json
 import requests
 import logging
 
+ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/api/"
+
+route = [ruta_local_api, ruta_online_api]
+
 @csrf_exempt
 def crear_genero_musica(request):
 
@@ -37,15 +42,16 @@ def crear_genero_musica(request):
                 #'genre_id': request.POST.get('genre_id'),
                 #'is_active': request.POST.get('is_active', 'false') == 'true',
             }
-            print("Data to send:", data)  # Debugging
+            #print("Data to send:", data)  # Debugging
             #Link local http://127.0.0.1:5000
             response = requests.post(
-                "https://musictreeapi.azurewebsites.net/api/create_genres",
+                route[1]+"create_genres",
                 json=data
             )
             response.raise_for_status()
             return render(request, ruta_crear_genero, {"success": True, "response": response.json()})
         except Exception as e:
+            print("ERROR", response.json())
             return render(request, ruta_crear_genero, {"error": str(e)})
     return render(request, ruta_crear_genero)
 
@@ -54,7 +60,7 @@ def get_clusters(request):
     """Endpoint para obtener clusters desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_clusters',
+            route[1]+"get_clusters",
             timeout=5  # 5 segundos de timeout
         )
         response.raise_for_status()  # Lanza error si hay problemas
@@ -81,7 +87,7 @@ def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_genres',
+            route[1]+"get_genres",
             timeout=5
         )
         response.raise_for_status()
@@ -117,7 +123,7 @@ def importar_generos(request):
 
         # Llamada a la API externa
         api_resp = requests.post(
-            "https://musictreeapi.azurewebsites.net/api/procesar-generos",
+            route[1]+"procesar-generos",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=30,

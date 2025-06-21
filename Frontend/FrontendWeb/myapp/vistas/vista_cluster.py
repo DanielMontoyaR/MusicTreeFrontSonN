@@ -1,15 +1,12 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from flask import Flask, jsonify, render_template
-#from flask_cors import CORS  # Importa el módulo CORS
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from ..models import ClusterGenero  # Asegúrate de importar tu modelo
-import json
 import requests
 
+ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/"
 
+route = [ruta_local_api, ruta_online_api]
 
 @csrf_exempt
 def crear_cluster(request):
@@ -26,7 +23,7 @@ def crear_cluster(request):
             print("Data to send:", data)  # Imprime los datos para depuración
 
             response = requests.post(
-                "https://musictreeapi.azurewebsites.net/create_cluster_genero",
+                route[1]+"create_cluster_genero",
                 json=data
             )
             response.raise_for_status()
@@ -35,37 +32,55 @@ def crear_cluster(request):
                 "response": response.json()
             })
         
-        except Exception as e:
-
-            if e.response.status_code == 409:
+        except requests.exceptions.HTTPError as e:
+            error_message = f"Error en la API: {str(e)}"
+            if e.response.status_code == 500:
                 error_message = "Error: El nombre ya existe en el sistema. No se puede crear un cluster duplicado."
-            else:
-                error_message = "Error: No se pudo crear el cluster: {str(e)}"
-
             return render(request, ruta_crear_cluster, {
                 "error": error_message,
                 "response": e.response.json() if e.response else None
+            })
+            
+        except Exception as e:
+            return render(request, ruta_crear_cluster, {
+                "error": f"Error inesperado: {str(e)}",
+                "response": None
             })
         
     return render(request, ruta_crear_cluster)
 
 def get_cluster_genero(request):
     ruta_get_cluster = "Cluster/get_cluster_genero.html"
+    context = {
+        "Clusters": [],
+        "mostrar_inactivos": False,
+        "error": None
+    }
+    
     if request.method == 'GET':
         try:
-            response = requests.get("https://musictreeapi.azurewebsites.net/get_clusters_genero")
+            response = requests.get(route[1]+"get_clusters_genero")
             response.raise_for_status()
             clusters = response.json()
 
             cluster_sorted = sorted(clusters, key=lambda x: x['name'].lower())
-            #Filtrar inactivos
             mostrar_inactivos = request.GET.get('mostrar_inactivos', 'false') == 'true'
             if not mostrar_inactivos:
                 cluster_sorted = [cluster for cluster in cluster_sorted if cluster['is_active']]
-            print(clusters)  # Imprime la respuesta para depuración
-            return render(request, ruta_get_cluster, {"Clusters": clusters, "mostrar_inactivos": mostrar_inactivos})
+            
+            context.update({
+                "Clusters": cluster_sorted,
+                "mostrar_inactivos": mostrar_inactivos
+            })
+            
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 500:
+                context["error"] = "Error interno del servidor al obtener clusters"
+            else:
+                context["error"] = f"Error al obtener clusters: {e.response.text}"
+            
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-
+            context["error"] = f"Error inesperado al obtener clusters: {str(e)}"
+    
+    # Asegurarse de que siempre devolvemos el contexto
+    return render(request, ruta_get_cluster, context)

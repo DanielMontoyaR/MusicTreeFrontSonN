@@ -1,5 +1,5 @@
 console.log("Script de registro de artista cargado!");
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // Variables para contar grupos
     let MemberCount = 0;
     let albumCount = 0;
@@ -27,47 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Llenar países
     // Llenar países de la ONU (lista simplificada)
-    const paisesONU = [
-        "Afganistán", "Albania", "Alemania", "Andorra", "Angola",
-        "Antigua y Barbuda", "Arabia Saudita", "Argelia", "Argentina",
-        "Armenia", "Australia", "Austria", "Azerbaiyán", "Bahamas",
-        "Bangladés", "Barbados", "Baréin", "Bélgica", "Belice",
-        "Benín", "Bielorrusia", "Birmania", "Bolivia", "Bosnia y Herzegovina",
-        "Botsuana", "Brasil", "Brunéi", "Bulgaria", "Burkina Faso",
-        "Burundi", "Bután", "Cabo Verde", "Camboya", "Camerún",
-        "Canadá", "Catar", "Chad", "Chile", "China",
-        "Chipre", "Colombia", "Comoras", "Corea del Norte", "Corea del Sur",
-        "Costa de Marfil", "Costa Rica", "Croacia", "Cuba", "Dinamarca",
-        "Dominica", "Ecuador", "Egipto", "El Salvador", "Emiratos Árabes Unidos",
-        "Eritrea", "Eslovaquia", "Eslovenia", "España", "Estados Unidos",
-        "Estonia", "Esuatini", "Etiopía", "Filipinas", "Finlandia",
-        "Fiyi", "Francia", "Gabón", "Gambia", "Georgia",
-        "Ghana", "Granada", "Grecia", "Guatemala", "Guinea",
-        "Guinea-Bisáu", "Guinea Ecuatorial", "Guyana", "Haití", "Honduras",
-        "Hungría", "India", "Indonesia", "Irak", "Irán",
-        "Irlanda", "Islandia", "Islas Marshall", "Islas Salomón", "Israel",
-        "Italia", "Jamaica", "Japón", "Jordania", "Kazajistán",
-        "Kenia", "Kirguistán", "Kiribati", "Kuwait", "Laos",
-        "Lesoto", "Letonia", "Líbano", "Liberia", "Libia",
-        "Liechtenstein", "Lituania", "Luxemburgo", "Macedonia del Norte", "Madagascar",
-        "Malasia", "Malaui", "Maldivas", "Malí", "Malta",
-        "Marruecos", "Mauricio", "Mauritania", "México", "Micronesia",
-        "Moldavia", "Mónaco", "Mongolia", "Montenegro", "Mozambique",
-        "Namibia", "Nauru", "Nepal", "Nicaragua", "Níger",
-        "Nigeria", "Noruega", "Nueva Zelanda", "Omán", "Países Bajos",
-        "Pakistán", "Palaos", "Panamá", "Papúa Nueva Guinea", "Paraguay",
-        "Perú", "Polonia", "Portugal", "Reino Unido", "República Centroafricana",
-        "República Checa", "República del Congo", "República Democrática del Congo", "República Dominicana", "Ruanda",
-        "Rumanía", "Rusia", "Samoa", "San Cristóbal y Nieves", "San Marino",
-        "San Vicente y las Granadinas", "Santa Lucía", "Santo Tomé y Príncipe", "Senegal", "Serbia",
-        "Seychelles", "Sierra Leona", "Singapur", "Siria", "Somalia",
-        "Sri Lanka", "Sudáfrica", "Sudán", "Sudán del Sur", "Suecia",
-        "Suiza", "Surinam", "Tailandia", "Tanzania", "Tayikistán",
-        "Timor Oriental", "Togo", "Tonga", "Trinidad y Tobago", "Túnez",
-        "Turkmenistán", "Turquía", "Tuvalu", "Ucrania", "Uganda",
-        "Uruguay", "Uzbekistán", "Vanuatu", "Vaticano", "Venezuela",
-        "Vietnam", "Yemen", "Yibuti", "Zambia", "Zimbabue"
-    ];
+    const { paisesONU } = await import("../GeneralData/paises.js");
 
 
     const paisSelect = document.getElementById('pais');
@@ -135,41 +95,6 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
         document.getElementById('generosContainer').insertAdjacentHTML('beforeend', html);
 
-        // Aquí iría la carga dinámica de géneros cuando el API esté listo
-        // Por ahora usaremos un array de ejemplo
-        /*const generosEjemplo = ["Rock", "Pop", "Electrónica", "Jazz", "Hip Hop"];
-        const select = document.getElementById(`generoSelect${generoCount}`);
-
-        generosEjemplo.forEach(genero => {
-            const option = document.createElement('option');
-            option.value = genero;
-            option.textContent = genero;
-            select.appendChild(option);
-        });*/
-
-        /* 
-            async function cargarGenerosPrincipalesEnSelect(selectId) {
-        try {
-            const response = await fetch('/api/genres/');
-            if (!response.ok) throw new Error('Error al cargar géneros');
-
-            const generos = await response.json();
-            const select = document.getElementById(selectId);
-
-            // Limpiar y poblar el select
-            select.innerHTML = '<option value="" selected disabled>Seleccione un género...</option>';
-            generos.forEach(genero => {
-                const option = document.createElement('option');
-                option.value = genero.id; // Solo el id
-                option.textContent = genero.nombre;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al cargar géneros');
-        }
-    }
-        */
         // Función para cargar géneros desde Django
         async function cargarGenerosPrincipalesEnSelect(selectId) {
             try {
@@ -224,17 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     `;
         document.getElementById('subgenerosContainer').insertAdjacentHTML('beforeend', html);
-        /*
-        // Aquí iría la carga dinámica de subgéneros cuando el API esté listo
-        const subgenerosEjemplo = ["Rock Alternativo", "Pop Rock", "Electro Pop", "Jazz Fusión", "Trap"];
-        const select = document.getElementById(`subgeneroSelect${subgeneroCount}`);
 
-        subgenerosEjemplo.forEach(subgenero => {
-            const option = document.createElement('option');
-            option.value = subgenero;
-            option.textContent = subgenero;
-            select.appendChild(option);
-        });*/
         // Función para cargar géneros desde Django
         async function cargarSubGenerosPrincipalesEnSelect(selectId) {
             try {
@@ -422,14 +337,6 @@ document.addEventListener('DOMContentLoaded', function () {
             albumCount--;
         }
     });
-    /*
-    // Validación del formulario antes de enviar
-    document.getElementById('artistForm').addEventListener('submit', function (e) {
-
-        e.preventDefault();
-        console.log("Formulario de artista enviado");
-        // Aquí iría la lógica para enviar los datos al API cuando esté listo
-    });*/
 
     // Inicializar con un miembro actual
     document.getElementById('addMember').click();
