@@ -24,8 +24,6 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Ejecutar pruebas con cobertura
-        env:
-          PYTHONPATH: .
         run: |
           pytest API/Test --cov=API --cov-report=term-missing --cov-report=html
 
