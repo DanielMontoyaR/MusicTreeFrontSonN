@@ -27,7 +27,7 @@ jobs:
 
       - name: Ejecutar pruebas con cobertura
         run: |
-          pytest API/Test --cov=API --cov-report=term-missing --cov-report=html
+          PYTHONPATH=. pytest API/Test --cov=API --cov-report=term-missing --cov-report=html
 
       - name: Subir reporte HTML de cobertura como artefacto
         if: always()
