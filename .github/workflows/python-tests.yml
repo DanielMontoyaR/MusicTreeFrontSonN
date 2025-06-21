@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
         uses: actions/setup-python@v4
@@ -31,7 +31,7 @@ jobs:
 
       - name: Subir reporte HTML de cobertura como artefacto
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: reporte-cobertura
           path: htmlcov/
