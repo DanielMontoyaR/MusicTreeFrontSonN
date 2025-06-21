@@ -42,7 +42,7 @@ def crear_genero_musica(request):
                 #'genre_id': request.POST.get('genre_id'),
                 #'is_active': request.POST.get('is_active', 'false') == 'true',
             }
-            print("Data to send:", data)  # Debugging
+            #print("Data to send:", data)  # Debugging
             #Link local http://127.0.0.1:5000
             response = requests.post(
                 route[1]+"create_genres",
@@ -51,6 +51,7 @@ def crear_genero_musica(request):
             response.raise_for_status()
             return render(request, ruta_crear_genero, {"success": True, "response": response.json()})
         except Exception as e:
+            print("ERROR", response.json())
             return render(request, ruta_crear_genero, {"error": str(e)})
     return render(request, ruta_crear_genero)
 

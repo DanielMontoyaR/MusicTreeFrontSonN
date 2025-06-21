@@ -35,6 +35,16 @@ class ArtistaViewsTestCase(TestCase):
             "limite": 50
         }
 
+        self.mock_artistas = [{
+            'ID Artista': '1',
+            'Nombre': 'Artista de Prueba',
+            'País de Origen': 'Chile',
+            'Álbumes Asociados': 3,
+            'Fecha y Hora de Registro': '2023-01-01T00:00:00Z',
+            'Años de Actividad': '2000-2023',
+            'Estado': 'Activo'
+        }]
+
     @patch('requests.post')
     def test_registrar_artista_exitoso(self, mock_post):
         #print("\n\n\n\n -------------------------- test_registrar_artista_exitoso --------------------------")
@@ -158,3 +168,50 @@ class ArtistaViewsTestCase(TestCase):
         response_data = response.json()
         self.assertFalse(response_data['success'])  # Asegura que success es False
         self.assertIn('error', response_data)
+
+
+    @patch('requests.get')
+    def test_ver_catalogo_artista(self, mock_get):
+        """Prueba que la vista muestra correctamente el catálogo de artistas"""
+        # Configura el mock para simular respuesta exitosa
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = self.mock_artistas
+        mock_get.return_value = mock_response
+
+        # Realiza la petición
+        response = self.client.get(self.catalogo_url)
+
+        # Verificaciones
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'text/html; charset=utf-8')
+        
+        # Verifica que los artistas están en el contexto
+        self.assertIn('artistas', response.context)
+        print("\nRespuesta completa → test_ver_catalogo_artista:", response.status_code)  # Para debug
+        # Verifica la transformación de datos
+        artistas = response.context['artistas']
+        self.assertEqual(len(artistas), 1)
+        self.assertEqual(artistas[0]['nombre'], 'Artista de Prueba')
+        self.assertEqual(artistas[0]['pais'], 'Chile')
+        
+        # Verifica que el template correcto se está usando
+        self.assertTemplateUsed(response, 'Artista/ver_catalogo_artista.html')
+
+    @patch('requests.get')
+    def test_ver_catalogo_artista_con_error(self, mock_get):
+        """Prueba el manejo de errores cuando la API falla"""
+        # Configura el mock para simular error
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Error interno")
+        mock_get.return_value = mock_response
+
+        # Realiza la petición
+        response = self.client.get(self.catalogo_url)
+        print("\nRespuesta completa → test_ver_catalogo_artista_con_error:", response.status_code)  # Para debug
+        # Verificaciones
+        self.assertEqual(response.status_code, 200)  # La vista aún debe responder 200
+        self.assertIn('artistas', response.context)
+        self.assertEqual(len(response.context['artistas']), 0)  # Lista vacía en caso de error
+        self.assertIn('error', response.context)  # Mensaje de error debe estar presente

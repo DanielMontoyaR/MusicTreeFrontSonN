@@ -36,8 +36,8 @@ def registrar_fanatico(request):
         }
         
         # Imprimir el JSON que se enviará a la API
-        print("\nDatos a enviar a la API:")
-        print(json.dumps(data, indent=2, ensure_ascii=False))
+        #print("\nDatos a enviar a la API:")
+        #print(json.dumps(data, indent=2, ensure_ascii=False))
         
         # Realizar la petición a la API
         response = requests.post(
@@ -102,7 +102,7 @@ def login_fanatico(request):
             }, status=400)
         
         # Debug seguro (no mostrar contraseña)
-        print(f"\nIntento de login para usuario: {username} con contraseña {password} ")
+        #print(f"\nIntento de login para usuario: {username} con contraseña {password} ")
         
         # Configurar timeout para la API
         api_timeout = 10  # segundos
@@ -118,7 +118,7 @@ def login_fanatico(request):
         )
         
         response.raise_for_status()
-        print("Respuesta del API", response.content)
+        #print("Respuesta del API", response.content)
         api_data = response.json()
         
         return JsonResponse({
