@@ -2,7 +2,7 @@ name: Ejecutar Pruebas Unitarias
 
 on:
   pull_request:
-    branches: '**' # Ramas donde quieres aplicar la regla
+    branches: '**'
 
 jobs:
   test:
@@ -24,13 +24,14 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Ejecutar pruebas con cobertura
+        env:
+          PYTHONPATH: .
         run: |
-          $env:PYTHONPATH = "API"
-          export PYTHONPATH=API
-          cd API
-          PYTHONPATH=. pytest Test --cov=API --cov-report=html
+          pytest API/Test --cov=API --cov-report=term-missing --cov-report=html
 
-      - name: Publicar reporte de cobertura (opcional)
+      - name: Subir reporte HTML de cobertura como artefacto
         if: always()
-        run: echo "Revisión manual en la terminal o HTML"
-
+        uses: actions/upload-artifact@v3
+        with:
+          name: reporte-cobertura
+          path: htmlcov/
