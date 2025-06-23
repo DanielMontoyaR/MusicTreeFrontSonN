@@ -23,11 +23,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r API/requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pytest-mock
 
       - name: Ejecutar pruebas con cobertura
         run: |
-          PYTHONPATH=. pytest API/Test --cov=API --cov-report=term-missing --cov-report=html
+          PYTHONPATH=. pytest API/TestU --cov=API --cov-report=term-missing --cov-report=html
 
       - name: Subir reporte HTML de cobertura como artefacto
         if: always()
