@@ -1,0 +1,24 @@
+[
+  {
+    "index": 0,
+    "genero": {
+      "name": "House tropical",
+      "description": "Música de Kygo",
+      "color": "#6c84d5",
+      "creation_year": 2025,
+      "country": "Noruega",
+      "average_mode": 0.0,
+      "bpm_lower": 0,
+      "bpm_upper": 120,
+      "dominant_key": "-1",
+      "volume": -12,
+      "time_signature": "4",
+      "duration": 180,
+      "is_subgenre": false,
+      "parent_genre_id": null,
+      "cluster_id": null
+    },
+    "error": "Error inesperado",
+    "status_code": 500
+  }
+]
