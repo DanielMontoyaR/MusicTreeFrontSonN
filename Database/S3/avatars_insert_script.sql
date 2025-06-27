@@ -1,0 +1,10 @@
+INSERT INTO avatars (image_path, description) VALUES
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553073313742941/p1.jpg?ex=684f35b5&is=684de435&hm=9a69e9737739044d9dd22cf1c50139d6c8b17c36004e19443593aaa7e537942c&', 'bruneboy'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553073535783013/p2.jpg?ex=684f35b5&is=684de435&hm=affb787b4441f0891c2434eafbd3aeecc8a31eec2a0eaaf1fc5dde1f49f33e11&', 'gingergirl'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553073741565992/p3.jpg?ex=684f35b5&is=684de435&hm=3fee6f14b03c11e075068873e84b0e786190e59c144d207cbcda1a0476ea75cd&', 'asianboy'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553073984700527/p4.jpg?ex=684f35b6&is=684de436&hm=dd8c0e517a7be24c59194b1a162ef3e7428a58d66de4e3c19cd2c694807a4074&', 'asiangirl'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553074223911044/p5.jpg?ex=684f35b6&is=684de436&hm=575398565b5575782b959e2d4ab1001b0ab9db84b511c5ed8521a574a40766f2&', 'blackboy'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553074504925268/p6.jpg?ex=684f35b6&is=684de436&hm=975bc752156bc4a6005ab55a9c0a156c3c0c6a1ead699efb237772df5e0618bb&', 'blondegirl'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553074806653041/p7.jpg?ex=684f35b6&is=684de436&hm=8c7f39dfd6dd33833c7760ae3744ed4fd5a642b87be26751748b16721483ea23&', 'brunettegirl'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553075129880790/p8.jpg?ex=684f35b6&is=684de436&hm=8c0a6737f4a5c7c4da5ea32ca6ac6b9579d525e43cef8be995747a5979a57b3f&', 'whiteboy1'),
+('https://cdn.discordapp.com/attachments/964576637725315072/1383553075335266304/p9.jpg?ex=684f35b6&is=684de436&hm=1b8726c3e65b70cc2738ea457f7742d563f5547c5b23ebe0360272db158694f9&', 'whiteboy2');
