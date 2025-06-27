@@ -1,4 +1,7 @@
 from django.urls import path
+from django.contrib import admin
+from django.urls import path, include
+from django.shortcuts import redirect
 #from . import views
 from .vistas import vista_home 
 from .vistas import vista_menu
@@ -10,8 +13,11 @@ from .vistas import vista_fanatico
 
 
 urlpatterns=[
+    path('', lambda request: redirect('home/', permanent=False)),
+
     path("home/", vista_home.home, name="home"),
     path("main_menu/", vista_menu.main_menu, name="main_menu"),
+    path("fanatico_menu/", vista_menu.fanatico_menu, name="fanatico_menu"),
     #Cluster
     path("crear_cluster/", vista_cluster.crear_cluster, name="crear_cluster"),
     path("get_cluster_genero/", vista_cluster.get_cluster_genero, name="get_clusters"),
