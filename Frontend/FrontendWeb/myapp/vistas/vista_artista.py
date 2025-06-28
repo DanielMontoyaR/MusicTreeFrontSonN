@@ -3,7 +3,7 @@ from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from flask import Flask, jsonify, render_template
-#from flask_cors import CORS  # Importa el módulo CORS
+from flask_cors import CORS  # Importa el módulo CORS
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -17,6 +17,13 @@ import requests
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+
+
+ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_online_api = "https://musictreeapi.azurewebsites.net/api/"
+
+route = [ruta_local_api, ruta_online_api]
+
 
 
 @csrf_exempt
@@ -46,7 +53,7 @@ def registrar_artista(request):
             "genre_ids": [],
             "subgenre_ids": [],
         }
-
+        
         # miembros dinámicos
         i = 1
         while f"MemberName{i}" in request.POST:
@@ -84,13 +91,22 @@ def registrar_artista(request):
         if "subgeneros[]" in request.POST:
             data["subgenre_ids"] = request.POST.getlist("subgeneros[]")
 
+        #print(data)
         response = requests.post(
-            "https://musictreeapi.azurewebsites.net/api/crear_artista_completo",
+            route[1]+"crear_artista_completo",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10,
         )
 
+        # Añade manejo explícito de códigos de error
+        if response.status_code >= 400:
+            return JsonResponse({
+                'success': False,
+                'error': response.json().get('error', 'Error en la API'),
+                'api_response': response.json()
+            }, status=response.status_code)
+            
         # Si el backend responde 2xx, todo bien:
         response.raise_for_status()
         return JsonResponse({
@@ -133,7 +149,7 @@ def ver_catalogo_artista(request):
     try:
         # Obtener datos de la API
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/artists_view',
+            route[1]+"artists_view",
             timeout=5
         )
         
@@ -171,7 +187,7 @@ def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_genres',
+            route[1]+"get_genres",
             timeout=5
         )
         response.raise_for_status()
@@ -198,7 +214,7 @@ def get_subgenres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            'https://musictreeapi.azurewebsites.net/api/get_subgenres',
+            route[1]+"get_subgenres",
             timeout=5
         )
         response.raise_for_status()
@@ -272,3 +288,72 @@ def ver_artista(request):
             })
     
     return render(request, ruta_ver_artista, {'search_performed': False})
+
+
+
+@csrf_exempt
+def buscar_artista_por_genero(request):
+    ruta_buscar_artista_genero = "Artista/buscar_artista_genero.html"
+
+    if request.method == "GET":
+        return render(request, ruta_buscar_artista_genero)
+    
+    elif request.method != "POST":
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido'
+        }, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        nombre = data.get('nombre', '').strip()
+        genre_id = data.get('genre_id')
+        subgenre_id = data.get('subgenre_id', [])
+        limite = data.get('limite', 50)
+        #print("Datos a enviar", data)
+        # Validación básica
+        if not genre_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Se requiere un género principal'
+            }, status=400)
+        
+        # Preparar datos para la API
+        api_data = {
+            "genre_id": genre_id,
+            "subgenre_id": ",".join(subgenre_id) if subgenre_id else "",
+            "nombre": nombre,
+            "limite": limite
+        }
+        
+        # Llamar a la API real
+        response = requests.post(
+            route[1] + "filtrar_artistas",
+            json=api_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        response.raise_for_status()
+        artists = response.json()
+        #print("ARTISTAS ENCONTRADOS", artists)
+        return JsonResponse({
+            'success': True,
+            'artists': artists
+        })
+        
+    except requests.exceptions.HTTPError as e:
+        error_message = f"Error en la API: {str(e)}"
+        if e.response.status_code == 404:
+            error_message = "No se encontraron artistas con los criterios especificados"
+        return JsonResponse({
+            'success': False,
+            'error': error_message
+        }, status=e.response.status_code)
+        
+    except Exception as e:
+        print(f"Error en búsqueda de artistas: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Error interno al realizar la búsqueda'
+        }, status=500)
