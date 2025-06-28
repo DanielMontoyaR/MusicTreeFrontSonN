@@ -2,33 +2,31 @@ import traceback
 from flask import jsonify
 from sqlalchemy import text
 from utils.database.database import db
+from utils.database.Fanatico.login_fanatico_db import autenticar_fan_en_db
+
+def validar_login_data(data):
+    if not data:
+        return jsonify({"error": "Los campos 'username' y 'password' son obligatorios"}), 400
+
+    user = data.get('username')
+    password = data.get('password')
+
+    if not user or not password:
+        return jsonify({"error": "Los campos 'username' y 'password' son obligatorios"}), 400
+
+    return None, {"username": user, "password": password}
+
 
 def loginFanData(data):
     try:
-        # Validación básica
-        if not data:
-            return None, jsonify({
-                "error": "Los campos 'username' y 'password' son obligatorios"
-            }), 400
+        error_response, valores = validar_login_data(data)
+        if error_response:
+            return None, error_response, 400
 
-        user = data.get('username')
-        password = data.get('password')
+        username = valores["username"]
+        password = valores["password"]
 
-        if not user or not password:
-            return None, jsonify({
-                "error": "Los campos 'username' y 'password' son obligatorios"
-            }), 400
-
-        # Ejecutar función SQL
-        result = db.session.execute(
-            text("SELECT * FROM authenticate_fan(:fan_username, :fan_password)"),
-            {
-                'fan_username': user,
-                'fan_password': password
-            }
-        )
-
-        row = result.fetchone()
+        row = autenticar_fan_en_db(username, password)
 
         if row is None:
             return None, jsonify({
@@ -59,10 +57,7 @@ def loginFanData(data):
                 "fan": fan_data
             }, None, None
 
-        # Mensaje inesperado
-        return None, jsonify({
-            "error": "Estado desconocido: " + status_message
-        }), 500
+        return None, jsonify({"error": "Estado desconocido: " + status_message}), 500
 
     except Exception as e:
         db.session.rollback()
