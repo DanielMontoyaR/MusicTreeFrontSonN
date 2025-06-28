@@ -118,7 +118,12 @@ def login_fanatico(request):
         )
         
         response.raise_for_status()
-        #print("Respuesta del API", response.content)
+        print("Respuesta del API", response.content)
+        # Extraer fan_id del JSON de respuesta
+        api_data = response.json()
+        fan_id = api_data.get('fan', {}).get('fan_id')
+        print("fan_id:", fan_id)
+
         api_data = response.json()
         
         return JsonResponse({
