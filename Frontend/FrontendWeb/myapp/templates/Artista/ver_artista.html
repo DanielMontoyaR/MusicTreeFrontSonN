@@ -86,155 +86,216 @@
         .member-past {
             border-left: 4px solid #6c757d;
         }
+
+        .rating-input .rating-star {
+            transition: color 0.2s;
+            margin: 0 5px;
+        }
+
+        .rating-input .rating-star:hover,
+        .rating-input .rating-star.hovered {
+            color: #ffc107;
+        }
+
+        .rating-input .rating-star.selected {
+            color: #ffc107;
+        }
+
+        .alert-floating {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
     </style>
 </head>
 
 <body>
     <div class="container">
-        <button class="btn btn-secondary mb-3" onclick="location.href='/fanatico_menu'">
-            <i class="fas fa-arrow-left"></i> Regresar al Menú Principal
+        <button class="btn btn-secondary mb-3" onclick="location.href='/buscar_artista_genero'">
+            <i class="fa-solid fa-arrow-left"></i> Regresar
         </button>
 
         {% if artist %}
-            <!-- Información del Artista -->
-            <div class="artist-header">
-                <div class="row">
-                    <div class="col-md-3 text-center">
-                        <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded mb-3">
-                        <div class="rating-stars mb-2">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= artist.rating %}
-                                    <i class="fas fa-star"></i>
-                                {% else %}
-                                    <i class="far fa-star"></i>
-                                {% endif %}
+        <!-- Información del Artista -->
+        <div class="artist-header">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded mb-3">
+                    <!-- En la sección del rating (dentro de artist-header) -->
+                    <div class="rating-stars mb-2">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= artist.rating %} <i class="fa-solid fa-star"></i>
+                            {% else %}
+                            <i class="fa-regular fa-star"></i>
+                            {% endif %}
                             {% endfor %}
                             <span class="text-muted">({{ artist.rating_count }})</span>
-                        </div>
-                        <p class="text-muted"><i class="fas fa-globe"></i> {{ artist.country }}</p>
+                            <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
+                                data-bs-target="#ratingModal">
+                                <i class="fa-solid fa-plus"></i> Calificar
+                            </button>
                     </div>
-                    <div class="col-md-9">
-                        <h1>{{ artist.name }}</h1>
-                        
-                        <div class="mb-3">
-                            <h5>Géneros:</h5>
-                            {% for genre in artist.genres %}
-                            <span class="badge bg-primary badge-genre">{{ genre }}</span>
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <h5>Actividad:</h5>
-                            {% for period in artist.activity_periods %}
-                                <span class="badge bg-secondary">
-                                    {{ period.start_year }}{% if period.end_year %} - {{ period.end_year }}{% else %} - Presente{% endif %}
-                                </span>
-                            {% endfor %}
-                        </div>
+                    <p class="text-muted"><i class="fa-solid fa-globe"></i> {{ artist.country }}</p>
+                </div>
+                <div class="col-md-9">
+                    <h1>{{ artist.name }}</h1>
+
+                    <div class="mb-3">
+                        <h5>Géneros:</h5>
+                        {% for genre in artist.genres %}
+                        <span class="badge bg-primary badge-genre">{{ genre }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Actividad:</h5>
+                        {% for period in artist.activity_periods %}
+                        <span class="badge bg-secondary">
+                            {{ period.start_year }}{% if period.end_year %} - {{ period.end_year }}{% else %} -
+                            Presente{% endif %}
+                        </span>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Biografía -->
-            <div class="section-card">
-                <h3><i class="fas fa-book-open"></i> Biografía</h3>
-                <p>{{ artist.biography }}</p>
-            </div>
+        <!-- Biografía -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-book-open"></i> Biografía</h3>
+            <p>{{ artist.biography }}</p>
+        </div>
 
-            <!-- Miembros -->
-            <div class="section-card">
-                <h3><i class="fas fa-users"></i> Miembros</h3>
-                <div class="row">
-                    {% for member in artist.members %}
-                    <div class="col-md-6">
-                        <div class="member-card {% if member.is_current %}member-current{% else %}member-past{% endif %}">
-                            <h5>{{ member.full_name }}</h5>
-                            <p><strong>Instrumento:</strong> {{ member.instrument }}</p>
-                            <p>
-                                <strong>Período:</strong> {{ member.start_period }}
-                                {% if member.end_period %} - {{ member.end_period }}{% else %} - Presente{% endif %}
-                            </p>
-                            <span class="badge {% if member.is_current %}bg-success{% else %}bg-secondary{% endif %}">
-                                {% if member.is_current %}Actual{% else %}Ex miembro{% endif %}
-                            </span>
-                        </div>
+        <!-- Miembros -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-users"></i> Miembros</h3>
+            <div class="row">
+                {% for member in artist.members %}
+                <div class="col-md-6">
+                    <div class="member-card {% if member.is_current %}member-current{% else %}member-past{% endif %}">
+                        <h5>{{ member.full_name }}</h5>
+                        <p><strong>Instrumento:</strong> {{ member.instrument }}</p>
+                        <p>
+                            <strong>Período:</strong> {{ member.start_period }}
+                            {% if member.end_period %} - {{ member.end_period }}{% else %} - Presente{% endif %}
+                        </p>
+                        <span class="badge {% if member.is_current %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if member.is_current %}Actual{% else %}Ex miembro{% endif %}
+                        </span>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endfor %}
             </div>
+        </div>
 
-            <!-- Álbumes -->
-            <div class="section-card">
-                <h3><i class="fas fa-compact-disc"></i> Álbumes</h3>
-                <div class="d-flex flex-wrap">
-                    {% for album in artist.albums %}
-                    <div class="album-card">
-                        <img src="{{ album.cover_image_path }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
-                        <div class="text-center mt-2">
-                            <strong>{{ album.title }}</strong><br>
-                            <small class="text-muted">{{ album.release_date|date:"Y" }}</small>
-                        </div>
+        <!-- Álbumes -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-compact-disc"></i> Álbumes</h3>
+            <div class="d-flex flex-wrap">
+                {% for album in artist.albums %}
+                <div class="album-card">
+                    <img src="{{ album.cover_image_path }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
+                    <div class="text-center mt-2">
+                        <strong>{{ album.title }}</strong><br>
+                        <small class="text-muted">{{ album.release_date|date:"Y" }}</small>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endfor %}
             </div>
+        </div>
 
-            <!-- Fotos -->
-            {% if artist.photos %}
-            <div class="section-card">
-                <h3><i class="fas fa-images"></i> Galería</h3>
-                <div class="d-flex flex-wrap">
-                    {% for photo in artist.photos %}
-                    <div class="photo-card">
-                        <img src="{{ photo.image_path }}" alt="{{ photo.description }}" width="200" class="img-thumbnail">
+        <!-- Fotos -->
+        {% if artist.photos %}
+        <div class="section-card">
+            <h3><i class="fa-solid fa-images"></i> Galería</h3>
+            <div class="d-flex flex-wrap">
+                {% for photo in artist.photos %}
+                <div class="photo-card">
+                    <img src="{{ photo.image_path }}" alt="{{ photo.description }}" width="200" class="img-thumbnail">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Comentarios -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-comments"></i> Comentarios</h3>
+            {% for comment in artist.comments %}
+            <div class="comment">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>{{ comment.user }}</strong>
+                        <p>{{ comment.message }}</p>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Comentarios -->
-            <div class="section-card">
-                <h3><i class="fas fa-comments"></i> Comentarios</h3>
-                {% for comment in artist.comments %}
-                <div class="comment">
-                    <strong>{{ comment.user }}:</strong>
-                    <p>{{ comment.text }}</p>
                     <small class="text-muted">{{ comment.date }}</small>
                 </div>
-                {% empty %}
-                <p class="text-muted">No hay comentarios aún</p>
-                {% endfor %}
             </div>
+            {% empty %}
+            <p class="text-muted">No hay comentarios aún</p>
+            {% endfor %}
+        </div>
 
-            <!-- Eventos -->
-            <div class="section-card">
-                <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos</h3>
-                {% for event in artist.events %}
-                <div class="event-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <strong>{{ event.date }} a las {{ event.time }}</strong><br>
-                            {{ event.location }}
-                        </div>
-                        <button class="btn btn-sm btn-outline-primary">Más información</button>
+        <!-- Eventos -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-calendar-alt"></i> Próximos Eventos</h3>
+            {% for event in artist.events %}
+            <div class="event-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>{{ event.date }} a las {{ event.time }}</strong><br>
+                        {{ event.location }}
                     </div>
-                    {% if event.description %}
-                    <p class="mt-2">{{ event.description }}</p>
-                    {% endif %}
+                    <button class="btn btn-sm btn-outline-primary">Más información</button>
                 </div>
-                {% empty %}
-                <p class="text-muted">No hay eventos programados</p>
-                {% endfor %}
+                {% if event.description %}
+                <p class="mt-2">{{ event.description }}</p>
+                {% endif %}
             </div>
+            {% empty %}
+            <p class="text-muted">No hay eventos programados</p>
+            {% endfor %}
+        </div>
 
         {% else %}
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i> No se encontró información del artista solicitado.
-            </div>
+        <div class="alert alert-danger">
+            <i class="fa-solid fa-exclamation-circle"></i> No se encontró información del artista solicitado.
+        </div>
         {% endif %}
     </div>
+    <!-- Modal para calificar (al final del body, antes de los scripts) -->
+    <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ratingModalLabel">Calificar a {{ artist.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="rating-input">
+                            {% for i in "12345" %}
+                            <i class="fa-regular fa-star rating-star" data-value="{{ forloop.counter }}"
+                                style="font-size: 2rem; cursor: pointer;"></i>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="selectedRating" value="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="submitRating">Enviar Calificación</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Nuestro JS -->
