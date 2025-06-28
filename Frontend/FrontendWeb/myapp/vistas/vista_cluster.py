@@ -23,7 +23,7 @@ def crear_cluster(request):
             print("Data to send:", data)  # Imprime los datos para depuración
 
             response = requests.post(
-                route[1]+"create_cluster_genero",
+                route[0]+"create_cluster_genero",
                 json=data
             )
             response.raise_for_status()
@@ -59,7 +59,7 @@ def get_cluster_genero(request):
     
     if request.method == 'GET':
         try:
-            response = requests.get(route[1]+"get_clusters_genero")
+            response = requests.get(route[0]+"get_clusters_genero")
             response.raise_for_status()
             clusters = response.json()
 

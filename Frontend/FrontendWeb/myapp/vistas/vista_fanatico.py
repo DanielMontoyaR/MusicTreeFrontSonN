@@ -41,7 +41,7 @@ def registrar_fanatico(request):
         
         # Realizar la petición a la API
         response = requests.post(
-            route[1] + "registro_fanatico",
+            route[0] + "registro_fanatico",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10
@@ -108,7 +108,7 @@ def login_fanatico(request):
         api_timeout = 10  # segundos
         
         response = requests.post(
-            route[1]+"login_fan",
+            route[0]+"login_fan",
             json={
                 'username': username,
                 'password': password
@@ -162,7 +162,7 @@ def ver_generos(request):
     try:
         # Obtener géneros de la API externa
         response = requests.get(
-            route[1]+'get_genres',
+            route[0]+'get_genres',
             timeout=5
         )
         response.raise_for_status()

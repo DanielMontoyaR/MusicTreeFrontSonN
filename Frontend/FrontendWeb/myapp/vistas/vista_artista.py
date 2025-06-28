@@ -93,7 +93,7 @@ def registrar_artista(request):
 
         #print(data)
         response = requests.post(
-            route[1]+"crear_artista_completo",
+            route[0]+"crear_artista_completo",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10,
@@ -149,7 +149,7 @@ def ver_catalogo_artista(request):
     try:
         # Obtener datos de la API
         response = requests.get(
-            route[1]+"artists_view",
+            route[0]+"artists_view",
             timeout=5
         )
         
@@ -187,7 +187,7 @@ def get_genres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            route[1]+"get_genres",
+            route[0]+"get_genres",
             timeout=5
         )
         response.raise_for_status()
@@ -214,7 +214,7 @@ def get_subgenres(request):
     """Endpoint para obtener géneros desde el API externo"""
     try:
         response = requests.get(
-            route[1]+"get_subgenres",
+            route[0]+"get_subgenres",
             timeout=5
         )
         response.raise_for_status()
@@ -328,7 +328,7 @@ def buscar_artista_por_genero(request):
         
         # Llamar a la API real
         response = requests.post(
-            route[1] + "filtrar_artistas",
+            route[0] + "filtrar_artistas",
             json=api_data,
             headers={"Content-Type": "application/json"},
             timeout=10
