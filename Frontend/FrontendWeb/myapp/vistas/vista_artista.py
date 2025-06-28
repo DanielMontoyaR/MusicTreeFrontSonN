@@ -240,54 +240,156 @@ def get_subgenres(request):
 def ver_artista(request):
     ruta_ver_artista = "Artista/ver_artista.html"
     
-    if request.method == 'GET' and 'search' in request.GET:
+    if request.method == 'GET' and 'artist_id' in request.GET:
         try:
-            artist_name = request.GET.get('search', '').strip()
+            artist_id = request.GET.get('artist_id')
             
-            # Validar que el nombre no esté vacío
-            if not artist_name:
-                return render(request, ruta_ver_artista, {
-                    'search_performed': True,
-                    'error': 'Por favor ingresa un nombre de artista para buscar'
-                })
-            
-            # Datos de ejemplo para pruebas (solo si se ingresó un nombre)
+            # Datos mock para pruebas - reemplazar con llamada a API real
             mock_artist = {
-                'name': artist_name,
-                'image': "https://via.placeholder.com/300x300",
-                'genres': ["Rock", "Pop"],
-                'members': ["Vocalista", "Guitarrista", "Baterista"],
-                'albums': [
-                    {'title': "Álbum 1", 'date': "2020-01-01", 'image': "https://via.placeholder.com/150x150"},
-                    {'title': "Álbum 2", 'date': "2022-05-15", 'image': "https://via.placeholder.com/150x150"}
-                ],
-                'photos': [
-                    "https://via.placeholder.com/200x200",
-                    "https://via.placeholder.com/200x200",
-                    "https://via.placeholder.com/200x200"
-                ],
-                'comments': [
-                    {'user': 'Fan1', 'text': '¡Gran concierto el año pasado!'},
-                    {'user': 'Fan2', 'text': 'Me encanta su nueva canción.'}
-                ],
-                'events': [
-                    {'date': '2023-12-15', 'time': '20:00', 'location': 'Estadio Nacional'},
-                    {'date': '2024-02-20', 'time': '19:30', 'location': 'Arena Movistar'}
-                ]
+                "artist": {
+                    "artist_id": artist_id,
+                    "name": "Radiohead",
+                    "biography": "Radiohead are an English rock band formed in Abingdon, Oxfordshire, in 1985. Known for their experimental approach to rock music.",
+                    "country_of_origin": "Reino Unido",
+                    "created_at": "2025-06-05T03:28:10.995408",
+                    "cover_image_path": "https://cdn.discordapp.com/attachments/329398607021342721/1380021075643203584/Radioheadthebends.png",
+                    "average_rating": 4.5,
+                    "rating_count": 1250,
+                    "activity_years": [
+                        {"start_year": 1985, "end_year": None, "is_present": True}
+                    ],
+                    "genres": [
+                        {"genre_id": "G-AA61F7B9765E000000000000", "name": "Rock"},
+                        {"genre_id": "G-421E37BE0FA2000000000000", "name": "Alternative"}
+                    ],
+                    "subgenres": [
+                        {"subgenre_id": "G-8D8E111CED4A000000000000", "name": "Alternative Rock"},
+                        {"subgenre_id": "G-F17980CDAEE7000000000000", "name": "Experimental"}
+                    ],
+                    "members": [
+                        {
+                            "full_name": "Thom Yorke",
+                            "instrument": "Voz, Guitarra, Piano",
+                            "start_period": "1985",
+                            "end_period": None,
+                            "is_current": True
+                        },
+                        {
+                            "full_name": "Jonny Greenwood",
+                            "instrument": "Guitarra principal, Teclados",
+                            "start_period": "1985",
+                            "end_period": None,
+                            "is_current": True
+                        },
+                        {
+                            "full_name": "Colin Greenwood",
+                            "instrument": "Bajo, Sintetizadores",
+                            "start_period": "1985",
+                            "end_period": None,
+                            "is_current": True
+                        },
+                        {
+                            "full_name": "Ed O'Brien",
+                            "instrument": "Guitarra rítmica, Coros",
+                            "start_period": "1985",
+                            "end_period": None,
+                            "is_current": True
+                        },
+                        {
+                            "full_name": "Philip Selway",
+                            "instrument": "Batería, Percusión",
+                            "start_period": "1985",
+                            "end_period": None,
+                            "is_current": True
+                        }
+                    ],
+                    "albums": [
+                        {
+                            "album_id": "A-5f2d0b6d290f-D-5a14e3661917",
+                            "title": "Pablo Honey",
+                            "release_date": "1993-02-22",
+                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/4/4d/Radiohead.pablohoney.albumart.jpg",
+                            "duration_seconds": 2678
+                        },
+                        {
+                            "album_id": "A-5f2d0b6d290f-D-6ec4d1c1b7ea",
+                            "title": "The Bends",
+                            "release_date": "1995-03-13",
+                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/4/4f/Radiohead.thebends.albumart.jpg",
+                            "duration_seconds": 2923
+                        },
+                        {
+                            "album_id": "A-5f2d0b6d290f-D-9f58eca93938",
+                            "title": "OK Computer",
+                            "release_date": "1997-05-21",
+                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/a/a1/Radiohead.okcomputer.albumart.jpg",
+                            "duration_seconds": 5378
+                        }
+                    ],
+                    "photos": [
+                        {
+                            "photo_id": 1,
+                            "image_path": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Radiohead_Oxford_2003.jpg",
+                            "description": "Radiohead en concierto (2003)",
+                            "upload_date": "2025-06-05T03:28:10.995408"
+                        },
+                        {
+                            "photo_id": 2,
+                            "image_path": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Radiohead_-_Glastonbury_2017_-_Sunday_-_JP_%2836697151054%29.jpg",
+                            "description": "Presentación en Glastonbury 2017",
+                            "upload_date": "2025-06-05T03:28:10.995408"
+                        }
+                    ],
+                    "comments": [
+                        {
+                            "user": "Fan123",
+                            "message": "¡La mejor banda de todos los tiempos!",
+                            "date": "2025-01-15"
+                        },
+                        {
+                            "user": "MusicLover",
+                            "message": "Su evolución musical es increíble",
+                            "date": "2025-02-20"
+                        }
+                    ],
+                    "events": [
+                        {
+                            "date": "2023-12-15",
+                            "time": "20:00",
+                            "location": "Estadio Nacional, Santiago",
+                            "description": "Tour 2023 - Presentando nuevo material"
+                        }
+                    ]
+                }
+            }
+            
+            # Transformar los datos para la plantilla
+            transformed_artist = {
+                'name': mock_artist['artist']['name'],
+                'image': mock_artist['artist']['cover_image_path'],
+                'biography': mock_artist['artist']['biography'],
+                'country': mock_artist['artist']['country_of_origin'],
+                'rating': mock_artist['artist']['average_rating'],
+                'rating_count': mock_artist['artist']['rating_count'],
+                'activity_periods': mock_artist['artist']['activity_years'],
+                'genres': [g['name'] for g in mock_artist['artist']['genres']],
+                'members': mock_artist['artist']['members'],
+                'albums': mock_artist['artist']['albums'],
+                'photos': mock_artist['artist']['photos'],
+                'comments': mock_artist['artist']['comments'],
+                'events': mock_artist['artist']['events']
             }
             
             return render(request, ruta_ver_artista, {
-                'artist': mock_artist,
-                'search_performed': True
+                'artist': transformed_artist
             })
             
         except Exception as e:
             return render(request, ruta_ver_artista, {
-                'error': f"Error al buscar artista: {str(e)}",
-                'search_performed': True
+                'error': f"Error al cargar artista: {str(e)}"
             })
     
-    return render(request, ruta_ver_artista, {'search_performed': False})
+    return render(request, ruta_ver_artista)
 
 
 
@@ -336,7 +438,7 @@ def buscar_artista_por_genero(request):
         
         response.raise_for_status()
         artists = response.json()
-        #print("ARTISTAS ENCONTRADOS", artists)
+        print("ARTISTAS ENCONTRADOS", artists)
         return JsonResponse({
             'success': True,
             'artists': artists

@@ -152,16 +152,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         artists.forEach(artist => {
             html += `
-            <div class="artist-card">
-                <div class="row">
-                    <div class="col-md-9">
-                        <h4>${artist.name}</h4>
-                        <p><strong>Álbumes:</strong> ${artist.album_count || 0}</p>
-                        <p><strong>Géneros:</strong> ${artist.genres}</p>
-                        ${artist.subgenres ? `<p><strong>Subgéneros:</strong> ${artist.subgenres}</p>` : ''}
-                    </div>
+        <div class="artist-card">
+            <div class="row">
+                <div class="col-md-9">
+                    <h4><a href="/ver_artista/?artist_id=${artist.artist_id}" style="text-decoration: none; color: inherit;">${artist.name}</a></h4>
+                    <p><strong>Álbumes:</strong> ${artist.album_count || 0}</p>
+                    <p><strong>Géneros:</strong> ${artist.genres}</p>
+                    ${artist.subgenres ? `<p><strong>Subgéneros:</strong> ${artist.subgenres}</p>` : ''}
                 </div>
             </div>
+        </div>
         `;
         });
 

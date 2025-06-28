@@ -8,6 +8,8 @@
     <title>Información de Artista</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
@@ -41,6 +43,12 @@
         .album-card img,
         .photo-card img {
             border-radius: 5px;
+            transition: transform 0.3s;
+        }
+
+        .album-card img:hover,
+        .photo-card img:hover {
+            transform: scale(1.05);
         }
 
         .badge-genre {
@@ -58,115 +66,174 @@
             padding: 8px 0;
             border-bottom: 1px solid #eee;
         }
+
+        .rating-stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+
+        .member-card {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .member-current {
+            border-left: 4px solid #198754;
+        }
+
+        .member-past {
+            border-left: 4px solid #6c757d;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <button class="btn btn-secondary mb-3" onclick="location.href='/fanatico_menu'">
-            ← Regresar al Menú Principal
+            <i class="fas fa-arrow-left"></i> Regresar al Menú Principal
         </button>
 
-        <h2 class="text-center mb-4">Información de Artista</h2>
-
-        <!-- Buscador -->
-        <div class="section-card mb-4">
-            <form method="GET" action="">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="search" placeholder="Nombre del artista"
-                        value="{{ request.GET.search|default:'' }}" required>
-                    <button class="btn btn-primary" type="submit">Buscar</button>
-                </div>
-            </form>
-        </div>
-
-        {% if search_performed %}
-            {% if error %}
-                <div class="alert alert-warning">{{ error }}</div>
-            {% elif artist %}
-                <!-- Información del Artista -->
-                <div class="artist-header">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded">
+        {% if artist %}
+            <!-- Información del Artista -->
+            <div class="artist-header">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded mb-3">
+                        <div class="rating-stars mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= artist.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="text-muted">({{ artist.rating_count }})</span>
                         </div>
-                        <div class="col-md-9">
-                            <h1>{{ artist.name }}</h1>
-                            <div class="mb-3">
-                                <h5>Géneros:</h5>
-                                {% for genre in artist.genres %}
-                                <span class="badge bg-primary badge-genre">{{ genre }}</span>
-                                {% endfor %}
-                            </div>
-                            <div class="mb-3">
-                                <h5>Miembros:</h5>
-                                <ul>
-                                    {% for member in artist.members %}
-                                    <li>{{ member }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                        <p class="text-muted"><i class="fas fa-globe"></i> {{ artist.country }}</p>
+                    </div>
+                    <div class="col-md-9">
+                        <h1>{{ artist.name }}</h1>
+                        
+                        <div class="mb-3">
+                            <h5>Géneros:</h5>
+                            {% for genre in artist.genres %}
+                            <span class="badge bg-primary badge-genre">{{ genre }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>Actividad:</h5>
+                            {% for period in artist.activity_periods %}
+                                <span class="badge bg-secondary">
+                                    {{ period.start_year }}{% if period.end_year %} - {{ period.end_year }}{% else %} - Presente{% endif %}
+                                </span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Biografía -->
+            <div class="section-card">
+                <h3><i class="fas fa-book-open"></i> Biografía</h3>
+                <p>{{ artist.biography }}</p>
+            </div>
 
-                <!-- Álbumes -->
-                <div class="section-card">
-                    <h3>Álbumes</h3>
+            <!-- Miembros -->
+            <div class="section-card">
+                <h3><i class="fas fa-users"></i> Miembros</h3>
+                <div class="row">
+                    {% for member in artist.members %}
+                    <div class="col-md-6">
+                        <div class="member-card {% if member.is_current %}member-current{% else %}member-past{% endif %}">
+                            <h5>{{ member.full_name }}</h5>
+                            <p><strong>Instrumento:</strong> {{ member.instrument }}</p>
+                            <p>
+                                <strong>Período:</strong> {{ member.start_period }}
+                                {% if member.end_period %} - {{ member.end_period }}{% else %} - Presente{% endif %}
+                            </p>
+                            <span class="badge {% if member.is_current %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if member.is_current %}Actual{% else %}Ex miembro{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Álbumes -->
+            <div class="section-card">
+                <h3><i class="fas fa-compact-disc"></i> Álbumes</h3>
+                <div class="d-flex flex-wrap">
                     {% for album in artist.albums %}
                     <div class="album-card">
-                        <img src="{{ album.image }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
+                        <img src="{{ album.cover_image_path }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
                         <div class="text-center mt-2">
                             <strong>{{ album.title }}</strong><br>
-                            <small class="text-muted">{{ album.date }}</small>
+                            <small class="text-muted">{{ album.release_date|date:"Y" }}</small>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+            </div>
 
-                <!-- Fotos -->
-                <div class="section-card">
-                    <h3>Fotos</h3>
+            <!-- Fotos -->
+            {% if artist.photos %}
+            <div class="section-card">
+                <h3><i class="fas fa-images"></i> Galería</h3>
+                <div class="d-flex flex-wrap">
                     {% for photo in artist.photos %}
                     <div class="photo-card">
-                        <img src="{{ photo }}" alt="Foto del artista" width="200" class="img-thumbnail">
+                        <img src="{{ photo.image_path }}" alt="{{ photo.description }}" width="200" class="img-thumbnail">
                     </div>
                     {% endfor %}
                 </div>
-
-                <!-- Botones de Acción -->
-                <div class="section-card">
-                    <button id="showCommentsBtn" class="btn btn-outline-primary me-2">Cargar Comentarios</button>
-                    <button id="showEventsBtn" class="btn btn-outline-success">Mostrar Calendario de Eventos</button>
-                </div>
-
-                <!-- Comentarios (oculto inicialmente) -->
-                <div id="commentsSection" class="section-card" style="display: none;">
-                    <h3>Comentarios</h3>
-                    {% for comment in artist.comments %}
-                    <div class="comment">
-                        <strong>{{ comment.user }}:</strong>
-                        <p>{{ comment.text }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Eventos (oculto inicialmente) -->
-                <div id="eventsSection" class="section-card" style="display: none;">
-                    <h3>Próximos Eventos</h3>
-                    {% for event in artist.events %}
-                    <div class="event-item">
-                        <strong>{{ event.date }} a las {{ event.time }}</strong><br>
-                        {{ event.location }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="alert alert-warning">No se encontró el artista buscado.</div>
-                {% endif %}
-            {% endif %}
             </div>
+            {% endif %}
+
+            <!-- Comentarios -->
+            <div class="section-card">
+                <h3><i class="fas fa-comments"></i> Comentarios</h3>
+                {% for comment in artist.comments %}
+                <div class="comment">
+                    <strong>{{ comment.user }}:</strong>
+                    <p>{{ comment.text }}</p>
+                    <small class="text-muted">{{ comment.date }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay comentarios aún</p>
+                {% endfor %}
+            </div>
+
+            <!-- Eventos -->
+            <div class="section-card">
+                <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos</h3>
+                {% for event in artist.events %}
+                <div class="event-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>{{ event.date }} a las {{ event.time }}</strong><br>
+                            {{ event.location }}
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">Más información</button>
+                    </div>
+                    {% if event.description %}
+                    <p class="mt-2">{{ event.description }}</p>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay eventos programados</p>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> No se encontró información del artista solicitado.
+            </div>
+        {% endif %}
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
