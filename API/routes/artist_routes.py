@@ -3,10 +3,12 @@ from sqlalchemy import text
 from utils.database.database import db
 from utils.queries.Artist.crear_artista import crearArtistaData
 from utils.database.Artist.guardar_artist_db import guardarArtistaDB
+from utils.database.Artist.rate_artist_db import ejecutar_rate_artist_DB
 from utils.queries.Artist.guardar_album import *
 from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.get_perfil_artista import *
+from utils.queries.Artist.rate_artist import *
 
 artist_bp = Blueprint('artist_bp', __name__)
 
@@ -60,6 +62,23 @@ def buscar_artista():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@artist_bp.route("/api/rate_artist", methods=["POST"])
+def rate_artist():
+    data = request.get_json()
+
+    # Validaciones
+    error_response, valid_data = validar_rate_artist(data)
+    if error_response:
+        return error_response
+
+    try:
+        result = ejecutar_rate_artist_DB(**valid_data)
+        return jsonify(result), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error en la base de datos", "detalle": str(e)}), 500
     
 
 @artist_bp.route('/api/get_artist_profile', methods=['POST'])
