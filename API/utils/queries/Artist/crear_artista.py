@@ -61,6 +61,7 @@ def crearArtistaData(data):
         return artista, None, None
 
     except Exception as e:
+        db.session.rollback()
         return None, jsonify({
             "error": "Error procesando datos del artista",
             "detalle": str(e),

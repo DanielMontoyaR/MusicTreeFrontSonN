@@ -18,6 +18,7 @@ def validar_login_data(data):
 
 
 def loginFanData(data):
+    
     try:
         error_response, valores = validar_login_data(data)
         if error_response:
