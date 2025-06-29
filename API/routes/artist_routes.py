@@ -85,6 +85,8 @@ def rate_artist():
 def get_artist_profile():
     data = request.get_json()
 
+    print("Datos recibidos para obtener perfil de artista:", data)
+
     try:
         perfil, error_response, status_code = obtenerPerfilArtista(data)
 

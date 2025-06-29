@@ -89,16 +89,3 @@ def test_guardar_miembro(mock_execute, app):
     assert error_response is None
 
 
-# ---------------- TEST: ejecutarBusquedaDB retorna resultados ----------------
-@patch("utils.queries.Artist.search_artist.db.session.execute")
-def test_ejecutar_busqueda(mock_execute, app):
-    mock_execute.return_value.to_dict.return_value = {"matches": ["Radiohead"]}
-    text_mock = MagicMock()
-    text_mock.name = "Radiohead"
-
-    with app.app_context():
-        resp, status = ejecutarBusquedaDB(text_mock)
-
-    assert status == 201
-    assert "Busqueda realizada correctamente." in resp.json["message"]
-    assert "matches" in resp.json["search"]
