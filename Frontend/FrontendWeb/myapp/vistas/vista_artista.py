@@ -19,7 +19,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 
-ruta_local_api = "http://127.0.0.1:5000/api/"
+ruta_local_api = "http://127.0.0.1:5000/api/" 
 ruta_online_api = "https://musictreeapi.azurewebsites.net/api/"
 
 route = [ruta_local_api, ruta_online_api]
@@ -236,160 +236,220 @@ def get_subgenres(request):
         return JsonResponse(backup_data, safe=False)
 
 
-@csrf_exempt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#rate_artist
+
+#ruta_local_api = "http://127.0.0.1:5000/api/" 
+@csrf_exempt 
 def ver_artista(request):
     ruta_ver_artista = "Artista/ver_artista.html"
+
+    fan_id = request.session.get('fan_id', None)
+    print("Fanatico ID:", fan_id, "Ha ingresado a ver_artista")
     
+
     if request.method == 'GET' and 'artist_id' in request.GET:
         try:
             artist_id = request.GET.get('artist_id')
+            print("ID del artista:", artist_id)
             
-            # Datos mock para pruebas - reemplazar con llamada a API real
-            mock_artist = {
-                "artist": {
-                    "artist_id": artist_id,
-                    "name": "Radiohead",
-                    "biography": "Radiohead are an English rock band formed in Abingdon, Oxfordshire, in 1985. Known for their experimental approach to rock music.",
-                    "country_of_origin": "Reino Unido",
-                    "created_at": "2025-06-05T03:28:10.995408",
-                    "cover_image_path": "https://cdn.discordapp.com/attachments/329398607021342721/1380021075643203584/Radioheadthebends.png",
-                    "average_rating": 4.5,
-                    "rating_count": 1250,
-                    "activity_years": [
-                        {"start_year": 1985, "end_year": None, "is_present": True}
-                    ],
-                    "genres": [
-                        {"genre_id": "G-AA61F7B9765E000000000000", "name": "Rock"},
-                        {"genre_id": "G-421E37BE0FA2000000000000", "name": "Alternative"}
-                    ],
-                    "subgenres": [
-                        {"subgenre_id": "G-8D8E111CED4A000000000000", "name": "Alternative Rock"},
-                        {"subgenre_id": "G-F17980CDAEE7000000000000", "name": "Experimental"}
-                    ],
-                    "members": [
-                        {
-                            "full_name": "Thom Yorke",
-                            "instrument": "Voz, Guitarra, Piano",
-                            "start_period": "1985",
-                            "end_period": None,
-                            "is_current": True
-                        },
-                        {
-                            "full_name": "Jonny Greenwood",
-                            "instrument": "Guitarra principal, Teclados",
-                            "start_period": "1985",
-                            "end_period": None,
-                            "is_current": True
-                        },
-                        {
-                            "full_name": "Colin Greenwood",
-                            "instrument": "Bajo, Sintetizadores",
-                            "start_period": "1985",
-                            "end_period": None,
-                            "is_current": True
-                        },
-                        {
-                            "full_name": "Ed O'Brien",
-                            "instrument": "Guitarra rítmica, Coros",
-                            "start_period": "1985",
-                            "end_period": None,
-                            "is_current": True
-                        },
-                        {
-                            "full_name": "Philip Selway",
-                            "instrument": "Batería, Percusión",
-                            "start_period": "1985",
-                            "end_period": None,
-                            "is_current": True
-                        }
-                    ],
-                    "albums": [
-                        {
-                            "album_id": "A-5f2d0b6d290f-D-5a14e3661917",
-                            "title": "Pablo Honey",
-                            "release_date": "1993-02-22",
-                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/4/4d/Radiohead.pablohoney.albumart.jpg",
-                            "duration_seconds": 2678
-                        },
-                        {
-                            "album_id": "A-5f2d0b6d290f-D-6ec4d1c1b7ea",
-                            "title": "The Bends",
-                            "release_date": "1995-03-13",
-                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/4/4f/Radiohead.thebends.albumart.jpg",
-                            "duration_seconds": 2923
-                        },
-                        {
-                            "album_id": "A-5f2d0b6d290f-D-9f58eca93938",
-                            "title": "OK Computer",
-                            "release_date": "1997-05-21",
-                            "cover_image_path": "https://upload.wikimedia.org/wikipedia/en/a/a1/Radiohead.okcomputer.albumart.jpg",
-                            "duration_seconds": 5378
-                        }
-                    ],
-                    "photos": [
-                        {
-                            "photo_id": 1,
-                            "image_path": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Radiohead_Oxford_2003.jpg",
-                            "description": "Radiohead en concierto (2003)",
-                            "upload_date": "2025-06-05T03:28:10.995408"
-                        },
-                        {
-                            "photo_id": 2,
-                            "image_path": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Radiohead_-_Glastonbury_2017_-_Sunday_-_JP_%2836697151054%29.jpg",
-                            "description": "Presentación en Glastonbury 2017",
-                            "upload_date": "2025-06-05T03:28:10.995408"
-                        }
-                    ],
-                    "comments": [
-                        {
-                            "user": "Fan123",
-                            "message": "¡La mejor banda de todos los tiempos!",
-                            "date": "2025-01-15"
-                        },
-                        {
-                            "user": "MusicLover",
-                            "message": "Su evolución musical es increíble",
-                            "date": "2025-02-20"
-                        }
-                    ],
-                    "events": [
-                        {
-                            "date": "2023-12-15",
-                            "time": "20:00",
-                            "location": "Estadio Nacional, Santiago",
-                            "description": "Tour 2023 - Presentando nuevo material"
-                        }
-                    ]
-                }
-            }
+            response = requests.post(
+                route[0] + "get_artist_profile",
+                json={"artist_id": artist_id},
+                headers={"Content-Type": "application/json"},
+                timeout=5
+            )
             
-            # Transformar los datos para la plantilla
+            #print("Respuesta de la API:", response.content)
+            response.raise_for_status()
+            api_response = response.json()
+            
+            # Ajuste para la estructura anidada de la respuesta
+            if not api_response or 'get_artist_profile' not in api_response:
+                return render(request, ruta_ver_artista, {
+                    'error': 'No se encontró información para este artista',
+                    'fan_id': fan_id,
+                    'ruta_local_api': ruta_local_api,
+                    'ruta_online_api': ruta_online_api
+                })
+            
+            # Acceder a los datos a través de get_artist_profile
+            artist_data = api_response['get_artist_profile']['artist']
+            
             transformed_artist = {
-                'name': mock_artist['artist']['name'],
-                'image': mock_artist['artist']['cover_image_path'],
-                'biography': mock_artist['artist']['biography'],
-                'country': mock_artist['artist']['country_of_origin'],
-                'rating': mock_artist['artist']['average_rating'],
-                'rating_count': mock_artist['artist']['rating_count'],
-                'activity_periods': mock_artist['artist']['activity_years'],
-                'genres': [g['name'] for g in mock_artist['artist']['genres']],
-                'members': mock_artist['artist']['members'],
-                'albums': mock_artist['artist']['albums'],
-                'photos': mock_artist['artist']['photos'],
-                'comments': mock_artist['artist']['comments'],
-                'events': mock_artist['artist']['events']
+                'name': artist_data.get('name', ''),
+                'image': artist_data.get('cover_image_path', ''),
+                'biography': artist_data.get('biography', ''),
+                'country': artist_data.get('country_of_origin', ''),
+                'rating': artist_data.get('average_rating', 0),
+                'rating_count': artist_data.get('rating_count', 0),
+                'activity_periods': artist_data.get('activity_years', []),
+                'genres': [g['name'] for g in artist_data.get('genres', [])],
+                'members': artist_data.get('members', []),
+                'albums': artist_data.get('albums', []),
+                'photos': artist_data.get('photos', []),
+                'comments': artist_data.get('comments', []),
+                'events': [
+                    {
+                        'date': event.get('date', ''),
+                        'time': event.get('time', ''),
+                        'location': event.get('location', ''),
+                        'description': event.get('description', event.get('message', 'No hay información'))
+                    } 
+                    for event in artist_data.get('events', [])
+                    ] if artist_data.get('events') != [{'message': 'No hay eventos disponibles'}] else []
             }
-            
+            """
             return render(request, ruta_ver_artista, {
                 'artist': transformed_artist
+            })"""
+            return render(request, ruta_ver_artista, {
+                'artist': transformed_artist,
+                'fan_id': fan_id,
+                'ruta_local_api': ruta_local_api,
+                'ruta_online_api': ruta_online_api
+            })
+
+
+        except requests.exceptions.HTTPError as e:
+            error_msg = f"Error al obtener datos del artista: {str(e)}"
+            if e.response.status_code == 404:
+                error_msg = "Artista no encontrado"
+            return render(request, ruta_ver_artista, {
+                'error': error_msg,
+                'fan_id': fan_id,
+                'ruta_local_api': ruta_local_api,
+                'ruta_online_api': ruta_online_api
             })
             
         except Exception as e:
             return render(request, ruta_ver_artista, {
-                'error': f"Error al cargar artista: {str(e)}"
+                'error': f"Error al cargar artista: {str(e)}",
+                'fan_id': fan_id,
+                'ruta_local_api': ruta_local_api,
+                'ruta_online_api': ruta_online_api
             })
     
-    return render(request, ruta_ver_artista)
+    return render(request, ruta_ver_artista, {
+        'error': 'Se requiere un ID de artista',
+        'ruta_local_api': ruta_local_api,
+        'ruta_online_api': ruta_online_api
+    })
+
+
+
+
+
+@csrf_exempt
+def rate_artist(request):
+    print("ENTRADA A RATE ARTIST")
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido'
+        }, status=405)
+
+    try:
+        data = json.loads(request.body)
+        artist_id = data.get('artist_id')
+        fan_id = request.session.get('fan_id')
+        rating = data.get('rating')
+
+        if not all([artist_id, fan_id, rating]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Faltan datos requeridos'
+            }, status=400)
+
+        # Llamar a la API externa
+        response = requests.post(
+            route[0] + "rate_artist",
+            json={
+                'artist_id': artist_id,
+                'fan_id': fan_id,
+                'rating': rating
+            },
+            headers={'Content-Type': 'application/json'},
+            timeout=5
+        )
+
+        print("Datos enviados a la API:", {
+            'artist_id': artist_id,
+            'fan_id': fan_id,
+            'rating': rating
+        })
+
+        print("Respuesta de la API:", response.json(), "\nstatus", response.status_code)
+
+        # Manejar respuesta de la API
+        if response.status_code == 200 and 'error' in response.json():
+            print("Respuesta de la API, PARA EL USUARIO", fan_id, "LA API RESPONDIÓ CON", response.json(), "CON STATUS", response.status_code)
+            if "ya calificó" in response.json()['error']:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ya has calificado a este artista anteriormente'
+                }, status=200)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': response.json()['error']
+                }, status=400)
+
+        response.raise_for_status()
+        #print("Respuesta de la API, PARA EL USUARIO", fan_id, "LA API RESPONDIÓ CON", response.json(), "CON STATUS", response.status_code)
+        return JsonResponse({
+            'success': True,
+            'message': 'Calificación registrada exitosamente'
+        })
+
+    except requests.exceptions.HTTPError as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error en la API: {str(e)}'
+        }, status=e.response.status_code)
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error interno: {str(e)}'
+        }, status=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

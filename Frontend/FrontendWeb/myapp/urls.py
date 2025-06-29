@@ -33,6 +33,7 @@ urlpatterns=[
     path("ver_catalogo_artista/", vista_artista.ver_catalogo_artista, name="ver_catalogo_artista"),
     path("api/subgenres/", vista_artista.get_subgenres, name = "get_subgenres"),
     path("buscar_artista_genero/", vista_artista.buscar_artista_por_genero, name= "buscar_artista_genero"),
+    path("rate_artist/", vista_artista.rate_artist, name="rate_artist"),
     
     #Fanatico
     path("registrar_fanatico/", vista_fanatico.registrar_fanatico, name="registrar_fanatico"),
