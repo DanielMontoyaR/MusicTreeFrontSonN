@@ -398,21 +398,25 @@ def rate_artist(request):
         print("Respuesta de la API:", response.json(), "\nstatus", response.status_code)
 
         # Manejar respuesta de la API
-        if response.status_code == 200 and 'error' in response.json():
-            print("Respuesta de la API, PARA EL USUARIO", fan_id, "LA API RESPONDIÓ CON", response.json(), "CON STATUS", response.status_code)
-            if "ya calificó" in response.json()['error']:
+        api_response = response.json()
+        
+        if response.status_code == 200:
+            if api_response.get('status') == 'error' and "Ya has calificado" in api_response.get('message', ''):
+
+                print("EL MENSAJE ES ",api_response['message'])
                 return JsonResponse({
                     'success': False,
-                    'error': 'Ya has calificado a este artista anteriormente'
+                    'error': api_response['message'] + "con este rating (" + str(rating) + ")",
+                    'your_rating': api_response.get('your_rating')
                 }, status=200)
-            else:
+            elif 'error' in api_response:
                 return JsonResponse({
                     'success': False,
-                    'error': response.json()['error']
+                    'error': api_response['error']
                 }, status=400)
 
         response.raise_for_status()
-        #print("Respuesta de la API, PARA EL USUARIO", fan_id, "LA API RESPONDIÓ CON", response.json(), "CON STATUS", response.status_code)
+        
         return JsonResponse({
             'success': True,
             'message': 'Calificación registrada exitosamente'

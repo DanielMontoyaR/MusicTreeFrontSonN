@@ -77,19 +77,28 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (!response.ok) {
-                if (response.status === 200 && data.error && data.error.includes("ya calificó")) {
-                    showAlert(data.error, 'warning');
-                } else {
-                    throw new Error(data.error || 'Error al enviar la calificación');
-                }
-            } else {
-                showAlert(data.message || '¡Gracias por tu calificación!', 'success');
+                throw new Error(data.error || 'Error al enviar la calificación');
+            }
+
+            // Manejar respuesta exitosa
+            if (data.success) {
+                showAlert(data.message, 'success');
                 updateMainRatingStars(rating);
 
                 // Recargar la página después de 1.5 segundos
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
+            }
+            else {
+                // Mostrar mensaje de error (incluyendo cuando ya ha calificado)
+                showAlert(data.error, 'warning');
+
+                // Si tenemos la calificación previa, podemos mostrarla
+                if (data.your_rating) {
+                    highlightStars(data.your_rating);
+                    selectedRatingInput.value = data.your_rating;
+                }
             }
 
         } catch (error) {
