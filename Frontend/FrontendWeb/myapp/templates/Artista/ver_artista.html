@@ -135,13 +135,14 @@
                     <img src="{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid rounded mb-3">
                     <!-- En la sección del rating (dentro de artist-header) -->
                     <div class="rating-stars mb-2">
+                        <span class="text-muted ms-2">{{ artist.rating|floatformat:1 }}</span>
                         {% for i in "12345" %}
                         {% if forloop.counter <= artist.rating %} <i class="fa-solid fa-star"></i>
                             {% else %}
                             <i class="fa-regular fa-star"></i>
                             {% endif %}
                             {% endfor %}
-                            <span class="text-muted ms-2">{{ artist.rating|floatformat:1 }}</span>
+                            
                             <!-- Nuevo: muestra el rating con 1 decimal -->
                             <span class="text-muted">({{ artist.rating_count }})</span>
                             <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
