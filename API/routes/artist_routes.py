@@ -9,6 +9,7 @@ from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Artist.get_artists import *
 from utils.queries.Artist.get_perfil_artista import *
 from utils.queries.Artist.rate_artist import *
+from utils.logging.logger import configurar_logger
 
 artist_bp = Blueprint('artist_bp', __name__)
 
@@ -66,18 +67,16 @@ def buscar_artista():
 @artist_bp.route("/api/rate_artist", methods=["POST"])
 def rate_artist():
     data = request.get_json()
-
-    # Validaciones
-    error_response, valid_data = validar_rate_artist(data)
-    if error_response:
-        return error_response
-
     try:
-        result = ejecutar_rate_artist_DB(**valid_data)
-        return jsonify(result), 200
+        error_resp, status_code, valid_data = validar_rate_artist(data)
+        if error_resp:
+            return error_resp, status_code
+
+        return ejecutar_rate_artist_DB(valid_data)
 
     except Exception as e:
         db.session.rollback()
+<<<<<<< HEAD
         return jsonify({"error": "Error en la base de datos", "detalle": str(e)}), 500
     
 
@@ -102,3 +101,9 @@ def get_artist_profile():
         }), 500
 
 
+=======
+        return jsonify({
+            "error": "Error inesperado",
+            "detalle": str(e)
+        }), 500
+>>>>>>> API_CalificarArtista
