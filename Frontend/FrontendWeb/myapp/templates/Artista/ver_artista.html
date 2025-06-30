@@ -105,6 +105,33 @@
             animation: slideIn 0.3s ease-out;
         }
 
+        .album-card .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .album-card .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .album-card .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .album-card .list-group-item {
+            padding: 0.5rem 1rem;
+            border-left: none;
+            border-right: none;
+        }
+
+        .album-card .list-group-item:first-child {
+            border-top: none;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -142,7 +169,7 @@
                             <i class="fa-regular fa-star"></i>
                             {% endif %}
                             {% endfor %}
-                            
+
                             <!-- Nuevo: muestra el rating con 1 decimal -->
                             <span class="text-muted">({{ artist.rating_count }})</span>
                             <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal"
@@ -154,14 +181,21 @@
                 </div>
                 <div class="col-md-9">
                     <h1>{{ artist.name }}</h1>
-
+                    <p class="text-muted"><small>ID: {{ artist.id }}</small></p>
                     <div class="mb-3">
                         <h5>Géneros:</h5>
                         {% for genre in artist.genres %}
                         <span class="badge bg-primary badge-genre">{{ genre }}</span>
                         {% endfor %}
                     </div>
-
+                    {% if artist.subgenres %}
+                    <div class="mb-3">
+                        <h5>Subgéneros:</h5>
+                        {% for subgenre in artist.subgenres %}
+                        <span class="badge bg-info text-dark badge-genre">{{ subgenre }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     <div class="mb-3">
                         <h5>Actividad:</h5>
                         {% for period in artist.activity_periods %}
@@ -170,6 +204,12 @@
                             Presente{% endif %}
                         </span>
                         {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-muted">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            Perfil creado el {{ artist.created_at }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -206,13 +246,26 @@
         <!-- Álbumes -->
         <div class="section-card">
             <h3><i class="fa-solid fa-compact-disc"></i> Álbumes</h3>
-            <div class="d-flex flex-wrap">
+            <div class="row">
                 {% for album in artist.albums %}
-                <div class="album-card">
-                    <img src="{{ album.cover_image_path }}" alt="{{ album.title }}" width="150" class="img-thumbnail">
-                    <div class="text-center mt-2">
-                        <strong>{{ album.title }}</strong><br>
-                        <small class="text-muted">{{ album.release_date|date:"Y" }}</small>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ album.cover_image_path }}" class="card-img-top" alt="{{ album.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ album.title }}</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <strong>ID:</strong> <small class="text-muted">{{ album.id }}</small>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Fecha de lanzamiento:</strong> {{ album.release_date }}
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Duración:</strong>
+                                    {{ album.duration_minutes }} min {{ album.duration_seconds_remainder }} seg
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}

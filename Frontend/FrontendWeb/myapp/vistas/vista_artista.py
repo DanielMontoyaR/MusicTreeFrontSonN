@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 
-
+from datetime import datetime
 
 import json
 import re
@@ -257,7 +257,7 @@ def ver_artista(request):
                 timeout=5
             )
             
-            #print("Respuesta de la API:", response.content)
+            print("Respuesta de la API:", response.json())
             response.raise_for_status()
             api_response = response.json()
             
@@ -273,7 +273,21 @@ def ver_artista(request):
             # Acceder a los datos a través de get_artist_profile
             artist_data = api_response['get_artist_profile']['artist']
             
+            albums = []
+            for album in artist_data.get('albums', []):
+                albums.append({
+                    'id': album.get('album_id', ''),
+                    'title': album.get('title', ''),
+                    'release_date': album.get('release_date', ''),
+                    'cover_image_path': album.get('cover_image_path', ''),
+                    'duration_seconds': album.get('duration_seconds', 0),
+                    'duration_minutes': int(album.get('duration_seconds', 0) // 60),
+                    'duration_seconds_remainder': int(album.get('duration_seconds', 0) % 60)
+                })
+            
             transformed_artist = {
+                'id': artist_data.get('artist_id', ''),
+                'created_at': datetime.strptime(artist_data.get('created_at'), '%Y-%m-%dT%H:%M:%S.%f').strftime('%d/%m/%Y a las %H:%M') if artist_data.get('created_at') else 'Fecha no disponible',
                 'name': artist_data.get('name', ''),
                 'image': artist_data.get('cover_image_path', ''),
                 'biography': artist_data.get('biography', ''),
@@ -282,8 +296,9 @@ def ver_artista(request):
                 'rating_count': artist_data.get('rating_count', 0),
                 'activity_periods': artist_data.get('activity_years', []),
                 'genres': [g['name'] for g in artist_data.get('genres', [])],
+                'subgenres': [sg['name'] for sg in artist_data.get('subgenres', [])],
                 'members': artist_data.get('members', []),
-                'albums': artist_data.get('albums', []),
+                'albums': albums,
                 'photos': artist_data.get('photos', []),
                 'comments': artist_data.get('comments', []),
                 'events': [
@@ -296,10 +311,7 @@ def ver_artista(request):
                     for event in artist_data.get('events', [])
                     ] if artist_data.get('events') != [{'message': 'No hay eventos disponibles'}] else []
             }
-            """
-            return render(request, ruta_ver_artista, {
-                'artist': transformed_artist
-            })"""
+            
             return render(request, ruta_ver_artista, {
                 'artist': transformed_artist,
                 'fan_id': fan_id,
@@ -383,9 +395,11 @@ def rate_artist(request):
             if api_response.get('status') == 'error' and "Ya has calificado" in api_response.get('message', ''):
 
                 print("EL MENSAJE ES ",api_response['message'])
+                
+                your_rating = api_response.get('your_rating')
                 return JsonResponse({
                     'success': False,
-                    'error': api_response['message'] + " con este rating (" + str(rating) + ")",
+                    'error': api_response['message'] + " con este rating (" + str(your_rating) + ")",
                     'your_rating': api_response.get('your_rating')
                 }, status=200)
             elif 'error' in api_response:
