@@ -406,7 +406,7 @@ def rate_artist(request):
                 print("EL MENSAJE ES ",api_response['message'])
                 return JsonResponse({
                     'success': False,
-                    'error': api_response['message'] + "con este rating (" + str(rating) + ")",
+                    'error': api_response['message'] + " con este rating (" + str(rating) + ")",
                     'your_rating': api_response.get('your_rating')
                 }, status=200)
             elif 'error' in api_response:
