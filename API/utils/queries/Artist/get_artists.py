@@ -1,5 +1,10 @@
 from flask import jsonify
-from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
+#from utils.models.genre_models import Artist
+from sqlalchemy import func, text
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER, BOOLEAN
+from sqlalchemy import Numeric as DECIMAL
 from utils.database.database import db
 
 def getArtists():
