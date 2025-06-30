@@ -257,7 +257,7 @@ def ver_artista(request):
                 timeout=5
             )
             
-            print("Respuesta de la API:", response.json())
+            #print("Respuesta de la API:", response.json())
             response.raise_for_status()
             api_response = response.json()
             
@@ -394,7 +394,7 @@ def rate_artist(request):
         if response.status_code == 200:
             if api_response.get('status') == 'error' and "Ya has calificado" in api_response.get('message', ''):
 
-                print("EL MENSAJE ES ",api_response['message'])
+                #print("EL MENSAJE ES ",api_response['message'])
                 
                 your_rating = api_response.get('your_rating')
                 return JsonResponse({
