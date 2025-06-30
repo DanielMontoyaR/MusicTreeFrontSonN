@@ -76,7 +76,6 @@ def rate_artist():
 
     except Exception as e:
         db.session.rollback()
-<<<<<<< HEAD
         return jsonify({"error": "Error en la base de datos", "detalle": str(e)}), 500
     
 
@@ -99,11 +98,3 @@ def get_artist_profile():
             "error": "Error inesperado al procesar el perfil del artista",
             "detalle": str(e)
         }), 500
-
-
-=======
-        return jsonify({
-            "error": "Error inesperado",
-            "detalle": str(e)
-        }), 500
->>>>>>> API_CalificarArtista
