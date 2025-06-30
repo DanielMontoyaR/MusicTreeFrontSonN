@@ -235,26 +235,7 @@ def get_subgenres(request):
         ]
         return JsonResponse(backup_data, safe=False)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #rate_artist
-
 #ruta_local_api = "http://127.0.0.1:5000/api/" 
 @csrf_exempt 
 def ver_artista(request):
@@ -354,8 +335,6 @@ def ver_artista(request):
 
 
 
-
-
 @csrf_exempt
 def rate_artist(request):
     print("ENTRADA A RATE ARTIST")
@@ -433,28 +412,6 @@ def rate_artist(request):
             'success': False,
             'error': f'Error interno: {str(e)}'
         }, status=500)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @csrf_exempt
