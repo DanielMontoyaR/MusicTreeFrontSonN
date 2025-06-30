@@ -6,6 +6,8 @@ from utils.queries.Artist.get_artists import getArtists
 from utils.queries.Artist.guardar_album import guardar_album_individual
 from utils.queries.Artist.guardar_miembro import guardarMiembro
 from utils.queries.Artist.search_artist import ejecutarBusquedaDB
+from utils.queries.Artist.rate_artist import *
+from utils.queries.Artist.get_perfil_artista import obtenerPerfilArtista
 
 
 @pytest.fixture
@@ -88,4 +90,68 @@ def test_guardar_miembro(mock_execute, app):
 
     assert error_response is None
 
+# --------- CASO CORRECTO DE VALIDACIÓN ----------
+def test_validar_rate_artist_valido():
+    data = {"fan_id": 1, "artist_id": "A-123", "rating": 5}
+    error_response, status_code, valid_data = validar_rate_artist(data)
 
+    assert error_response is None
+    assert status_code is None
+    assert valid_data == {"fan_id": 1, "artist_id": "A-123", "rating": 5}
+
+
+# ----------- CASO ÉXITO -----------
+@patch("utils.queries.Artist.get_perfil_artista.obtenerPerfilArtistaCompleto")
+def test_obtener_perfil_artista_exito(mock_obtener, app):
+    mock_row = MagicMock()
+    mock_row._mapping = {"name": "Radiohead", "id": "A-123"}
+    
+    mock_result = MagicMock()
+    mock_result.fetchone.return_value = mock_row
+    mock_obtener.return_value = mock_result
+
+    with app.app_context():
+        perfil, error_response, status_code = obtenerPerfilArtista({"artist_id": "A-123"})
+
+    assert error_response is None
+    assert status_code is None
+    assert perfil["name"] == "Radiohead"
+
+
+# ----------- CASO FALTA ID -----------
+def test_obtener_perfil_artista_sin_id(app):
+    with app.app_context():
+        perfil, error_response, status_code = obtenerPerfilArtista({})
+
+    assert perfil is None
+    assert status_code == 400
+    assert "artist_id" in error_response.json["error"]
+
+
+# ----------- CASO ARTISTA NO EXISTE -----------
+@patch("utils.queries.Artist.get_perfil_artista.obtenerPerfilArtistaCompleto")
+def test_obtener_perfil_artista_no_encontrado(mock_obtener, app):
+    mock_result = MagicMock()
+    mock_result.fetchone.return_value = None
+    mock_obtener.return_value = mock_result
+
+    with app.app_context():
+        perfil, error_response, status_code = obtenerPerfilArtista({"artist_id": "no-existe"})
+
+    assert perfil is None
+    assert status_code == 404
+    assert "no encontrado" in error_response.json["error"]
+
+
+# ----------- CASO EXCEPCIÓN INTERNA -----------
+@patch("utils.queries.Artist.get_perfil_artista.obtenerPerfilArtistaCompleto")
+def test_obtener_perfil_artista_excepcion(mock_obtener, app):
+    mock_obtener.side_effect = Exception("fallo de base de datos")
+
+    with app.app_context():
+        perfil, error_response, status_code = obtenerPerfilArtista({"artist_id": "A-123"})
+
+    assert perfil is None
+    assert status_code == 500
+    assert "Error interno" in error_response.json["error"]
+    assert "fallo de base de datos" in error_response.json["detalle"]

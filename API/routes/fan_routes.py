@@ -4,11 +4,13 @@ from utils.queries.Fanatico.crear_fanatico import *
 from utils.database.Fanatico.guardar_fanatico_db import guardarFanaticoDB
 from utils.queries.Fanatico.filtrar_artistas import *
 from utils.database.database import db
+from utils.logging.logger import configurar_logger
 
 fan_bp = Blueprint('fan_bp', __name__)
 
 @fan_bp.route('/api/login_fan', methods=['POST'])    
 def login_fan():
+    logger = configurar_logger()
     data = request.get_json()
     try:
         result, error_response, status_code = loginFanData(data)
@@ -18,7 +20,8 @@ def login_fan():
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        logger.error("Error en login_fan: %s", str(e), exc_info=True)
+        return jsonify({"error": "Error interno del servidor"}), 500
 
 @fan_bp.route('/api/registro_fanatico', methods=['POST'])
 def crear_fanatico():
