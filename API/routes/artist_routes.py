@@ -6,6 +6,12 @@ from utils.database.Artist.guardar_artist_db import guardarArtistaDB
 from utils.queries.Artist.guardar_album import *
 from utils.queries.Artist.guardar_miembro import *
 from utils.queries.Artist.get_artists import *
+<<<<<<< HEAD
+=======
+from utils.queries.Artist.get_perfil_artista import *
+from utils.queries.Artist.rate_artist import *
+from utils.logging.logger import configurar_logger
+>>>>>>> API
 
 artist_bp = Blueprint('artist_bp', __name__)
 
@@ -59,3 +65,50 @@ def buscar_artista():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+<<<<<<< HEAD
+=======
+    
+@artist_bp.route("/api/rate_artist", methods=["POST"])
+def rate_artist():
+    data = request.get_json()
+    try:
+        error_resp, status_code, valid_data = validar_rate_artist(data)
+        if error_resp:
+            return error_resp, status_code
+
+        return ejecutar_rate_artist_DB(valid_data)
+
+    except Exception as e:
+        db.session.rollback()
+<<<<<<< HEAD
+        return jsonify({"error": "Error en la base de datos", "detalle": str(e)}), 500
+    
+
+@artist_bp.route('/api/get_artist_profile', methods=['POST'])
+def get_artist_profile():
+    data = request.get_json()
+
+    print("Datos recibidos para obtener perfil de artista:", data)
+
+    try:
+        perfil, error_response, status_code = obtenerPerfilArtista(data)
+
+        if error_response:
+            return error_response, status_code
+
+        return jsonify(perfil), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": "Error inesperado al procesar el perfil del artista",
+            "detalle": str(e)
+        }), 500
+
+
+=======
+        return jsonify({
+            "error": "Error inesperado",
+            "detalle": str(e)
+        }), 500
+>>>>>>> API_CalificarArtista
+>>>>>>> API

@@ -4,6 +4,7 @@ from sqlalchemy import text
 from utils.database.database import db
 
 def loginFanData(data):
+    
     try:
         # Validación básica
         if not data:
